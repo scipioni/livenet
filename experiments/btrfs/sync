@@ -1,0 +1,18 @@
+#!/bin/bash
+
+cd server
+
+sudo btrfs subvolume delete ../client/gold 2>/dev/null
+
+old=
+for n in $(ls -d gold@* | sed 's/gold@//'); do
+    if [ -z "$old" ]; then
+        sudo btrfs send gold@$n | sudo btrfs receive ../client 2>/dev/null
+    else
+        echo "$old -> $n"
+        sudo btrfs send -p gold@$old gold@$n | sudo btrfs receive ../client 2>/dev/null
+    fi
+    old=$n
+done
+
+sudo btrfs subvolume snapshot ../client/gold@$old ../client/gold

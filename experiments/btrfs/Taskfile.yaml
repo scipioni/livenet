@@ -1,0 +1,60 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+
+  setup:
+    cmds:
+      - mkdir -p client server
+      - sudo btrfs subvolume create ./server/gold
+      - sudo chown -R $USER server
+      # - task: random
+      #   vars:
+      #     count: 2
+      - tree server
+
+  random:
+    internal: true
+    cmds:
+      - |
+        tag=$(date +%S)
+        dd if=/dev/urandom bs=1024 count={{.count}} | split -a 2 -b 1k - server/gold/file.$tag.
+        sleep 1
+      
+  clean:
+    ignore_error: true
+    cmds:
+      - sudo btrfs subvolume delete client/*
+      - sudo btrfs subvolume delete server/*
+      #- sudo btrfs subvolume delete ./gold
+
+
+  release:
+    cmds:
+      #- task: snap
+      - task: random
+        vars:
+          count: 2
+      - task: snap
+      - tree server
+      
+  snap:
+    cmds:
+      - |
+        # creiamo una snap dalla gold
+        n1=$(date +%Y%m%d-%H%M%S)
+        sudo btrfs subvolume snapshot -r server/gold server/gold@$n1
+
+  sync:
+    cmds:
+      - bash ./sync
+      - tree client
