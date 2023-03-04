@@ -1,0 +1,33 @@
+version: "3.8"
+name: "livenet"
+
+services:
+  
+  server:
+    image: livenet/server
+    #entrypoint: "core_run --debug $WS --save-fs /messages"
+    #init: true
+    privileged: true
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+      #target: core
+      #args:
+      #  - ENV=${ENV}
+    volumes:
+      - ./tftp:/srv/tftp
+      - ./nfs:/nfs 
+      - ./etc/exports:/etc/exports
+      - ./etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server
+      - ./etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server
+      - ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
+      - ./etc/network/interfaces:/etc/network/interfaces 
+    networks:
+      - livenet
+
+
+
+
+networks:
+  livenet: null

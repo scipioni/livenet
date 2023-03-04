@@ -1,0 +1,24 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - go-task -l
+    silent: true
+
+  start:
+    desc: start
+    cmds:
+      - sudo modprobe nfsd
+      - docker compose up
+  build:
+    desc: build
+    cmds:
+      - docker compose build
+
+  cli:
+    desc: cli
+    cmds:
+      - docker compose run --entrypoint bash server
