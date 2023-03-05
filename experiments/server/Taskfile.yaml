@@ -8,6 +8,12 @@ tasks:
       - go-task -l
     silent: true
 
+  setup:
+    cmds:
+      - |
+        sudo brctl addbr livenet && \
+        sudo ip a add 10.0.15.254/24 dev livenet
+
   start:
     desc: start
     cmds:
@@ -21,4 +27,4 @@ tasks:
   cli:
     desc: cli
     cmds:
-      - docker compose run --entrypoint bash server
+      - docker compose run --rm --entrypoint bash server

@@ -11,20 +11,24 @@ stop() {
     echo "NFS Terminate..."
     exportfs -uav
     service nfs-kernel-server stop
-    echo "TFTP Terminate..."
-    service tftpd-hpa stop
-    echo "DHCP Terminate..."
-    service isc-dhcp-server stop
+    #echo "TFTP Terminate..."
+    # service tftpd-hpa stop
+    # echo "DHCP Terminate..."
+    # service isc-dhcp-server stop
+    echo "dnsmasq terminate ..."
+    service dnsmasq stop
 
     exit 0
 }
 
 start() {
     echo "Starting services..."
-    echo "DHCP init..."
-    service isc-dhcp-server start
-    echo "TFTP init..."
-    service tftpd-hpa start
+    # echo "DHCP init..."
+    # service isc-dhcp-server start
+    # echo "TFTP init..."
+    # service tftpd-hpa start
+    echo "dnsmasq init ..."
+    service dnsmasq start
     echo "NFS init..."
     service rpcbind start
     service nfs-common start
