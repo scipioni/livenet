@@ -11,14 +11,15 @@ tasks:
   setup:
     cmds:
       - |
-        sudo brctl addbr livenet && \
-        sudo ip a add 10.0.15.254/24 dev livenet
+        sudo brctl addbr br-livenet && \
+        sudo ip a add 10.0.15.254/24 dev br-livenet
 
   start:
     desc: start
     cmds:
       - sudo modprobe nfsd
       - docker compose up
+
   build:
     desc: build
     cmds:
@@ -28,3 +29,9 @@ tasks:
     desc: cli
     cmds:
       - docker compose run --rm --entrypoint bash server
+
+  vm:
+    desc: start vm
+    cmds:
+      - sudo qemu-system-x86_64 -enable-kvm -m 4G -boot n -netdev tap,id=mynet0,ifname=tap0,script=no,downscript=no -device e1000,netdev=mynet0,mac=52:55:00:d1:55:01 -vga standard #-nographic -curses
+      # qemu-system-x86_64 -enable-kvm -m 2G -kernel /usr/share/ipxe/ipxe.lkrn
