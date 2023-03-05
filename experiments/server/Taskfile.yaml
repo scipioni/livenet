@@ -12,7 +12,9 @@ tasks:
     cmds:
       - |
         sudo brctl addbr br-livenet && \
-        sudo ip a add 10.0.15.254/24 dev br-livenet
+        sudo ip a add 10.0.15.254/24 dev br-livenet && \
+        sudo ip tuntap add tap0 mode tap && \
+        sudo brctl addif br-livenet tap0
 
   start:
     desc: start
@@ -33,5 +35,5 @@ tasks:
   vm:
     desc: start vm
     cmds:
-      - sudo qemu-system-x86_64 -enable-kvm -m 4G -boot n -netdev tap,id=mynet0,ifname=tap0,script=no,downscript=no -device e1000,netdev=mynet0,mac=52:55:00:d1:55:01 -vga standard #-nographic -curses
+      - sudo qemu-system-x86_64 -enable-kvm -m 4G -boot n -netdev tap,id=mynet0,ifname=tap0,script=no,downscript=no -device e1000,netdev=mynet0,mac=52:55:00:d1:55:01 -vga virtio #-nographic -curses
       # qemu-system-x86_64 -enable-kvm -m 2G -kernel /usr/share/ipxe/ipxe.lkrn
