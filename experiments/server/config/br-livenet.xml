@@ -1,0 +1,13 @@
+<network>
+  <name>livenet</name>
+  <uuid>64aa9e2c-6948-497b-a5a4-09df36e34329</uuid>
+  <forward dev='br-livenet' mode='route'>
+    <interface dev='br-livenet'/>
+  </forward>
+  <bridge name='virbr1' stp='on' delay='0'/>
+  <mac address='52:54:00:7b:30:6c'/>
+  <domain name='network'/>
+  <ip address='10.0.15.1' netmask='255.255.255.0'>
+  </ip>
+</network>
+
