@@ -17,6 +17,6 @@ sudo virt-install --connect qemu:///system \
     --network=bridge:br-livenet --pxe \
     --ram=2048 \
     --vcpus=2 \
-    --os-type=linux --os-variant=rhl8.0 \
+    --os-type=linux --os-variant=ubuntu22.04 \
     --disk path=/var/lib/libvirt/images/testvm.qcow2,size=40
 ``` 

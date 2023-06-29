@@ -1,0 +1,34 @@
+version: "3.7"
+name: "livenet"
+
+services:
+  server:
+    image: ${DOCKER_IMAGE}:${DOCKER_TAG}
+    env_file: ".env"
+    #container_name: pxe-server
+    privileged: true
+    build:
+      context: ./src
+    networks:
+      dockervlan:
+        ipv4_address: 10.1.22.9
+    volumes:
+      - ${TFTP_DIR}:/srv/tftp
+      - ${NFS_DIR}:/nfs
+      - ./etc/exports:/etc/exports
+      - ./etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server
+      - ./etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server
+      - ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
+      - ./etc/network/interfaces:/etc/network/interfaces
+
+networks:
+  dockervlan:
+    name: dockervlan
+    driver: macvlan
+    driver_opts:
+      parent: ${BRIDGE}
+    ipam:
+      config:
+        - subnet: "10.1.22.0/24"
+          ip_range: "10.1.22.64/26"
+          gateway: "10.1.22.254"
