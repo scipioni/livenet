@@ -1,3 +1,14 @@
+
+# pxe efi boot with grub
+
+- https://realtechtalk.com/EFI_PXE_grub2_Howto_guide_for_Linux_EFI_PXE_Booting_on_Debian_Mint_Ubuntu_RHEL-2355-articles
+- https://gist.github.com/jo-makar/6332a89d2fd034a39aa5b3e619950888
+- https://www.kraxel.org/blog/2021/09/vm-network-boot/
+## todo qemu efi pxe boot
+
+## todo isc-dhcp offering syslinux
+
+
 #### Repository originale
 #### https://github.com/FlorentTomasin/docker_dhcp_nfs_tftp_server.git
 
@@ -17,8 +28,15 @@ sudo ip addr add 10.1.22.2/24 dev  br-livenet
 #sudo ip link set br_test up
 ```
 
+client --- bridge (10.1.22.254) --- server (10.1.22.254)[dhcp,tftp,nfs] 
+
+
+
 Il driver macvlan viene usato in modo simile a quanto segue
 
 ```
 docker network create -d macvlan --subnet=10.1.22.0/24 --gateway=10.1.22.1 -o parent=br_test macvlan0
 ```
+
+
+

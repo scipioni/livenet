@@ -1,0 +1,8 @@
+
+ui menu.c32
+timeout 50
+
+
+label memtest
+    menu label memtest86+
+    linux memtest/memtest86+.bin

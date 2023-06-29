@@ -6,6 +6,13 @@ RUN apt update && \
         isc-dhcp-server \
         tftpd-hpa \
         nfs-kernel-server \
+        iproute2 \
+        syslinux \
+        syslinux-efi \
+        syslinux-common \
+        pxelinux \
+        memtest86+ \
+        iputils-ping \
         debootstrap && \
     # Clean rootfs
     apt-get clean all && \
@@ -27,6 +34,18 @@ EXPOSE 111/tcp \
        67/udp \
        69/udp
 
+
+RUN cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/
+RUN cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/
+
+RUN cp /usr/lib/syslinux/modules/efi64/ldlinux.e64 /srv/tftp/
+RUN cp /usr/lib/syslinux/modules/efi64/libutil.c32 /srv/tftp/
+RUN cp /usr/lib/syslinux/modules/efi64/menu.c32 /srv/tftp/
+
+RUN mkdir /srv/tftp/pxelinux.cfg
+RUN mkdir /srv/tftp/memtest
+RUN cp /boot/memtest86+.bin /srv/tftp/memtest
+
 WORKDIR /
 
 VOLUME ["/etc/dhcp"]
@@ -36,4 +55,4 @@ COPY entrypoint.sh /entrypoint.sh
     # Set correct entrypoint permission
 RUN chmod u+x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/entrypoint.sh"]

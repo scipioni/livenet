@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# /usr/share/ovmf/x64/OVMF.fd
 
 sudo virt-install --connect qemu:///system \
     --name testvm \

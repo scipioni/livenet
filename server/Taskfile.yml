@@ -34,5 +34,17 @@ tasks:
       - |
         sudo ip link add name ${BRIDGE} type bridge
         sudo ip link set dev ${BRIDGE} up
+        sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
+        #echo 1 > /proc/sys/net/ipv4/ip_forward
+        sudo iptables -t nat -A POSTROUTING -o ${BRIDGE} -j MASQUERADE
     status:
-      - ip link show br-livenet
+      - ip link show ${BRIDGE}
+
+  network:down:
+    cmds:
+      - sudo ip link del name ${BRIDGE}
+
+  cli:
+    desc: cli 
+    cmds:
+      - docker compose run --rm -it server bash
