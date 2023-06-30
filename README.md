@@ -1,5 +1,6 @@
 # Livenet 2023
 
+* http://c-nergy.be/blog/?p=13771
 * [nbd](https://www.adrian.idv.hk/2022-09-30-diskless/)
 * [docker dhcp](https://github.com/FlorentTomasin/docker_dhcp_nfs_tftp_server)
 * [iPXE boot images](https://netboot.xyz/downloads/)

@@ -1,6 +1,7 @@
 
 # pxe efi boot with grub
 
+- https://wiki.fysik.dtu.dk/ITwiki/PXE_and_UEFI/
 - https://realtechtalk.com/EFI_PXE_grub2_Howto_guide_for_Linux_EFI_PXE_Booting_on_Debian_Mint_Ubuntu_RHEL-2355-articles
 - https://gist.github.com/jo-makar/6332a89d2fd034a39aa5b3e619950888
 - https://www.kraxel.org/blog/2021/09/vm-network-boot/

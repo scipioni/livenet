@@ -7,9 +7,7 @@ RUN apt update && \
         tftpd-hpa \
         nfs-kernel-server \
         iproute2 \
-        syslinux \
-        syslinux-efi \
-        syslinux-common \
+        grub-efi \
         pxelinux \
         memtest86+ \
         iputils-ping \
@@ -25,6 +23,12 @@ RUN apt update && \
     mkdir -p /run/sendsigs.omit.d && \
     touch /run/sendsigs.omit.d/rpcbind
 
+        # syslinux \
+        # syslinux-efi \
+        # syslinux-common \
+        # pxelinux \
+
+
 # Export the NFS server ports
 EXPOSE 111/tcp \
        111/udp \
@@ -35,21 +39,29 @@ EXPOSE 111/tcp \
        69/udp
 
 
-RUN cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/
-RUN cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/
+RUN mkdir -p /tftp/uefi
+RUN cp /usr/lib/grub/x86_64-efi/monolithic/* /tftp/uefi
+RUN chmod 755 /tftp/uefi/*.efi
 
-RUN cp /usr/lib/syslinux/modules/efi64/ldlinux.e64 /srv/tftp/
-RUN cp /usr/lib/syslinux/modules/efi64/libutil.c32 /srv/tftp/
-RUN cp /usr/lib/syslinux/modules/efi64/menu.c32 /srv/tftp/
+# or make your own
+# grub-mkstandalone -d /usr/lib/grub/x86_64-efi/ -O x86_64-efi --modules="tftp net efinet linux part_gpt efifwsetup" -o /tftp/uefi/bootx64.efi
 
-RUN mkdir /srv/tftp/pxelinux.cfg
-RUN mkdir /srv/tftp/memtest
-RUN cp /boot/memtest86+.bin /srv/tftp/memtest
+RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/
+
+# RUN cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/
+
+# RUN cp /usr/lib/syslinux/modules/efi64/ldlinux.e64 /srv/tftp/
+# RUN cp /usr/lib/syslinux/modules/efi64/libutil.c32 /srv/tftp/
+# RUN cp /usr/lib/syslinux/modules/efi64/menu.c32 /srv/tftp/
+
+# RUN mkdir /srv/tftp/pxelinux.cfg
+# RUN mkdir /srv/tftp/memtest
+# RUN cp /boot/memtest86+.bin /srv/tftp/memtest
 
 WORKDIR /
 
-VOLUME ["/etc/dhcp"]
-VOLUME ["/etc/default"]
+#VOLUME ["/etc/dhcp"]
+#VOLUME ["/etc/default"]
 
 COPY entrypoint.sh /entrypoint.sh
     # Set correct entrypoint permission

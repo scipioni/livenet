@@ -55,3 +55,32 @@ cat /usr/share/doc/tftpd-hpa/examples/sample.rules
 cat /usr/share/doc/tftpd-hpa/README.Debian
 cat /etc/init/tftpd-hpa.conf
 ls /usr/lib/syslinux/modules/efi64/
+apt search grub2
+apt search efi
+apt search grub efi
+apt install grub-efi
+find / -name "gr*efi"
+ls /srv/tftp/
+find / -name pxelinux.0
+apt install syslinux
+find / -name pxelinux.0
+apt install syslinux-efi
+find / -name pxelinux.0
+apt install pxelinux
+find / -name pxelinux.0
+find / -name "gr*efi"
+ls /usr/lib/grub/x86_64-efi/monolithic/
+grub2-mkstandalone -d /usr/lib/grub/x86_64-efi/ -O x86_64-efi --modules="tftp net efinet linux part_gpt efifwsetup" -o /tmp/bootx64.efi
+apt search grub efi
+apt search grub mk
+apt search grub-common
+dpkg -L grub-common
+grub-mkstandalone -d /usr/lib/grub/x86_64-efi/ -O x86_64-efi --modules="tftp net efinet linux part_gpt efifwsetup" -o /tmp/bootx64.efi
+ll /tmp/bootx64.efi 
+ls -al /tmp/bootx64.efi 
+ll
+ls -al
+ls /tftp/uefi/
+cd /var/log/
+ls -al
+cat faillog 

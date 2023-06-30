@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 # Make sure we react to these signals by running stop() when we see them - for clean shutdown
 # And then exiting
-trap "stop; exit 0;" TERM INT
+#trap "stop; exit 0;" TERM INT
 
 stop()
 {
@@ -20,6 +20,8 @@ stop()
     exit 0
 }
 
+trap stop SIGTERM
+
 start()
 {
     echo "Starting services..."
@@ -34,9 +36,10 @@ start()
     exportfs -rva
 
     echo "Started..."
-    while true; do sleep 1; done
-
-    exit 0
+    #while true; do sleep 1; done
+    sleep infinity &
+    wait
+    #exit 0
 }
 
 start

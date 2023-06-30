@@ -1,5 +1,5 @@
 TFTP_USERNAME="tftp"
-TFTP_DIRECTORY="/srv/tftp"
+TFTP_DIRECTORY="/tftp"
 TFTP_ADDRESS=":69"
-TFTP_OPTIONS="--secure --permissive"
+TFTP_OPTIONS="--secure"
 

@@ -7,7 +7,8 @@ services:
     env_file: ".env"
     #container_name: livenet-server
     privileged: true
-    init: true
+    #init: true
+    stop_signal: SIGTERM
     build:
       context: ./src
     network_mode: host
@@ -24,7 +25,7 @@ services:
       - ./etc/default/tftpd-hpa:/etc/default/tftpd-hpa
       - ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
       - ./etc/network/interfaces:/etc/network/interfaces
-      - ./pxelinux.cfg:/srv/tftp/pxelinux.cfg
+      - ./pxelinux.cfg:/tftp/pxelinux.cfg
 
 networks:
   dockervlan:
