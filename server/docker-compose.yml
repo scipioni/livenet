@@ -26,15 +26,16 @@ services:
       - ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
       - ./etc/network/interfaces:/etc/network/interfaces
       - ./pxelinux.cfg:/tftp/pxelinux.cfg
+      - /dev/log:/dev/log
 
-networks:
-  dockervlan:
-    name: dockervlan
-    driver: macvlan
-    driver_opts:
-      parent: ${BRIDGE}
-    ipam:
-      config:
-        - subnet: "10.1.22.0/24"
-          ip_range: "10.1.22.64/26"
-          gateway: ${GATEWAY}
+# networks:
+#   dockervlan:
+#     name: dockervlan
+#     driver: macvlan
+#     driver_opts:
+#       parent: ${BRIDGE}
+#     ipam:
+#       config:
+#         - subnet: "10.1.22.0/24"
+#           ip_range: "10.1.22.64/26"
+#           gateway: ${GATEWAY}

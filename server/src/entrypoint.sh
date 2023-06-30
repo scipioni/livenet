@@ -8,10 +8,10 @@ stop()
 {
 # We're here because we've seen SIGTERM, likely via a Docker stop command or similar
 # Let's shutdown cleanly
-    echo "SIGTERM caught, terminating process(es)..."
-    echo "NFS Terminate..."
-    exportfs -uav
-    service nfs-kernel-server stop
+    # echo "SIGTERM caught, terminating process(es)..."
+    # echo "NFS Terminate..."
+    # exportfs -uav
+    # service nfs-kernel-server stop
     echo "TFTP Terminate..."
     service tftpd-hpa stop
     echo "DHCP Terminate..."
@@ -20,7 +20,7 @@ stop()
     exit 0
 }
 
-trap stop SIGTERM
+trap stop SIGTERM SIGINT
 
 start()
 {
@@ -29,11 +29,11 @@ start()
     service isc-dhcp-server start
     echo "TFTP init..."
     service tftpd-hpa start
-    echo "NFS init..."
-    service rpcbind start
-    service nfs-common start
-    service nfs-kernel-server start
-    exportfs -rva
+    # echo "NFS init..."
+    # service rpcbind start
+    # service nfs-common start
+    # service nfs-kernel-server start
+    # exportfs -rva
 
     echo "Started..."
     #while true; do sleep 1; done

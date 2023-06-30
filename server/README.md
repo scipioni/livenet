@@ -1,6 +1,7 @@
 
 # pxe efi boot with grub
 
+- compile ipxe: https://gist.github.com/rikka0w0/50895b82cbec8a3a1e8c7707479824c1
 - https://wiki.fysik.dtu.dk/ITwiki/PXE_and_UEFI/
 - https://realtechtalk.com/EFI_PXE_grub2_Howto_guide_for_Linux_EFI_PXE_Booting_on_Debian_Mint_Ubuntu_RHEL-2355-articles
 - https://gist.github.com/jo-makar/6332a89d2fd034a39aa5b3e619950888
