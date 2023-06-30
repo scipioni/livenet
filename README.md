@@ -9,6 +9,8 @@
 
 ## VM client
 
+add "allow br-livenet" to /etc/qemu/bridge.conf
+
 virt-install --osinfo list
 
 create VM that boot from network

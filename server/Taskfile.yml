@@ -48,3 +48,7 @@ tasks:
     desc: cli 
     cmds:
       - docker compose run --rm -it server bash
+
+  vm:
+    cmds:
+      - qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=br-livenet,id=net0 -boot n -bios /usr/share/ovmf/x64/OVMF.fd
