@@ -35,8 +35,8 @@ tasks:
         sudo ip link add name ${BRIDGE} type bridge
         sudo ip link set dev ${BRIDGE} up
         sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
-        #echo 1 > /proc/sys/net/ipv4/ip_forward
-        sudo iptables -t nat -A POSTROUTING -o ${BRIDGE} -j MASQUERADE
+        sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
+        #docker network create --driver=macvlan --subnet=10.1.22.0/24 -o parent=br-livenet livenet
     status:
       - ip link show ${BRIDGE}
 
@@ -50,6 +50,40 @@ tasks:
       - docker compose run --rm -it server bash
 
   vm:
+    desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
     cmds:
-      #- qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=br-livenet,id=net0 -boot n -bios /usr/share/ovmf/x64/OVMF.fd
-      - qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=br-livenet,id=net0 -boot n -bios external/ipxe/src/bin-x86_64-efi/ipxe.efi
+      - |
+        #cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /tmp/OVMF_VARS.fd
+        cp OVMF_VARS.fd /tmp/OVMF_VARS.fd
+        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=br-livenet,id=net0 \
+          -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
+          -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd
+
+  vm:create:
+    cmds:
+      - |
+        cp /usr/share/edk2-ovmf/x64/OVMF_VARS.4m.fd /tmp/OVMF_VARS.fd
+        sudo virt-install \
+        --name testvm \
+        --network=bridge:br-livenet \
+        --pxe \
+        --ram=2048 \
+        --vcpus=2 \
+        --os-variant=ubuntu22.04 \
+        --disk path=/var/lib/libvirt/images/testvm.qcow2,size=40 \
+        --machine q35 \
+        --boot loader=/tmp/OVMF_VARS.fd,loader_ro=yes,loader_type=pflash,nvram_template=/usr/share/edk2-ovmf/x64/OVMF_CODE.4m.fd,loader_secure=no
+
+
+
+  vm:create2:
+    cmds:
+      - |
+        sudo virt-install \
+        --name=8.4-uefi-httpboot \
+        --ram=2048 \
+        --vcpus=1 \
+        --os-variant=ubuntu22.04 \
+        --pxe \
+        --network=bridge:br-livenet \
+        --boot=uefi,loader_ro=yes,loader_type=pflash,nvram_template=/usr/share/edk2-ovmf/x64/OVMF_VARS.fd,loader_secure=no

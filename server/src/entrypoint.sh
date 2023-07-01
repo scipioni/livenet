@@ -14,8 +14,8 @@ stop()
     # service nfs-kernel-server stop
     echo "TFTP Terminate..."
     service tftpd-hpa stop
-    echo "DHCP Terminate..."
-    service isc-dhcp-server stop
+    # echo "DHCP Terminate..."
+    # service isc-dhcp-server stop
 
     exit 0
 }
@@ -25,8 +25,8 @@ trap stop SIGTERM SIGINT
 start()
 {
     echo "Starting services..."
-    echo "DHCP init..."
-    service isc-dhcp-server start
+    # echo "DHCP init..."
+    # service isc-dhcp-server start
     echo "TFTP init..."
     service tftpd-hpa start
     # echo "NFS init..."
@@ -34,6 +34,8 @@ start()
     # service nfs-common start
     # service nfs-kernel-server start
     # exportfs -rva
+    cd /tftp
+    spark -port 8095 -path / &
 
     echo "Started..."
     #while true; do sleep 1; done

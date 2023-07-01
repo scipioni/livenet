@@ -11,10 +11,13 @@ services:
     stop_signal: SIGTERM
     build:
       context: ./src
-    network_mode: host
+    ports:
+      - 8095:8095
+      - 69:69/udp
+    #network_mode: host
     # networks:
-    #   dockervlan:
-    #     ipv4_address: 10.1.22.9
+    #   livenet:
+    #     ipv4_address: ${SERVER_IP}
     volumes:
       #- ${TFTP_DIR}:/srv/tftp
       - ${NFS_DIR}:/nfs
@@ -27,15 +30,19 @@ services:
       - ./etc/network/interfaces:/etc/network/interfaces
       - ./pxelinux.cfg:/tftp/pxelinux.cfg
       - /dev/log:/dev/log
+    # cap_add:
+    #   - NET_ADMIN
 
-# networks:
-#   dockervlan:
-#     name: dockervlan
-#     driver: macvlan
-#     driver_opts:
-#       parent: ${BRIDGE}
-#     ipam:
-#       config:
-#         - subnet: "10.1.22.0/24"
-#           ip_range: "10.1.22.64/26"
-#           gateway: ${GATEWAY}
+networks:
+  livenet:
+    #external: true
+    driver: macvlan
+    driver_opts:
+      parent: ${BRIDGE}
+      macvlan_mode: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.22.0/24
+          ip_range: 10.1.22.64/26
+          gateway: ${GATEWAY}

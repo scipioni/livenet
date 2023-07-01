@@ -58,6 +58,12 @@ RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/
 # RUN mkdir /srv/tftp/memtest
 # RUN cp /boot/memtest86+.bin /srv/tftp/memtest
 
+WORKDIR /tmp
+RUN wget --no-check-certificate -q --output-document - https://github.com/rif/spark/releases/download/v1.7.4/spark_1.7.4_linux_amd64.tar.gz | tar xz -C /usr/bin
+#RUN tar xf spark_1.7.4_linux_amd64.tar.gz
+
+
+
 WORKDIR /
 
 #VOLUME ["/etc/dhcp"]

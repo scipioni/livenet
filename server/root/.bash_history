@@ -84,3 +84,25 @@ ls /tftp/uefi/
 cd /var/log/
 ls -al
 cat faillog 
+ls /tmp/
+ls /tmp/spark
+ls /tmp/spark
+/tmp/spark
+cd /tmp/
+ll
+ls -al
+tar xf spark_1.7.4_linux_amd64.tar.gz -o /usr/bin
+tar xf spark_1.7.4_linux_amd64.tar.gz --help
+tar xf spark_1.7.4_linux_amd64.tar.gz -C /usr/bin
+/usr/bin/spark 
+spark
+spark --help
+spark
+spark --help
+ip a
+ping 10.1.22.254
+pin
+ping 10.1.22.254
+ping 8.8.8.8
+ping 8.8.8.8
+ping 10.1.22.254
