@@ -28,21 +28,6 @@ tasks:
       - docker compose up
 
 
-  network:
-    desc: create livenet network
-    cmds:
-      - |
-        sudo virsh net-destroy livenet
-        sudo virsh net-define libvirt/net-livenet.xml
-        sudo virsh net-start livenet
-        #sudo ip link add name ${BRIDGE} type bridge
-        #sudo ip link set dev ${BRIDGE} up
-        #sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
-        #sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
-        #docker network create --driver=macvlan --subnet=10.1.22.0/24 -o parent=br-livenet livenet
-    #status:
-      #- ip link show ${BRIDGE}
-    #  - sudo virsh net-info livenet
 
   #network:down:
   #  cmds:
@@ -53,15 +38,22 @@ tasks:
     cmds:
       - docker compose run --rm -it server bash
 
-  vm:
+  vm:bios:
     desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
     cmds:
       - |
-        #cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /tmp/OVMF_VARS.fd
-        cp OVMF_VARS.fd /tmp/OVMF_VARS.fd
-        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=br-livenet,id=net0 \
-          -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
-          -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd
+        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0
+        #  -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
+        #  -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd
+  
+  vm:efi:
+    desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
+    cmds:
+      - |
+        cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /tmp/OVMF_VARS.fd
+        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
+          -drive if=pflash,format=raw,unit=0,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
+          -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd
 
   vm:create:
     cmds:
@@ -91,3 +83,78 @@ tasks:
         --pxe \
         --network=bridge:br-livenet \
         --boot=uefi,loader_ro=yes,loader_type=pflash,nvram_template=/usr/share/edk2-ovmf/x64/OVMF_VARS.fd,loader_secure=no
+
+  network:
+    desc: create livenet network
+    cmds:
+      - |
+        sudo virsh net-info livenet && sudo virsh net-destroy livenet || true
+        sudo virsh net-define libvirt/net-livenet.xml
+        sudo virsh net-start livenet
+        #sudo ip link add name ${BRIDGE} type bridge
+        #sudo ip link set dev ${BRIDGE} up
+        #sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
+        #sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
+        #docker network create --driver=macvlan --subnet=10.1.22.0/24 -o parent=br-livenet livenet
+    #status:
+      #- ip link show ${BRIDGE}
+    #  - sudo virsh net-info livenet
+
+  server:build: 
+    desc: build vm as in https://blog.programster.org/create-ubuntu-22-kvm-guest-from-cloud-image
+    silent: true
+    cmds:
+      - task: network
+      - |
+        if [ ! -f /var/lib/libvirt/images/templates/${UBUNTU}.qcow2 ]; then 
+          echo "downloading https://cloud-images.ubuntu.com/jammy/current/${UBUNTU}.img ..."
+          sudo mkdir -p /var/lib/libvirt/images/templates
+          cd /tmp
+          wget https://cloud-images.ubuntu.com/jammy/current/${UBUNTU}.img
+
+          sudo mv -i ${UBUNTU}.img /var/lib/libvirt/images/templates/${UBUNTU}.qcow2
+        fi
+
+        if [ ! -f /var/lib/libvirt/images/$VM_NAME/root-disk.qcow2 ]; then
+          echo "create /var/lib/libvirt/images/$VM_NAME/root-disk.qcow2 ..."
+          sudo mkdir /var/lib/libvirt/images/$VM_NAME \
+            && sudo qemu-img convert \
+            -f qcow2 \
+            -O qcow2 \
+            /var/lib/libvirt/images/templates/${UBUNTU}.qcow2 \
+            /var/lib/libvirt/images/$VM_NAME/root-disk.qcow2
+          sudo qemu-img resize /var/lib/libvirt/images/$VM_NAME/root-disk.qcow2 ${VM_SIZE}
+        fi
+
+        sudo echo "#cloud-config
+        system_info:
+          default_user:
+            name: ${VM_USERNAME}
+            home: /home/${VM_USERNAME}
+
+        password: $PASSWORD
+        chpasswd: { expire: False }
+        hostname: $VM_NAME
+
+        # configure sshd to allow users logging in using password 
+        # rather than just keys
+        ssh_pwauth: True
+        " | sudo tee /var/lib/libvirt/images/$VM_NAME/cloud-init.cfg
+
+        sudo cloud-localds \
+          /var/lib/libvirt/images/$VM_NAME/cloud-init.iso \
+          /var/lib/libvirt/images/$VM_NAME/cloud-init.cfg
+
+        sudo virt-install \
+          --name $VM_NAME \
+          --memory 2048 \
+          --disk /var/lib/libvirt/images/$VM_NAME/root-disk.qcow2,device=disk,bus=virtio \
+          --disk /var/lib/libvirt/images/$VM_NAME/cloud-init.iso,device=cdrom \
+          --os-variant ubuntu22.04 \
+          --virt-type kvm \
+          --graphics none \
+          --network network=livenet,model=virtio \
+          --import
+
+
+        

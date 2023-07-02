@@ -14,6 +14,11 @@ services:
     ports:
       - 8095:8095
       - 69:69/udp
+      - 49000-49100:49000-49100/udp
+      #- 67:67
+      #- 67:67/udp
+      - 111:111
+      - 111:111/udp
     #network_mode: host
     # networks:
     #   livenet:
@@ -24,9 +29,10 @@ services:
       - ./root:/root
       - ./etc/exports:/etc/exports
       - ./etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server
-      - ./etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server
+      #- ./etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server
       - ./etc/default/tftpd-hpa:/etc/default/tftpd-hpa
-      - ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
+      - ./etc/default/atftpd:/etc/default/atftpd
+      #- ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
       - ./etc/network/interfaces:/etc/network/interfaces
       - ./pxelinux.cfg:/tftp/bios/pxelinux.cfg
       - ./grub.cfg:/tftp/grub/grub.cfg

@@ -163,3 +163,23 @@ mini_httpd -v
 mini_httpd -p 8095 -d /tftp -D
 mini_httpd --help
 ps aux
+ls /tftp/
+ls /tftp/bios/
+ls /tftp/grub/
+ls /tftp/
+ls /tftp/grub/
+cd /tftp/
+ll
+ls grub/
+apt search tftp
+apt install atftpd
+dpkg -L atftpd
+cat /lib/systemd/system/atftpd.service
+cat /etc/default/atftpd
+ps aux
+service atftpd start
+service atftpd status
+atftpd --help
+atftpd --daemon --no-fork
+atftpd --daemon --no-fork --no-source-port-checking /tftp/
+atftpd --daemon --no-fork --no-source-port-checking --logfile - /tftp/

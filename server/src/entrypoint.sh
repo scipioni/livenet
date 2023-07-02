@@ -13,7 +13,8 @@ stop()
     # exportfs -uav
     # service nfs-kernel-server stop
     echo "TFTP Terminate..."
-    service tftpd-hpa stop
+    #service tftpd-hpa stop
+    service atftpd stop
     # echo "DHCP Terminate..."
     # service isc-dhcp-server stop
 
@@ -28,7 +29,10 @@ start()
     # echo "DHCP init..."
     # service isc-dhcp-server start
     echo "TFTP init..."
-    service tftpd-hpa start
+    #service tftpd-hpa start
+    #in.tftpd -L -a :69 -B1300 -R 49000:49100 --secure --ipv4 --create --permissive -v /tftp &
+
+    service atftpd start
     # echo "NFS init..."
     # service rpcbind start
     # service nfs-common start

@@ -1,3 +1,27 @@
+# livenet server
+
+
+prereq
+```
+yay -S cloud-utils
+```
+
+create vm
+```
+task server:build
+```
+
+run inside livenet-server
+```
+sudo touch /etc/cloud/cloud-init.disabled
+```
+
+
+
+
+
+
+
 http://c-nergy.be/blog/?p=13771
 
 # pxe efi boot with grub

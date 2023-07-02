@@ -1,0 +1,2 @@
+OPTIONS="--port 69 --tftpd-timeout 300 --retry-timeout 5 --maxthread 100 --verbose=5 /tftp"
+

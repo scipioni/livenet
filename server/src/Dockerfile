@@ -3,7 +3,8 @@ FROM ubuntu:jammy
 
 RUN apt update && \
     apt install --no-install-recommends -y \
-        tftpd-hpa \
+        #tftpd-hpa \
+        atftpd \
         nfs-kernel-server \
         iproute2 \
         grub-efi \
