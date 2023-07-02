@@ -1,5 +1,8 @@
+http://c-nergy.be/blog/?p=13771
 
 # pxe efi boot with grub
+
+
 
 - compile ipxe: https://gist.github.com/rikka0w0/50895b82cbec8a3a1e8c7707479824c1
 - https://wiki.fysik.dtu.dk/ITwiki/PXE_and_UEFI/

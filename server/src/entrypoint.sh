@@ -34,8 +34,10 @@ start()
     # service nfs-common start
     # service nfs-kernel-server start
     # exportfs -rva
-    cd /tftp
-    spark -port 8095 -path / &
+    mini_httpd -p 8095 -d /tftp -l /dev/stdout -D &
+    
+    #cd /tftp
+    #spark -port 8095 -path / &
 
     echo "Started..."
     #while true; do sleep 1; done

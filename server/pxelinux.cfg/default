@@ -1,8 +1,15 @@
+DEFAULT menu.c32
+MENU TITLE ULTIMATE PXE SERVER - By Griffon - Ver 1.0
+PROMPT 0 
+TIMEOUT 0
 
-ui menu.c32
-timeout 50
+MENU COLOR TABMSG  37;40  #ffffffff #00000000
+MENU COLOR TITLE   37;40  #ffffffff #00000000 
+MENU COLOR SEL      7     #ffffffff #00000000
+MENU COLOR UNSEL    37;40 #ffffffff #00000000
+MENU COLOR BORDER   37;40 #ffffffff #00000000
 
 
 label memtest
     menu label memtest86+
-    linux memtest/memtest86+.bin
+    linux /boot/memtest86+.bin

@@ -3,14 +3,17 @@ FROM ubuntu:jammy
 
 RUN apt update && \
     apt install --no-install-recommends -y \
-        isc-dhcp-server \
         tftpd-hpa \
         nfs-kernel-server \
         iproute2 \
         grub-efi \
-        pxelinux \
+        grub-pc-bin \
         memtest86+ \
         iputils-ping \
+        pxelinux \
+        syslinux \
+        syslinux-common \
+        mini-httpd \
         debootstrap && \
     # Clean rootfs
     apt-get clean all && \
@@ -18,14 +21,13 @@ RUN apt update && \
     apt-get purge && \
     rm -rf /var/lib/{apt,dpkg,cache,log} && \
     # Configure DHCP
-    touch /var/lib/dhcp/dhcpd.leases && \
+    #touch /var/lib/dhcp/dhcpd.leases && \
     # Configure rpcbind
     mkdir -p /run/sendsigs.omit.d && \
     touch /run/sendsigs.omit.d/rpcbind
 
-        # syslinux \
+        #isc-dhcp-server \
         # syslinux-efi \
-        # syslinux-common \
         # pxelinux \
 
 
@@ -39,14 +41,30 @@ EXPOSE 111/tcp \
        69/udp
 
 
-RUN mkdir -p /tftp/uefi
-RUN cp /usr/lib/grub/x86_64-efi/monolithic/* /tftp/uefi
-RUN chmod 755 /tftp/uefi/*.efi
+# RUN mkdir -p /tftp/uefi
+# RUN cp /usr/lib/grub/x86_64-efi/monolithic/* /tftp/uefi
+# RUN chmod 755 /tftp/uefi/*.efi
 
 # or make your own
 # grub-mkstandalone -d /usr/lib/grub/x86_64-efi/ -O x86_64-efi --modules="tftp net efinet linux part_gpt efifwsetup" -o /tftp/uefi/bootx64.efi
 
-RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/
+
+RUN mkdir -p /tftp/grub /tftp/bios /tftp/boot
+RUN ln -s /tftp/boot  /tftp/bios/boot
+
+# bios with pxelinux
+RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/bios
+RUN cp /usr/lib/syslinux/modules/bios/* /tftp/bios
+
+
+# efi with grub
+RUN cp -rf /usr/lib/grub/i386-pc /tftp/grub
+RUN grub-mkimage -d /usr/lib/grub/i386-pc/ -O i386-pc-pxe -o /tftp/booti386 -p '/grub' pxe tftp
+RUN grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o /tftp/grub/bootx64.efi -p '/grub' efinet tftp
+
+
+# memtest
+RUN cp /boot/memtest86+.bin /tftp/boot
 
 # RUN cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/
 
@@ -58,9 +76,8 @@ RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/
 # RUN mkdir /srv/tftp/memtest
 # RUN cp /boot/memtest86+.bin /srv/tftp/memtest
 
-WORKDIR /tmp
-RUN wget --no-check-certificate -q --output-document - https://github.com/rif/spark/releases/download/v1.7.4/spark_1.7.4_linux_amd64.tar.gz | tar xz -C /usr/bin
-#RUN tar xf spark_1.7.4_linux_amd64.tar.gz
+#WORKDIR /tmp
+#RUN wget --no-check-certificate -q --output-document - https://github.com/rif/spark/releases/download/v1.7.4/spark_1.7.4_linux_amd64.tar.gz | tar xz -C /usr/bin
 
 
 

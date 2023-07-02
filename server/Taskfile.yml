@@ -32,17 +32,21 @@ tasks:
     desc: create livenet network
     cmds:
       - |
-        sudo ip link add name ${BRIDGE} type bridge
-        sudo ip link set dev ${BRIDGE} up
-        sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
-        sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
+        sudo virsh net-destroy livenet
+        sudo virsh net-define libvirt/net-livenet.xml
+        sudo virsh net-start livenet
+        #sudo ip link add name ${BRIDGE} type bridge
+        #sudo ip link set dev ${BRIDGE} up
+        #sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
+        #sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
         #docker network create --driver=macvlan --subnet=10.1.22.0/24 -o parent=br-livenet livenet
-    status:
-      - ip link show ${BRIDGE}
+    #status:
+      #- ip link show ${BRIDGE}
+    #  - sudo virsh net-info livenet
 
-  network:down:
-    cmds:
-      - sudo ip link del name ${BRIDGE}
+  #network:down:
+  #  cmds:
+  #    - sudo ip link del name ${BRIDGE}
 
   cli:
     desc: cli 

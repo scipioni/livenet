@@ -106,3 +106,60 @@ ping 10.1.22.254
 ping 8.8.8.8
 ping 8.8.8.8
 ping 10.1.22.254
+apt install darkhttp
+apt update
+apt install dark http
+apt search dark http
+apt search dark httpd
+ls /tftp/
+ls /tftp/uefi/
+ls /tftp/uefi/
+ls  /usr/lib/grub/
+ls  -al /usr/lib/grub/grub-multi-install 
+cd /usr/lib/grub/
+find
+apt search grub
+apt install grub-pc
+ls /usr/lib/grub/i386-pc/
+apt install grub-pc-bin
+dpkg -L grub-pc-bin
+cd /tmp/
+grub-mkimage -d /usr/lib/grub/i386-pc/ -O i386-pc-pxe -o ./booti386 -p '/grub' pxe tftp
+ll
+ls
+ls booti386 
+ls -al
+grub-mkimage -d /usr/lib/grub/x86_64/ -O x86_64-efi -o ./bootx64.efi -p '/grub' efinet tftp
+grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o ./bootx64.efi -p '/grub' efinet tftp
+cp -rf /usr/lib/grub/i386-pc /tftp/grub
+ls /tftp/grub
+ls
+find /tftp/ -name "*cfg"
+ls /tftp/
+dpkg -L memtest86+
+cat /usr/share/doc/memtest86+/examples/grub-menu.lst
+apt search memtest
+cd /tftp/grub
+ls normal.mod 
+ls /tftp/grub
+ls /tftp/grub/i386-pc/
+ls /tftp/grub/i386-pc/normal.mod 
+find / -name ldlinux.c32
+find / -name ldlinux.c32
+ls -al /usr/lib/syslinux/modules/bios/
+find / -name font.pf2
+apt search grub
+ls /usr/share/fonts/TTF/
+apt search grub font
+find / -name "*pf2"
+ls /tftp/
+spark --help
+apt search mini http
+apt install lighttpd
+apt install mini-httpd
+mini_httpd 
+mini_httpd --help
+mini_httpd -v
+mini_httpd -p 8095 -d /tftp -D
+mini_httpd --help
+ps aux

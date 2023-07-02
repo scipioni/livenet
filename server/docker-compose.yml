@@ -28,7 +28,8 @@ services:
       - ./etc/default/tftpd-hpa:/etc/default/tftpd-hpa
       - ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
       - ./etc/network/interfaces:/etc/network/interfaces
-      - ./pxelinux.cfg:/tftp/pxelinux.cfg
+      - ./pxelinux.cfg:/tftp/bios/pxelinux.cfg
+      - ./grub.cfg:/tftp/grub/grub.cfg
       - /dev/log:/dev/log
     # cap_add:
     #   - NET_ADMIN
