@@ -3,9 +3,9 @@ name: "livenet"
 
 services:
   server:
-    image: igor_rm:latest
+    image: livenet/server
     env_file: ".env"
-    container_name: livenet-server
+    #container_name: livenet-server
     privileged: true
     #init: true
     stop_signal: SIGTERM
