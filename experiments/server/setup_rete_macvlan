@@ -48,3 +48,8 @@ Problemi:
 - ad ogni avvio bisogna rifare questi passi (ma si possono inserire nel Taskfile)
 - Il bridge livenet è UP solo quando parte una VM (forse sto sbagliando qualcosa)
 
+
+docker network create -d macvlan --subnet=192.168.123.0/24 --gateway=192.168.123.1  --aux-address=192.168.123.223 --ip-range=192.168.123.192/27  -o parent=livenet macvlan0
+
+
+
