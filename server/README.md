@@ -10,7 +10,6 @@ yay -S edk2-ovmf
 ```
 
 
-
 ```
 task build
 task network
@@ -20,6 +19,8 @@ start docker server
 ```
 task start
 ```
+
+to see log show host logs with "sudo journalctl -f"
 
 ### bios mode
 
