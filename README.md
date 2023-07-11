@@ -7,6 +7,11 @@
 * [dnsmasq with tftp](https://github.com/matteoraf/dnsmasq-tftp-pxe)
 
 
+## Schema 
+
+
+![Alt](images/network.drawio.svg)
+
 ## VM client
 
 add "allow br-livenet" to /etc/qemu/bridge.conf
@@ -23,3 +28,6 @@ sudo virt-install --connect qemu:///system \
     --os-type=linux --os-variant=ubuntu22.04 \
     --disk path=/var/lib/libvirt/images/testvm.qcow2,size=40
 ``` 
+
+
+
