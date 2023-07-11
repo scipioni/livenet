@@ -1,0 +1,50 @@
+
+
+
+
+                                                  macvlan0
+                                +--------------+     |
+                        iface   | bridge kvm   |     |
+                       parent   |              |     v       port
+                 +--------------+ DHCP server  +------------ mcvlan-ingress
+                 |              |              |
+  macvlan0 ----> |              +-------+------+
+                 |                      |
+                 |                      |
+                 | iface                |
+                 | child                |
+          +------+-------+              |              +--------------+
+          |              |              |              |              |
+          | Docker Tftp  |              |              |   VM1        |
+          |              |              +--------------+              |
+          |              |              |              |              |
+          +--------------+              |              +--------------+
+                                        |
+                                        |              +--------------+
+                                        |              |              |
+                                        |              |   VM2        |
+                                        +--------------+              |
+                                                       |              |
+                                                       +--------------+
+
+
+
+Per far parlare l'Host con la rete mcvlan docker (e far uscire la rete docker dal bridge, che è il suo gateway) devo creare un'interfaccia sull'Host che abbia una zampa nella rete dei container
+
+# Aggiungo l'interfaccia"ingress" agganciata al bridge livenet
+sudo ip link add  mcvlan-ingress link livenet type macvlan  mode bridge
+
+# Assegno l'ip riservato all'interfaccia 
+sudo ip addr add 192.168.123.223 dev mcvlan-shim
+sudo ip l set mcvlan-ingress up
+
+# Indico come ingress del pool ls nuova interfaccia
+sudo ip route add 192.168.123.192/27 dev mcvlan-ingress
+
+# Se serve un po' di diagnostica
+docker run --rm -ti --network=macvlan0 wbitt/network-multitool bash
+
+Problemi:
+- ad ogni avvio bisogna rifare questi passi (ma si possono inserire nel Taskfile)
+- Il bridge livenet è UP solo quando parte una VM (forse sto sbagliando qualcosa)
+

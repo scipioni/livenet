@@ -1,0 +1,53 @@
+FROM ubuntu:jammy
+
+
+RUN apt update && \
+    apt install --no-install-recommends -y \
+        atftpd \
+        nfs-kernel-server \
+        iproute2 \
+        grub-efi \
+        grub-pc-bin \
+        memtest86+ \
+        iputils-ping \
+        pxelinux \
+        syslinux \
+        syslinux-common \
+        mini-httpd \
+        debootstrap && \
+    # Clean rootfs
+    apt-get clean all && \
+    apt-get autoremove -y && \
+    apt-get purge && \
+    rm -rf /var/lib/{apt,dpkg,cache,log} && \
+    mkdir -p /run/sendsigs.omit.d && \
+    touch /run/sendsigs.omit.d/rpcbind
+
+
+RUN mkdir -p /tftp/grub /tftp/bios /tftp/boot
+RUN ln -s /tftp/boot  /tftp/bios/boot
+
+# bios with pxelinux
+RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/bios
+RUN cp /usr/lib/syslinux/modules/bios/* /tftp/bios
+
+
+# efi with grub
+RUN cp -rf /usr/lib/grub/i386-pc /tftp/grub
+RUN grub-mkimage -d /usr/lib/grub/i386-pc/ -O i386-pc-pxe -o /tftp/booti386 -p '/grub' pxe tftp
+RUN grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o /tftp/grub/bootx64.efi -p '/grub' efinet tftp
+
+
+# memtest
+RUN cp /boot/memtest86+.bin /tftp/boot
+
+
+WORKDIR /
+
+
+COPY entrypoint.sh /entrypoint.sh
+    # Set correct entrypoint permission
+RUN chmod u+x /entrypoint.sh
+
+CMD ["/entrypoint.sh"]
+

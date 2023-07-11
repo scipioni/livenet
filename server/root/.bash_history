@@ -183,3 +183,8 @@ atftpd --help
 atftpd --daemon --no-fork
 atftpd --daemon --no-fork --no-source-port-checking /tftp/
 atftpd --daemon --no-fork --no-source-port-checking --logfile - /tftp/
+ip a
+ip a
+ping 8.8.8.8
+ping 8.8.8.8
+ip a

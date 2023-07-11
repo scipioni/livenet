@@ -1,0 +1,56 @@
+version: "3.7"
+name: "livenet"
+
+services:
+  server:
+    image: igor_rm:latest
+    env_file: ".env"
+    container_name: livenet-server
+    privileged: true
+    #init: true
+    stop_signal: SIGTERM
+    build:
+      context: ./src
+    # ports:
+    #   - 8095:8095
+    #   - 69:69/udp
+    #   - 49000-49100:49000-49100/udp
+    #   #- 67:67
+    #   #- 67:67/udp
+    #   - 111:111
+    #   - 111:111/udp
+    #network_mode: host
+    networks:
+      - macvlan0
+      # macvlan0:
+        # ipv4_address: 192.168.123.200
+    volumes:
+      #- ${TFTP_DIR}:/srv/tftp
+      - ${NFS_DIR}:/nfs
+      - ./root:/root
+      - ./etc/exports:/etc/exports
+      - ./etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server
+      #- ./etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server
+      - ./etc/default/tftpd-hpa:/etc/default/tftpd-hpa
+      - ./etc/default/atftpd:/etc/default/atftpd
+      #- ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
+      - ./etc/network/interfaces:/etc/network/interfaces
+      - ./pxelinux.cfg:/tftp/bios/pxelinux.cfg
+      - ./grub.cfg:/tftp/grub/grub.cfg
+      - /dev/log:/dev/log
+    # cap_add:
+    #   - NET_ADMIN
+
+networks:
+  macvlan0:
+    external: true
+    # driver: macvlan
+    # driver_opts:
+      # parent: livenet
+      # macvlan_mode: bridge
+    # ipam:
+      # driver: default
+      # config:
+        # - subnet: 192.168.123.0/24
+          # ip_range: 192.168.123.192/27
+          # gateway: 192.168.123.1
