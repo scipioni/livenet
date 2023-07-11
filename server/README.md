@@ -1,6 +1,34 @@
 # livenet server
 
 
+## docker based
+
+
+prereq
+```
+yay -S edk2-ovmf
+```
+
+
+
+```
+task build
+task network
+```
+
+start docker server
+```
+task start
+```
+
+test vm in bios mode
+```
+task vm:bios
+```
+
+
+## libvirt based
+
 prereq
 ```
 yay -S cloud-utils

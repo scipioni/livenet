@@ -25,8 +25,28 @@ tasks:
     desc: Start the service
     cmds:
       - bash {{ .NFSD_TEST }} 
+      - docker compose down
       - docker compose up
 
+  network:
+    desc: create livenet network
+    cmds:
+      - |
+        sudo virsh net-info livenet && sudo virsh net-destroy livenet || true
+
+        sudo virsh net-define libvirt/net-livenet.xml
+        sudo virsh net-start livenet
+        docker network rm livenet_macvlan || true 
+        docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1  --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
+        sudo ip link add mcvlan-ingress link livenet type macvlan mode bridge
+        sudo ip addr add 192.168.124.223 dev mcvlan-ingress
+        sudo ip link set mcvlan-ingress up
+        sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
+        #sudo ip link add name ${BRIDGE} type bridge
+        #sudo ip link set dev ${BRIDGE} up
+        #sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
+        #sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
+        #docker network create --driver=macvlan --subnet=10.1.22.0/24 -o parent=br-livenet livenet
 
 
   #network:down:
@@ -84,24 +104,6 @@ tasks:
         --network=bridge:br-livenet \
         --boot=uefi,loader_ro=yes,loader_type=pflash,nvram_template=/usr/share/edk2-ovmf/x64/OVMF_VARS.fd,loader_secure=no
 
-  network:
-    desc: create livenet network
-    cmds:
-      - |
-        sudo virsh net-info livenet && sudo virsh net-destroy livenet || true
-
-        sudo virsh net-define libvirt/net-livenet.xml
-        sudo virsh net-start livenet
-        docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1  --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
-        sudo ip link add  mcvlan-ingress link livenet type macvlan  mode bridge
-        sudo ip addr add 192.168.124.223 dev mcvlan-ingress
-        sudo ip link set mcvlan-ingress up
-        sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
-        #sudo ip link add name ${BRIDGE} type bridge
-        #sudo ip link set dev ${BRIDGE} up
-        #sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
-        #sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
-        #docker network create --driver=macvlan --subnet=10.1.22.0/24 -o parent=br-livenet livenet
     #status:
       #- ip link show ${BRIDGE}
     #  - sudo virsh net-info livenet

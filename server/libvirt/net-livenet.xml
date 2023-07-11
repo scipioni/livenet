@@ -11,7 +11,10 @@
   <ip address="192.168.124.1" netmask="255.255.255.0">
     <dhcp>
       <range start="192.168.124.10" end="192.168.124.99"/>
-      <bootp file="http://192.168.124.192:8095/bios/pxelinux.0"/>
+      <!-- bios pxe via http -->
+      <!-- <bootp file="http://192.168.124.192:8095/bios/pxelinux.0"/> -->
+      <!-- bios pxe via tftp -->
+      <bootp file='bios/pxelinux.0' server='192.168.124.192'/>
     </dhcp>
   </ip>
   <dnsmasq:options>

@@ -1,4 +1,4 @@
-<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="331px" height="396px" viewBox="-0.5 -0.5 331 396" content="&lt;mxfile&gt;&lt;diagram id=&quot;tAaqOaI0i-3XBBLiKUbg&quot; name=&quot;Page-1&quot;&gt;3ZZNj5swEIZ/DcdKgBPCHrvptr3sKVJ7dvAEW2sYZBxI9tfXXmw+4kSttFm16inOOzPYfvx6ICLb6vRN0YY/IwMZpTE7ReRLlKYJWa/Nj1XOTsk38aCUSjCnTcJOvIITfdpRMGgXiRpRatEsxQLrGgq90KhS2C/TDiiXsza0hEDYFVSG6k/BNB/UfB1P+ncQJfczJ7GLVNQnO6HllGE/k8hTRLYKUQ+j6rQFael5LkPd1xvRcWEKav0nBZuhoKPy6PYmxb4TSrvl6bPfs8JjzcCWJRF57LnQsGtoYaO9OWajcV1JF2a05WMuRyVesdbURztQWhian6Uoa6NptOVuJSYGp5u7SUZGxl2AFWh1NimuIM0dVm+s2Dmtn06JEJfD5yf04ETqnFGOz57gmYHjd51lGrD88fw+jAch5RYlqrdawtaQs5XRW63wBWaRPN2TLBshBsSucL0JcXUJ0Xt1BnFzheHqDgizAOHeNABzGdNYig5qCH1pHmCuPfwe5h38ReILNFmIZsQ1Z5PfgU0esGFYvID6L24qSUKSH3dTHwKUFS06Set/yl0kC7vXh7nL858xaUF11l6ZNPM87u2otKNP9nV70M3f6W3vQnzZ20geIr5TbzN/p9f4W2z2NUSefgE=&lt;/diagram&gt;&lt;/mxfile&gt;">
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="331px" height="396px" viewBox="-0.5 -0.5 331 396" content="&lt;mxfile&gt;&lt;diagram id=&quot;tAaqOaI0i-3XBBLiKUbg&quot; name=&quot;Page-1&quot;&gt;3VZNc9sgEP01OsYjwNbHsXXT9JKTZ9ozFmuJCRIejGU7v74oWmwpyG06cWY6OQm9fYvg7dNCxJb18cHwbfWoBaiIxuIYsW8RpYQtFu7RISdEsjTukdJIgdgFWMlnQNDT9lLAbkS0Wisrt2Ow0E0DhR1h3Bh9GNM2Wo2/uuUlBMCq4CpEf0lhqx7NFvEF/wGyrPyXSYyRmnsyAruKC30YQOw+Ykujte1H9XEJqlPP69Lnfb8SPS/MQGPfkpD2CS1Xe9ybkutWGovLsye/Z6P3jYAujUTs66GSFlZbXnTRgyuzwypbKwwLvqvO3Eob+awby320BWOlU/OLkmXjMKu79HDpuJuODscBhFt5AF2DNSdHwSjNUFZvrBiddrhUiTHkVMMK5QhydEZ5nvsinhugflfEJ4FoIJxv8LXRDYxV6ukd52r1/JR6bwpkUTQ8NyUgK5lWxYDiVrbj2d+zQxq4JaKJsl3BZeuGZTf8+ehBN90An6CSnM5Iks0Inc9IfJfn1zLf48WNVGqplTYvuUwsIBNzh++s0U8wiGR0zZLkNk6cp6+c6H/4gRMJmXBiegMjJkGZ1q6NOpfRWDk7NM42qPPaTJYi9LFSrrfC38W+gXQsfiVdMiEdnZAuu4F0WSCd0MUTmE/RDhkJlfy4dpgHUta8aBVv/it3sSQ8Ij7MXV7/gSY7MG1nrz/+jzkNCXfdGbCx20/QHFmazt5YBX91/IcquNfLfeolNriWsvvf&lt;/diagram&gt;&lt;/mxfile&gt;">
     <defs/>
     <g>
         <rect x="0" y="0" width="330" height="190" rx="28.5" ry="28.5" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-dasharray="3 3" pointer-events="all"/>
@@ -18,20 +18,27 @@
                 </text>
             </switch>
         </g>
-        <rect x="200" y="15" width="70" height="40" rx="6" ry="6" fill="#d5e8d4" stroke="#82b366" pointer-events="all"/>
+        <path d="M 190 65 L 141.68 78.18" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 136.61 79.56 L 142.44 74.34 L 141.68 78.18 L 144.29 81.1 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="190" y="15" width="110" height="70" rx="10.5" ry="10.5" fill="#d5e8d4" stroke="#82b366" pointer-events="all"/>
         <g transform="translate(-0.5 -0.5)">
             <switch>
                 <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
-                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 68px; height: 1px; padding-top: 35px; margin-left: 201px;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 108px; height: 1px; padding-top: 50px; margin-left: 191px;">
                         <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
                             <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
-                                VM
+                                <div>
+                                    VM
+                                </div>
+                                <div>
+                                    192.168.124.10-99
+                                </div>
                             </div>
                         </div>
                     </div>
                 </foreignObject>
-                <text x="235" y="39" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
-                    VM
+                <text x="245" y="54" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    VM...
                 </text>
             </switch>
         </g>
@@ -43,12 +50,14 @@
                         <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
                             <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
                                 bridge livenet
+                                <br/>
+                                192.168.124.1
                             </div>
                         </div>
                     </div>
                 </foreignObject>
                 <text x="80" y="99" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
-                    bridge livenet
+                    bridge livenet...
                 </text>
             </switch>
         </g>
@@ -86,21 +95,23 @@
                 </text>
             </switch>
         </g>
-        <rect x="200" y="280" width="70" height="40" rx="6" ry="6" fill="#d5e8d4" stroke="#82b366" pointer-events="all"/>
+        <rect x="190" y="272.5" width="120" height="55" rx="8.25" ry="8.25" fill="#d5e8d4" stroke="#82b366" pointer-events="all"/>
         <g transform="translate(-0.5 -0.5)">
             <switch>
                 <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
-                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 68px; height: 1px; padding-top: 300px; margin-left: 201px;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 118px; height: 1px; padding-top: 300px; margin-left: 191px;">
                         <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
                             <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
                                 server
+                                <br/>
+                                192.168.124.192
                                 <br/>
                                 - tftp
                             </div>
                         </div>
                     </div>
                 </foreignObject>
-                <text x="235" y="304" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                <text x="250" y="304" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
                     server...
                 </text>
             </switch>
