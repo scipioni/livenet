@@ -191,3 +191,14 @@ ip a
 ping
 ping 192.168.124.1
 ping 192.168.124.1
+ls
+cd /tftp/
+ls
+ls grub/
+cat grub/grub.cfg 
+cd /var/log/
+ls
+ls -alt
+ls /boot/
+ls /tftp/
+ls /tftp/boot

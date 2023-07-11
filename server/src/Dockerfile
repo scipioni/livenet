@@ -9,7 +9,7 @@ RUN apt update && \
         iproute2 \
         grub-efi \
         grub-pc-bin \
-        memtest86+ \
+        pcmemtest \
         iputils-ping \
         pxelinux \
         syslinux \
@@ -61,11 +61,13 @@ RUN cp /usr/lib/syslinux/modules/bios/* /tftp/bios
 # efi with grub
 RUN cp -rf /usr/lib/grub/i386-pc /tftp/grub
 RUN grub-mkimage -d /usr/lib/grub/i386-pc/ -O i386-pc-pxe -o /tftp/booti386 -p '/grub' pxe tftp
+RUN cp -a /usr/lib/grub/x86_64-efi /tftp/grub/
 RUN grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o /tftp/grub/bootx64.efi -p '/grub' efinet tftp
+RUN cp /boot/pcmemtestx64.efi /tftp/boot/
 
 
-# memtest
-RUN cp /boot/memtest86+.bin /tftp/boot
+# pcmemtest
+RUN cp /boot/pcmemtest.bin /tftp/boot
 
 # RUN cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/
 
@@ -88,7 +90,6 @@ WORKDIR /
 #VOLUME ["/etc/default"]
 
 COPY entrypoint.sh /entrypoint.sh
-    # Set correct entrypoint permission
 RUN chmod u+x /entrypoint.sh
 
 CMD ["/entrypoint.sh"]

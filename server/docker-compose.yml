@@ -32,11 +32,10 @@ services:
       - ./etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server
       #- ./etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server
       - ./etc/default/tftpd-hpa:/etc/default/tftpd-hpa
-      - ./etc/default/atftpd:/etc/default/atftpd
       #- ./etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf
       - ./etc/network/interfaces:/etc/network/interfaces
       - ./pxelinux.cfg:/tftp/bios/pxelinux.cfg
-      - ./grub.cfg:/tftp/grub/grub.cfg
+      - ./grub.cfg:/tftp/grub/grub.cfg:ro
       - /dev/log:/dev/log
     # cap_add:
     #   - NET_ADMIN

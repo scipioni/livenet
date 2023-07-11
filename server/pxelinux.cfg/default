@@ -11,5 +11,5 @@ TIMEOUT 0
 
 
 label memtest
-    menu label memtest86+
-    linux /boot/memtest86+.bin
+    menu label pcmemtest
+    linux ../boot/pcmemtest.bin

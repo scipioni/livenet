@@ -21,9 +21,25 @@ start docker server
 task start
 ```
 
+### bios mode
+
+
+configuration is pxelinux.cfg/default
+
 test vm in bios mode
 ```
 task vm:bios
+```
+
+
+### grub mode
+
+
+configuration grub.cfg
+
+test vm in efi mode
+```
+task vm:efi
 ```
 
 
