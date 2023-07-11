@@ -188,3 +188,6 @@ ip a
 ping 8.8.8.8
 ping 8.8.8.8
 ip a
+ping
+ping 192.168.124.1
+ping 192.168.124.1

@@ -89,8 +89,14 @@ tasks:
     cmds:
       - |
         sudo virsh net-info livenet && sudo virsh net-destroy livenet || true
+
         sudo virsh net-define libvirt/net-livenet.xml
         sudo virsh net-start livenet
+        docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1  --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
+        sudo ip link add  mcvlan-ingress link livenet type macvlan  mode bridge
+        sudo ip addr add 192.168.124.223 dev mcvlan-ingress
+        sudo ip link set mcvlan-ingress up
+        sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
         #sudo ip link add name ${BRIDGE} type bridge
         #sudo ip link set dev ${BRIDGE} up
         #sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
