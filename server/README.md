@@ -4,10 +4,15 @@
 ## docker based
 
 
+
+![Schema](images/network.drawio.svg)
+
 prereq
 ```
 yay -S edk2-ovmf
 ```
+
+add "allow livenet" to /etc/qemu/bridge.conf
 
 
 ```

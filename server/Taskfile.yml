@@ -36,22 +36,12 @@ tasks:
 
         sudo virsh net-define libvirt/net-livenet.xml
         sudo virsh net-start livenet
-        docker network rm livenet_macvlan || true 
-        docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1  --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
+        docker network rm livenet_macvlan 2>/dev/null || true 
+        docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1 --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
         sudo ip link add mcvlan-ingress link livenet type macvlan mode bridge
         sudo ip addr add 192.168.124.223 dev mcvlan-ingress
         sudo ip link set mcvlan-ingress up
         sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
-        #sudo ip link add name ${BRIDGE} type bridge
-        #sudo ip link set dev ${BRIDGE} up
-        #sudo ip addr add ${GATEWAY}/24 dev ${BRIDGE}
-        #sudo iptables -t nat -A POSTROUTING -o eno1 -j MASQUERADE
-        #docker network create --driver=macvlan --subnet=10.1.22.0/24 -o parent=br-livenet livenet
-
-
-  #network:down:
-  #  cmds:
-  #    - sudo ip link del name ${BRIDGE}
 
   cli:
     desc: cli 
@@ -108,7 +98,7 @@ tasks:
       #- ip link show ${BRIDGE}
     #  - sudo virsh net-info livenet
 
-  server:build: 
+  vm:server:build: 
     desc: build vm as in https://blog.programster.org/create-ubuntu-22-kvm-guest-from-cloud-image
     silent: true
     cmds:
