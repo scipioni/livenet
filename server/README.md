@@ -5,7 +5,7 @@
 
 
 
-![Schema](images/network.drawio.svg)
+![Schema](docs/network.drawio.svg)
 
 prereq
 ```

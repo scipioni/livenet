@@ -1,0 +1,20 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: [".env"]
+
+tasks:
+  default:
+    cmds:
+      - go-task -l
+    silent: true
+
+  build:
+    cmds:
+      - docker build . -t ${IMAGE}
+      - docker export $(docker create ${IMAGE}) --output="livenet.tar"
+
+  cli:
+    cmds:
+      - docker run --rm -it ${IMAGE} bash
