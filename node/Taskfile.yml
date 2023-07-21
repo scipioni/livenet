@@ -1,0 +1,41 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: [".env"]
+
+tasks:
+  default:
+    cmds:
+      - go-task -l
+    silent: true
+
+  build:
+    desc: build li
+    cmds:
+      - docker build . -t ${IMAGE}
+      #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
+
+  cli:
+    cmds:
+      #- docker run --name ${IMAGE} -it ${IMAGE} bash
+      - docker run --name lnode -it -d ${IMAGE} bash || true
+      - docker exec -it ${NODE} bash
+
+  diff:
+    cmds:
+      - docker diff ${NODE}
+
+  commit:
+    desc: task commit -- 0.2
+    vars:
+      Id: Id
+    cmds:
+      - |
+        ID=$(docker container ls --all --quiet --no-trunc --filter "name=${NODE}")
+        docker commit ${ID} livenet/node:{{.CLI_ARGS}}
+
+  destroy:
+    cmds:
+      - docker container stop ${NODE} || true
+      - docker container rm ${NODE}
