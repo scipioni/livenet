@@ -32,12 +32,7 @@ RUN apt update && \
         # pxelinux \
 
 
-# Export the NFS server ports
-EXPOSE 111/tcp \
-       111/udp \
-       2049/tcp \
-       2049/udp \
-       67/tcp \
+EXPOSE 67/tcp \
        67/udp \
        69/udp
 

@@ -16,11 +16,17 @@ tasks:
       - docker build . -t ${IMAGE}
       #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
 
+  start:
+    cmds:
+      - docker compose up -d
+      #- docker run --name lnode -it -d -p 2049:2049 -p 20048:20048 ${IMAGE} || true
+
   cli:
     cmds:
-      #- docker run --name ${IMAGE} -it ${IMAGE} bash
-      - docker run --name lnode -it -d ${IMAGE} bash || true
-      - docker exec -it ${NODE} bash
+      - docker compose exec lnode bash
+      #- docker run --name lnode -it -d ${IMAGE} || true
+      #- task: run
+      #- docker exec -it ${NODE} bash
 
   diff:
     cmds:
@@ -37,5 +43,15 @@ tasks:
 
   destroy:
     cmds:
-      - docker container stop ${NODE} || true
-      - docker container rm ${NODE}
+      - docker compose down
+      - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi
+      #- docker container stop ${NODE} || true
+      #- docker container rm ${NODE}
+
+
+  mount:
+    cmds:
+      - mkdir -p /tmp/test
+      - sudo mount -t nfs -o vers=4,loud localhost:/ /tmp/test
+      - ls /tmp/test
+      - sudo umount /tmp/test

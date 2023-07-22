@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  lnode:
+    image: livener/node
+    container_name: lnode
+    build:
+      context: .
+    privileged: true
+    volumes:
+      - ./entrypoint.sh:/usr/local/bin/entrypoint.sh
+      - ./exports:/etc/exports
+    ports:
+      - 2049:2049
+      - 20048:20048

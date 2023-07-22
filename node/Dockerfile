@@ -37,3 +37,21 @@ RUN update-locale LANG=it_IT.UTF-8 LANGUAGE=it:en_US:en
 #RUN cp /usr/share/zoneinfo/Europe/Rome /etc/localtime
 
 
+RUN set -x && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -qq -y openssl nfs-kernel-server && \
+    mkdir /exports
+
+RUN mkdir -p /var/lib/nfs/rpc_pipefs /var/lib/nfs/v4recovery && \
+    echo "rpc_pipefs    /var/lib/nfs/rpc_pipefs rpc_pipefs      defaults        0       0" >> /etc/fstab && \
+    echo "nfsd  /proc/fs/nfsd   nfsd    defaults        0       0" >> /etc/fstab
+
+
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +rx /usr/local/bin/entrypoint.sh
+COPY exports /etc/exports
+
+
+EXPOSE 2049/tcp
+EXPOSE 20048/tcp
+
+CMD ["/usr/local/bin/entrypoint.sh"]
