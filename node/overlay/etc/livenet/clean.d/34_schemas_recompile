@@ -1,0 +1,7 @@
+# recompile schema if unity custom launcher is updated
+if [ -x /usr/bin/glib-compile-schemas ] && [ /usr/share/glib-2.0/schemas -nt /usr/share/glib-2.0/schemas/gschemas.compiled ]; then
+	echo "Recompile gnome schemas"
+	glib-compile-schemas /usr/share/glib-2.0/schemas/
+fi
+
+

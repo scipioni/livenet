@@ -1,0 +1,4 @@
+# no update notifier
+rm -f /etc/apt/apt.conf.d/99update-notifier
+rm -f /var/lib/update-notifier/dpkg-run-stamp
+

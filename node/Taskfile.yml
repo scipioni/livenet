@@ -13,7 +13,7 @@ tasks:
   build:
     desc: build li
     cmds:
-      - docker build . -t ${IMAGE}
+      - BUILDKIT_PROGRESS=plain docker compose build 
       #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
 
   start:

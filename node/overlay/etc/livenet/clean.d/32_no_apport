@@ -1,0 +1,7 @@
+
+rm -f /var/crash/* 
+egrep -q "^enabled=1" /etc/default/apport
+if [ $? = 0 ]; then
+    echo "Disabling apport"
+    perl -pi -e "s/enabled=1/enabled=0/g" /etc/default/apport
+fi

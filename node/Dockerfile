@@ -23,7 +23,7 @@ RUN usermod -a -G sudo ubuntu
 #USER apprunner
 
 
-FROM base
+FROM base as nfs
 
 #RUN bash -c echo "livenet" > /etc/hostname
 #RUN echo "127.0.1.1 livenet" >> /etc/hosts
@@ -52,6 +52,15 @@ COPY exports /etc/exports
 
 
 EXPOSE 2049/tcp
-EXPOSE 20048/tcp
+#EXPOSE 20048/tcp
+
+
+FROM nfs
+
+COPY overlay/etc /
+COPY overlay/usr/sbin/ln-mng /usr/sbin
+COPY overlay/usr/sbin/policy-rc.d /usr/sbin
+ENV RESUME auto 
+RUN update-initramfs -c -k all
 
 CMD ["/usr/local/bin/entrypoint.sh"]

@@ -1,0 +1,6 @@
+# this service is working only in runlevel 0 and 6 off. It is not stopped by do_check_services off
+if [ -x /etc/init.d/unattended-upgrades ]; then
+	echo "  Disabling unattended-upgrades"
+	chmod -x /etc/init.d/unattended-upgrades
+fi
+

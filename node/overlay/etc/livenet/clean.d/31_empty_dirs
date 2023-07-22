@@ -1,0 +1,20 @@
+# apt
+mkdir -p /var/cache/apt/archives/partial
+
+# network working dir
+mkdir -p /var/run/network
+
+# state is for diskless boot
+if [ ! -d /.state ]; then
+	mkdir -p /.state
+	touch /.state/.empty
+fi
+
+# lightdm xorg
+for d in /var/lib/lightdm /var/lib/lightdm-data /etc/dbus-1/session.d; do
+    if [ ! -d ${d} ]; then
+        mkdir ${d}
+        touch ${d}/.empty
+	[ "${d}" = "/var/lib/lightdm" ] && chown -R lightdm:lightdm /var/lib/lightdm 2>/dev/null 2>&1
+    fi
+done

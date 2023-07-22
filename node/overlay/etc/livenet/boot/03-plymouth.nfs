@@ -1,0 +1,2 @@
+# in NFS mode plymouth interfere with intel DRM and i915
+service_switch plymouth off

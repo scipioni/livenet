@@ -1,0 +1,2 @@
+echo "nfs.${PROFILE}" > /etc/debian_chroot
+

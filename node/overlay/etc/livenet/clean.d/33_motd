@@ -1,0 +1,8 @@
+# lighter motd 
+for i in 90-updates-available 98-fsck-at-reboot 10-help-text 91-release-upgrade 98-reboot-required; do
+	if [ -x /etc/update-motd.d/$i ]; then
+	    echo "disabling /etc/update-motd.d/$i"
+	    chmod -x /etc/update-motd.d/$i
+	fi
+done
+

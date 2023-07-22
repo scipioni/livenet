@@ -1,0 +1,22 @@
+# no configured flags
+rm -f /etc/livenet/configured/*
+
+# no fastboot
+rm -f /fastboot
+
+# no acpi volatile information
+rm -f /var/lib/acpi-support/*
+
+# no Examples in skeleton
+rm -fR /etc/skel/Examples
+
+    
+# cleaning
+rm -f `find /var/run -type s`
+rm -f `find /var/run -name '*pid'`
+rm -f `find /var/log -type f -not -name aptitude -not -name dpkg.log -not -name dmesg -not -name freshclam.log`
+rm -f /var/run/nscd/*
+rm -fR /var/cache/flashplugin-nonfree/
+    
+# no ureadahead pack file
+rm -f /var/lib/ureadahead/pack

@@ -1,0 +1,20 @@
+for i in \
+update-notifier.desktop \
+evolution-alarm-notify.desktop \
+jockey-gtk.desktop \
+ubuntuone-launch.desktop \
+bluetooth-applet.desktop \
+zeitgeist-datahub.desktop \
+deja-dup-monitor.desktop \
+user-dirs-update-gtk.desktop \
+bluetooth-applet-unity.desktop \
+gwibber.desktop \
+telepathy-indicator.desktop \
+; do
+if [ -f /etc/xdg/autostart/${i} ]; then
+    echo " Disable $i"
+    mv /etc/xdg/autostart/${i} /etc/xdg/autostart/${i}.disabled
+fi
+done
+
+

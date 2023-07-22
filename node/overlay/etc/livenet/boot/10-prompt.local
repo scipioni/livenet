@@ -1,0 +1,2 @@
+echo "local.${PROFILE}" > /etc/debian_chroot
+

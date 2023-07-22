@@ -1,0 +1,79 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="dhcp configuration"
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+echo $DESCRIPTION
+
+. /scripts/functions
+. /scripts/functions-livenet
+log_begin_msg "$DESCRIPTION"
+#set -x
+    
+# wait for network device
+sec=0
+while [ 1 ]; do
+    grep -q ${DEVICE} /proc/net/dev && break
+    sec=$(($sec+1))
+    if [ $sec -gt 10 ]; then
+        do_log "ERROR: No network device detected"
+        LIVENET_ROOT=
+        DEVICE=
+        break
+        exit 1
+    fi
+    sleep 1
+done
+
+do_dhcp() {
+    [ -z "${DHCP_TIMEOUT}" ] && DHCP_TIMEOUT="2 3 4 6 9 16"
+    for ROUNDTTT in ${DHCP_TIMEOUT}; do
+        for x in /run/net-"${DEVICE}".conf /run/net-*conf /tmp/net-*conf; do
+            [ -f "$x" ] && break
+        done
+	do_log "running dhcp client on ${DEVICE}"
+        ipconfig -t ${ROUNDTTT} -c dhcp -i "LIVENET" "${DEVICE}"
+    done
+}
+
+configure_wifi()
+{
+    ifconfig ${DEVICE} up
+    iwconfig ${DEVICE} essid ${SSID}
+    sleep 2
+}
+
+[ -n "${SSID}" ] && configure_wifi
+
+do_dhcp
+#do_debug_shell
+
+# controlliamo se la rete viene configurata
+for x in /run/net-"${DEVICE}".conf /run/net-*.conf /tmp/net-*conf; do
+    if [ -e "$x" ]; then
+        . ${x}
+        [ "x${LIVENET_ROOT}" = "xauto" ] && LIVENET_ROOT=${ROOTSERVER}:${ROOTPATH}
+        exit 0
+    fi
+done
+do_log "WARNING: No network"
+        
+echo '-------------'
+echo 'ipconfig -c dhcp -i "LIVENET" "${DEVICE}"'
+echo '-------------'
+
+do_debug_shell
+
+
+log_end_msg

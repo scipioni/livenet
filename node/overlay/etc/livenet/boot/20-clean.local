@@ -1,0 +1,25 @@
+# cancelliamo i log troppo grossi
+for FN in $( find /var/log -type f -size +500000k ); do
+    rm -f $FN
+done;
+
+# cancelliamo i file temporanei
+for tmp in /tmp /var/tmp; do
+    rm -fR ${tmp}
+    mkdir -p -m 1777 ${tmp}
+done
+
+# preveniamo un bug di libldap
+rm -f /var/run/nscd/*
+
+# cancelliamo gli spool di cups
+rm -f /var/spool/cups/* > /dev/null 2>&1 # prevent a cups bug
+rm -f /var/spool/cups/tmp/* > /dev/null 2>&1
+
+# cancelliamo la cache di lightdm perchéa volte inibisce il boot via nfs
+rm -fR /var/lib/lightdm 
+mkdir -p /var/lib/lightdm
+chown lightdm:lightdm /var/lib/lightdm
+
+# delete /media
+rm -fR /media/*

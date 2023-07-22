@@ -1,0 +1,14 @@
+
+do_log() {
+    echo "$@" 
+    if [ -x /bin/plymouth ] && plymouth --ping; then
+        /bin/plymouth --update="$@"
+    fi
+}
+
+do_debug_shell() {
+    loadkeys /etc/boottime.kmap.gz
+    echo "Debugging shell"
+    /bin/sh
+}
+

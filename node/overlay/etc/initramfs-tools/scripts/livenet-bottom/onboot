@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# script onboot
+
+PREREQ=""
+DESCRIPTION="Running onboot script"
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+echo $DESCRIPTION
+
+. /scripts/functions
+. /scripts/functions-livenet
+log_begin_msg "$DESCRIPTION"
+    
+echo "LIVENET_ROOT=${LIVENET_ROOT}" >> /tmp/net-${DEVICE}.conf # utilized by ln-client --install
+for x in /run/net-*.conf /tmp/net-*.conf ; do
+    . ${x}
+    cat ${x} >> ${rootmnt}/${STATETMP}/net-${DEVICE}.conf # utilized by ln-client --sync-state
+done
+
+mount -n -o bind /sys /root/sys
+mount -n -o bind /proc /root/proc
+
+chroot /root /usr/bin/ln-client --force --boot ${ROOTMOUNTED}
+
+umount /root/sys
+umount /root/proc
+
+# in local mount mount ro disk
+[ "${ROOTMOUNTED}" = "local" ] && mount -o remount,ro ${rootmnt}
+
+log_end_msg
+

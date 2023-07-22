@@ -1,0 +1,110 @@
+MODULES=most
+BUSYBOX=y
+COMPRESS=gzip
+BOOT=livenet
+DEVICE=eth0
+NFSROOT=auto
+
+# override function defined in /usr/share/initramfs-tools/hook-functions
+xxx_auto_add_modules()
+{
+	case "${1:-}" in
+	base)
+		for x in ehci-hcd ohci-hcd ohci-pci uhci-hcd usbhid xhci xhci-hcd hid-apple \
+		hid-cherry hid-logitech hid-microsoft \
+		hid-a4tech hid-belkin hid-bright hid-chicony \
+		hid-cypress hid-dell hid-ezkey hid-gyration \
+		hid-monterey hid-petalynx hid-pl hid-samsung hid-sony \
+		hid-sunplus hid-tmff hid-zpff \
+		btrfs ext2 ext3 ext4 ext4dev isofs nfs udf \
+		vfat nls_cp437 nls_iso8859-1 \
+		af_packet atkbd i8042 virtio_pci; do
+			manual_add_modules "${x}"
+		done
+	;;
+	net)
+		copy_modules_dir kernel/drivers/net \
+			arcnet bonding can \
+			usb wan wireless
+	;;
+	ide)
+		copy_modules_dir kernel/drivers/ide
+	;;
+	mmc)
+		copy_modules_dir kernel/drivers/mmc
+	;;
+	scsi)
+		copy_modules_dir kernel/drivers/scsi
+		for x in mptfc mptsas mptscsih mptspi zfcp; do
+			manual_add_modules "${x}"
+		done
+	;;
+	ata)
+		copy_modules_dir kernel/drivers/ata
+	;;
+	block)
+		copy_modules_dir kernel/drivers/block
+	;;
+	ubi)
+		for x in deflate zlib lzo ubi ubifs; do
+			manual_add_modules "${x}"
+		done
+	;;
+	ieee1394)
+		for x in ohci1394 sbp2; do
+			manual_add_modules "${x}"
+		done
+	;;
+	firewire)
+		for x in firewire-ohci  firewire-sbp2; do
+			manual_add_modules "${x}"
+		done
+	;;
+	i2o)
+		for x in i2o_block; do
+			manual_add_modules "${x}"
+		done
+	;;
+	dasd)
+		for x in dasd_diag_mod dasd_eckd_mod dasd_fba_mod; do
+			manual_add_modules "${x}"
+		done
+	;;
+	usb_storage)
+		copy_modules_dir kernel/drivers/usb/storage
+	;;
+	virtual)
+		# Hyper-V
+		for x in hv_vmbus hv_utils hv_netvsc hv_mouse hv_storvsc; do
+			manual_add_modules "${x}"
+		done
+	;;
+	wireless_intel)
+		for x in cfg80211 mac80211 iwlcore iwlagn arc4; do
+			manual_add_modules "${x}"
+		done
+	;;
+	wireless_atheros)
+		for x in cfg80211 mac80211 arc4 ath9k_common ath9k ath9k_hw ath; do
+			manual_add_modules "${x}"
+		done
+	;;
+	*)
+		auto_add_modules base
+		auto_add_modules net
+		auto_add_modules ide
+		#auto_add_modules scsi
+		auto_add_modules block
+		auto_add_modules ata
+		auto_add_modules i2o
+		#auto_add_modules dasd
+		#auto_add_modules ieee1394
+		#auto_add_modules firewire
+		#auto_add_modules virtual
+		auto_add_modules mmc
+		auto_add_modules usb_storage
+		#auto_add_modules wireless_intel
+		#auto_add_modules wireless_atheros
+	;;
+	esac
+}

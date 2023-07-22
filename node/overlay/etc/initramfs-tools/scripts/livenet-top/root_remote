@@ -1,0 +1,112 @@
+#!/bin/sh
+
+PREREQ="dhcp"
+DESCRIPTION="Mount remote root"
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+echo $DESCRIPTION
+
+. /scripts/functions
+. /scripts/functions-livenet
+log_begin_msg "$DESCRIPTION"
+
+if [ -n "${ROOT}" ]; then
+    do_log "skip remote mount"  
+    exit 0
+fi
+
+sync_state_nfs ()
+{
+    MAC=$( ifconfig ${DEVICE} | sed -n -r "s|^.*HWaddr ([A-Z0-9:]+).*$|\1| p" | tr -d ':' )
+    SERVERRW=$( echo ${LIVENET_ROOT} | sed -n -r "s|^(.+):.+$|\1| p" )
+    
+    mkdir -p ${rootmnt}/${STATETMP}/persistent
+    # nfsv3
+    mount -t nfs -o rw,${NFSOPTS} ${SERVERRW}:${STATENFS} ${STATETMP}/persistent
+    # nfsv4
+    #mount.nfs -n ${SERVERRW}:${STATENFS} ${STATETMP}/persistent -o ${NFSOPTSV4}
+    if [ $? = 0 ]; then
+        STATE=${STATETMP}/persistent/${MAC}_${RELEASE}
+        
+        if [ ! -f ${STATE}/${FLAG_RELEASE} ]; then
+            do_log "New release detected ($RELEASE), reset state"
+            rm -fR ${STATE}
+            log_end_msg
+        fi
+
+        mkdir -p ${STATE}/etc/livenet 
+        for x in /run/net-*.conf /tmp/net-*conf; do
+            echo "SERVERRW=${SERVERRW}" >> ${x}
+            echo "MAC=${MAC}" >> ${x}
+        done
+        cp -a ${STATE}/etc ${rootmnt}/${STATETMP}
+        umount ${STATETMP}/persistent
+    else
+        do_log "Cannot sync state, skip"
+    fi
+}
+
+LANG=en
+
+modprobe nfsv3 >/dev/null &
+    
+mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755 
+    
+cd ${rootmnt}
+cp -a /dev .
+mkdir -p ${rootmnt}/${NFSRO}
+mkdir ${rootmnt}/proc ${rootmnt}/sys ${rootmnt}/home ${rootmnt}/media 
+mkdir -p  ${rootmnt}/${STATETMP}/var ${rootmnt}/${STATETMP}/etc 
+mkdir -m 1777 ${rootmnt}/tmp
+touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
+
+wait # nfs module go in background 
+
+# nfsv3
+mount -t nfs -o ro,${NFSOPTS} ${LIVENET_ROOT} ${NFSRO} 
+
+#nfsv4
+#mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
+if [ ! $? = 0 ]; then
+    do_log "Cannot mount nfs root, reboot"
+    sleep 10
+    reboot
+fi
+
+for folder in bin boot lib lib64 opt root sbin usr mnt selinux livenet;  do
+    [ -d ${NFSRO}/${folder} ] && ln -s ${NFSRO}/${folder} ${folder}
+done
+
+sync_state_nfs
+
+# clean rw space 
+mkdir ${rootmnt}/var ${rootmnt}/etc
+
+# aufs
+mount -t aufs -o dirs=${STATETMP}/etc=rw:${NFSRO}/etc=ro aufs etc
+mount -t aufs -o dirs=${STATETMP}/var=rw:${NFSRO}/var=ro aufs var
+
+# overlayfs
+#mount -t overlayfs -o lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc overlayfs etc
+#mount -t overlayfs -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/etc overlayfs var
+
+
+touch ${rootmnt}/${FLAG_RELEASE}
+touch ${rootmnt}/${FLAG_NFS} # flag
+
+
+for x in /run/net-*.conf /tmp/net-*.conf; do
+    ROOTMOUNTED=nfs
+    echo "ROOTMOUNTED=${ROOTMOUNTED}" >> ${x}
+done
+

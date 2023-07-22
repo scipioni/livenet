@@ -1,0 +1,11 @@
+# pulseaudio has to quit after logout
+
+if [ -f /etc/pulse/daemon.conf ]; then
+    egrep -q "^exit-idle-time = 0" /etc/pulse/daemon.conf
+    if [ ! $? = 0 ]; then
+        echo "Enabling idle timeout on pulseaudio"
+        perl -pi -e "s/^(exit-idle-time.*)/;\1/" /etc/pulse/daemon.conf
+        echo "exit-idle-time = 0" >> /etc/pulse/daemon.conf
+    fi
+fi
+

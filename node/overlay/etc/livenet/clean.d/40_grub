@@ -1,0 +1,14 @@
+mkdir -p /boot/grub/locale
+if [ ! -f /boot/grub/ext2.mod ] || [ ! -f /boot/grub/modinfo.sh ]; then
+	echo "  Update grub environment"
+	cp -au /usr/lib/grub/i386-pc/* /boot/grub
+	for fff in /usr/share/locale/*; do
+	    if [ -f ${fff}/LC_MESSAGES/grub.mo ]; then
+		cp -f "${fff}/LC_MESSAGES/grub.mo" "/boot/grub/locale/${fff##*/}.mo"
+	    fi
+	done
+fi
+if [ ! -f /boot/grub/core.img ]; then
+	echo "Build core.img"
+	grub-mkimage --format=i386-pc --output=/boot/grub/core.img --prefix=/boot/grub biosdisk ext2 part_msdos
+fi

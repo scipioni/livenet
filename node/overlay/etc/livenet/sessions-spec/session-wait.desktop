@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Message
+Exec=ln-client --session-wait
+Icon=
+Type=Application
+X-Ubuntu-Gettext-Domain=gnome-session-3.0

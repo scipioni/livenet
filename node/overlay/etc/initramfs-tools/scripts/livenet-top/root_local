@@ -1,0 +1,65 @@
+#!/bin/sh
+
+PREREQ="dhcp"
+DESCRIPTION="Mount local root"
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+echo $DESCRIPTION
+
+. /scripts/functions
+. /scripts/functions-livenet
+log_begin_msg "$DESCRIPTION"
+
+if [ -z "${ROOT}" ]; then
+    do_log "skip local mount"  
+    exit 0
+fi
+
+# traslate UUID into file block
+echo "$ROOT" | grep -q "UUID="
+if [ $? = 0 ]; then
+    eval $ROOT # to have UUID=
+    ROOT=/dev/disk/by-uuid/$UUID
+fi
+
+eval $(fstype < ${ROOT}) # Get the root filesystem type
+modprobe ${FSTYPE}
+
+seconds=10 # wait 10 seconds to have disk module (important for scsi driver)
+while [ 1 ]; do
+    if [ -e "${ROOT}" ]; then
+        break
+    fi
+    seconds=$((seconds-1))
+    if [ ${seconds} -lt 1 ]; then
+        do_log "ERROR: No disk module or no root on disk... install cache or add disk module to initramfs.conf#auto_add_module"
+        sleep 30 # wait to permit to read message
+        exit 1
+    fi
+    sleep 1
+done
+
+mount -o rw -t ${FSTYPE} ${ROOT} ${rootmnt} # rw for update_root, after root partition is remounted ro in livenet-bottom scripts
+if [ ! $? == 0 ]; then # root mounted, try to update now
+    do_log "ERROR: no local boot"
+    sleep 10
+    exit 1
+fi
+
+for x in /run/net-"${DEVICE}".conf /run/net-*.conf /tmp/net-*.conf; do
+    ROOTMOUNTED=local
+    echo "ROOTMOUNTED=${ROOTMOUNTED}" >> ${x}
+done
+
+log_end_msg
+

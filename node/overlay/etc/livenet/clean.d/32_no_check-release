@@ -1,0 +1,3 @@
+# no check-release
+[ -x /usr/lib/update-manager/release-upgrade-motd ] && chmod -x /usr/lib/update-manager/release-upgrade-motd
+
