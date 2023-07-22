@@ -23,3 +23,9 @@ services:
     ports:
       - 2049:2049
       #- 20048:20048
+    networks:
+      - livenet_macvlan
+
+networks:
+  livenet_macvlan:
+    external: true

@@ -202,3 +202,20 @@ ls -alt
 ls /boot/
 ls /tftp/
 ls /tftp/boot
+ls /tftp/
+ls /tftp/boot
+ls /tftp/boot/
+ip a
+cd /tftp/
+ll
+cd boot
+ls -al
+ls -al jammy/
+chmod 644 *
+cd /tftp/boot
+ll
+ls -al
+cd jammy/
+ls -al
+ls -alh
+cd /tftp/bios/

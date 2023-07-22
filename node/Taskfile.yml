@@ -55,3 +55,9 @@ tasks:
       - sudo mount -t nfs -o vers=4,loud localhost:/ /tmp/test
       - ls /tmp/test
       - sudo umount /tmp/test
+
+  kernel:copy:
+    cmds:
+      - docker cp lnode:/boot/initrd.img-5.15.0-76-generic ../server/boot/jammy/initrd
+      - docker cp lnode:/boot/vmlinuz-5.15.0-76-generic ../server/boot/jammy/kernel
+

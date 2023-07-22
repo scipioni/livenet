@@ -37,6 +37,8 @@ services:
       - ./pxelinux.cfg:/tftp/bios/pxelinux.cfg
       - ./grub.cfg:/tftp/grub/grub.cfg:ro
       - /dev/log:/dev/log
+      - ./boot/jammy/kernel:/tftp/boot/kernel
+      - ./boot/jammy/initrd:/tftp/boot/initrd
     # cap_add:
     #   - NET_ADMIN
 
