@@ -26,6 +26,8 @@ RUN usermod -a -G sudo ubuntu
 ####### PXE ############################################
 ########################################################
 FROM base as pxe
+ARG TFTP_ROOT=/boot
+
 
 RUN DEBIAN_FRONTEND=noninteractive \
   && apt-get install -y \
@@ -42,23 +44,26 @@ EXPOSE 67/tcp \
        67/udp \
        69/udp
 
-RUN mkdir -p /tftp/grub /tftp/bios /tftp/boot
-RUN ln -s /tftp/boot  /tftp/bios/boot
+RUN mkdir -p ${TFTP_ROOT}/grub-node ${TFTP_ROOT}/bios ${TFTP_ROOT}/boot
+RUN ln -s ${TFTP_ROOT}/boot  ${TFTP_ROOT}/bios/boot
 
 # bios with pxelinux
-RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/bios
-RUN cp /usr/lib/syslinux/modules/bios/* /tftp/bios
+RUN cp /usr/lib/PXELINUX/pxelinux.0 ${TFTP_ROOT}/bios
+RUN cp /usr/lib/syslinux/modules/bios/* ${TFTP_ROOT}/bios
 
 
 # efi with grub
-RUN cp -rf /usr/lib/grub/i386-pc /tftp/grub
-RUN grub-mkimage -d /usr/lib/grub/i386-pc/ -O i386-pc-pxe -o /tftp/booti386 -p '/grub' pxe tftp
-RUN cp -a /usr/lib/grub/x86_64-efi /tftp/grub/
-RUN grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o /tftp/grub/bootx64.efi -p '/grub' efinet tftp
-RUN cp /boot/pcmemtestx64.efi /tftp/boot/
+RUN cp -rf /usr/lib/grub/i386-pc ${TFTP_ROOT}/grub-node
+RUN grub-mkimage -d /usr/lib/grub/i386-pc/ -O i386-pc-pxe -o ${TFTP_ROOT}/booti386 -p '/grub-node' pxe tftp
+RUN cp -a /usr/lib/grub/x86_64-efi ${TFTP_ROOT}/grub-node/
+RUN grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o ${TFTP_ROOT}/grub-node/bootx64.efi -p '/grub-node' efinet tftp
+
+
+
+#RUN cp /boot/pcmemtestx64.efi ${TFTP_ROOT}/boot/
 
 # pcmemtest
-RUN cp /boot/pcmemtest.bin /tftp/boot
+#RUN cp /boot/pcmemtest.bin ${TFTP_ROOT}/boot
 
 
 

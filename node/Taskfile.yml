@@ -20,7 +20,7 @@ tasks:
     cmds:
       - mkdir -p runtime
       - touch runtime/bash_history
-      - docker compose up -d
+      - docker compose up
       #- docker run --name lnode -it -d -p 2049:2049 -p 20048:20048 ${IMAGE} || true
 
   cli:
@@ -58,8 +58,39 @@ tasks:
       - ls /tmp/test
       - sudo umount /tmp/test
 
-  kernel:copy:
-    cmds:
-      - docker cp lnode:/boot/initrd.img-5.15.0-76-generic ../server/boot/jammy/initrd
-      - docker cp lnode:/boot/vmlinuz-5.15.0-76-generic ../server/boot/jammy/kernel
+  # kernel:copy:
+  #   cmds:
+  #     - docker cp lnode:/boot/initrd.img-5.15.0-76-generic ../server/boot/jammy/initrd
+  #     - docker cp lnode:/boot/vmlinuz-5.15.0-76-generic ../server/boot/jammy/kernel
 
+
+  network:
+    desc: create livenet network
+    cmds:
+      - |
+        sudo virsh net-info livenet && sudo virsh net-destroy livenet || true
+        sudo virsh net-define libvirt/net-livenet.xml
+        sudo virsh net-start livenet
+        docker network rm livenet_macvlan 2>/dev/null || true 
+        docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1 --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
+        sudo ip link add mcvlan-ingress link livenet type macvlan mode bridge
+        sudo ip addr add 192.168.124.223 dev mcvlan-ingress
+        sudo ip link set mcvlan-ingress up
+        sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
+
+  vm:bios:
+    desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
+    cmds:
+      - |
+        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0
+        #  -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
+        #  -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd
+  
+  vm:efi:
+    desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
+    cmds:
+      - |
+        cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /tmp/OVMF_VARS.fd
+        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
+          -drive if=pflash,format=raw,unit=0,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
+          -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd

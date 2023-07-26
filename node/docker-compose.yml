@@ -1,4 +1,5 @@
 version: "3"
+name: livenet
 
 services:
   lnode:
@@ -14,8 +15,8 @@ services:
       #### pxe
       - ./runtime/bash_history:/root/.bash_history
       - ./overlay/etc/default/tftpd-hpa:/etc/default/tftpd-hpa
-      - ./overlay/tftp/pxelinux.cfg:/tftp/bios/pxelinux.cfg
-      - ./overlay/tftp/grub.cfg:/tftp/grub/grub.cfg
+      - ./overlay/boot/pxelinux.cfg:/boot/bios/pxelinux.cfg
+      - ./overlay/boot/grub.cfg:/boot/grub-node/grub.cfg
       - /dev/log:/dev/log
       #### node
       - ./overlay/etc/livenet:/etc/livenet

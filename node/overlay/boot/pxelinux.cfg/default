@@ -12,9 +12,9 @@ TIMEOUT 0
 
 label memtest
     menu label pcmemtest
-    linux ../boot/pcmemtest.bin
+    linux ../pcmemtest.bin
 
 label live
    menu label Ubuntu 22.04 - live
-   kernel ../boot/kernel
-   append initrd=../boot/initrd ro livenet_root=192.168.124.192:/images/trusty livenet_profile=default
+   kernel ../kernel
+   append initrd=../initrd ro livenet_root=192.168.124.192:/images/trusty livenet_profile=default
