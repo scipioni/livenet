@@ -18,6 +18,8 @@ tasks:
 
   start:
     cmds:
+      - mkdir -p runtime
+      - touch runtime/bash_history
       - docker compose up -d
       #- docker run --name lnode -it -d -p 2049:2049 -p 20048:20048 ${IMAGE} || true
 

@@ -22,8 +22,51 @@ RUN usermod -a -G sudo ubuntu
 
 #USER apprunner
 
+########################################################
+####### PXE ############################################
+########################################################
+FROM base as pxe
 
-FROM base as nfs
+RUN DEBIAN_FRONTEND=noninteractive \
+  && apt-get install -y \
+    tftpd-hpa \
+    grub-efi \
+    grub-pc-bin \
+    pcmemtest \
+    pxelinux \
+    syslinux \
+    syslinux-common \
+    mini-httpd
+
+EXPOSE 67/tcp \
+       67/udp \
+       69/udp
+
+RUN mkdir -p /tftp/grub /tftp/bios /tftp/boot
+RUN ln -s /tftp/boot  /tftp/bios/boot
+
+# bios with pxelinux
+RUN cp /usr/lib/PXELINUX/pxelinux.0 /tftp/bios
+RUN cp /usr/lib/syslinux/modules/bios/* /tftp/bios
+
+
+# efi with grub
+RUN cp -rf /usr/lib/grub/i386-pc /tftp/grub
+RUN grub-mkimage -d /usr/lib/grub/i386-pc/ -O i386-pc-pxe -o /tftp/booti386 -p '/grub' pxe tftp
+RUN cp -a /usr/lib/grub/x86_64-efi /tftp/grub/
+RUN grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o /tftp/grub/bootx64.efi -p '/grub' efinet tftp
+RUN cp /boot/pcmemtestx64.efi /tftp/boot/
+
+# pcmemtest
+RUN cp /boot/pcmemtest.bin /tftp/boot
+
+
+
+
+########################################################
+####### NFS ############################################
+########################################################
+FROM pxe as nfs
 
 #RUN bash -c echo "livenet" > /etc/hostname
 #RUN echo "127.0.1.1 livenet" >> /etc/hosts

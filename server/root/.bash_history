@@ -219,3 +219,7 @@ cd jammy/
 ls -al
 ls -alh
 cd /tftp/bios/
+cd /tftp/boot
+ll
+ls -al
+chmod 644 *

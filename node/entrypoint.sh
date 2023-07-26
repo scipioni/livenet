@@ -8,6 +8,9 @@ stop()
 {
   # We're here because we've seen SIGTERM, likely via a Docker stop command or similar
   # Let's shutdown cleanly
+
+  service tftpd-hpa stop
+
   echo "SIGTERM caught, terminating NFS process(es)..."
   /usr/sbin/exportfs -uav
   /usr/sbin/rpc.nfsd 0
@@ -19,6 +22,13 @@ stop()
   echo "Terminated."
   exit
 }
+
+
+echo "starting tftp-hpa"
+service tftpd-hpa start
+
+echo "starting mini httpd"
+mini_httpd -p 8095 -d /tftp -l /dev/stdout -D &
 
 # Partially set 'unofficial Bash Strict Mode' as described here: http://redsymbol.net/articles/unofficial-bash-strict-mode/
 # We don't set -e because the pidof command returns an exit code of 1 when the specified process is not found

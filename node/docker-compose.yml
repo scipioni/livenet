@@ -9,8 +9,15 @@ services:
     privileged: true
     volumes:
       # solo durante sviluppo
-      #- ./docker/entrypoint.sh:/usr/local/bin/entrypoint.sh
+      - ./entrypoint.sh:/usr/local/bin/entrypoint.sh
       #- ./docker/exports:/etc/exports
+      #### pxe
+      - ./runtime/bash_history:/root/.bash_history
+      - ./overlay/etc/default/tftpd-hpa:/etc/default/tftpd-hpa
+      - ./overlay/tftp/pxelinux.cfg:/tftp/bios/pxelinux.cfg
+      - ./overlay/tftp/grub.cfg:/tftp/grub/grub.cfg
+      - /dev/log:/dev/log
+      #### node
       - ./overlay/etc/livenet:/etc/livenet
       - ./overlay/etc/initramfs-tools/conf.d:/etc/initramfs-tools/conf.d
       - ./overlay/etc/initramfs-tools/hooks:/etc/initramfs-tools/hooks
