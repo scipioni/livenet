@@ -19,15 +19,15 @@ services:
       - ./overlay/boot/grub.cfg:/boot/grub-node/grub.cfg
       - /dev/log:/dev/log
       #### node
-      - ./overlay/etc/livenet:/etc/livenet
-      - ./overlay/etc/initramfs-tools/conf.d:/etc/initramfs-tools/conf.d
-      - ./overlay/etc/initramfs-tools/hooks:/etc/initramfs-tools/hooks
-      - ./overlay/etc/initramfs-tools/scripts/functions-livenet:/etc/initramfs-tools/scripts/functions-livenet
-      - ./overlay/etc/initramfs-tools/scripts/livenet:/etc/initramfs-tools/scripts/livenet
-      - ./overlay/etc/initramfs-tools/scripts/livenet-bottom:/etc/initramfs-tools/scripts/livenet-bottom
-      - ./overlay/etc/initramfs-tools/scripts/livenet-top:/etc/initramfs-tools/scripts/livenet-top
-      - ./overlay/usr/sbin/ln-mng:/usr/sbin/ln-mng
-      - ./overlay/usr/sbin/policy-rc.d:/usr/sbin/policy-rc.d
+      # - ./overlay/etc/livenet:/etc/livenet
+      # - ./overlay/etc/initramfs-tools/conf.d:/etc/initramfs-tools/conf.d
+      # - ./overlay/etc/initramfs-tools/hooks:/etc/initramfs-tools/hooks
+      # - ./overlay/etc/initramfs-tools/scripts/functions-livenet:/etc/initramfs-tools/scripts/functions-livenet
+      # - ./overlay/etc/initramfs-tools/scripts/livenet:/etc/initramfs-tools/scripts/livenet
+      # - ./overlay/etc/initramfs-tools/scripts/livenet-bottom:/etc/initramfs-tools/scripts/livenet-bottom
+      # - ./overlay/etc/initramfs-tools/scripts/livenet-top:/etc/initramfs-tools/scripts/livenet-top
+      # - ./overlay/usr/sbin/ln-mng:/usr/sbin/ln-mng
+      # - ./overlay/usr/sbin/policy-rc.d:/usr/sbin/policy-rc.d
     ports:
       - 2049:2049
       #- 20048:20048

@@ -24,13 +24,15 @@ log_begin_msg "$DESCRIPTION"
 # wait for network device
 sec=0
 while [ 1 ]; do
-    grep -q ${DEVICE} /proc/net/dev && break
+    #grep -q ${DEVICE} /proc/net/dev && break
+    [ $(cat /proc/net/dev | wc -l) -gt 3 ] && break
+    
     sec=$(($sec+1))
     if [ $sec -gt 10 ]; then
         do_log "ERROR: No network device detected"
         LIVENET_ROOT=
         DEVICE=
-        break
+        #break
         exit 1
     fi
     sleep 1
@@ -42,7 +44,7 @@ do_dhcp() {
         for x in /run/net-"${DEVICE}".conf /run/net-*conf /tmp/net-*conf; do
             [ -f "$x" ] && break
         done
-	do_log "running dhcp client on ${DEVICE}"
+	    do_log "running dhcp client on ${DEVICE}"
         ipconfig -t ${ROUNDTTT} -c dhcp -i "LIVENET" "${DEVICE}"
     done
 }
@@ -56,6 +58,7 @@ configure_wifi()
 
 [ -n "${SSID}" ] && configure_wifi
 
+#do_debug_shell
 do_dhcp
 #do_debug_shell
 

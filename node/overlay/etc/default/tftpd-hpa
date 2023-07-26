@@ -1,5 +1,5 @@
-TFTP_USERNAME="tftp"
+TFTP_USERNAME="root"
 TFTP_DIRECTORY="/boot"
 TFTP_ADDRESS=":69"
-TFTP_OPTIONS="--secure -v"
+TFTP_OPTIONS="--secure --permissive --verbose --verbose"
 

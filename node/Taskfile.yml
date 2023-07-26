@@ -78,11 +78,17 @@ tasks:
         sudo ip link set mcvlan-ingress up
         sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
 
+        sudo ip link add dummy0 type dummy || true
+        sudo ip link set dummy0 up
+        sudo ip link set dummy0 master livenet
+        
+        docker compose down
+
   vm:bios:
     desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
     cmds:
       - |
-        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0
+        qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 
         #  -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
         #  -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd
   

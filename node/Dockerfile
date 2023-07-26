@@ -3,7 +3,7 @@ FROM ubuntu:22.04 as base
 RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/00-docker
 RUN echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/00-docker
 
-RUN DEBIAN_FRONTEND=noninteractive \
+RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
   apt-get update \
   && apt-get install -y \
     linux-image-generic \
@@ -12,15 +12,27 @@ RUN DEBIAN_FRONTEND=noninteractive \
     initramfs-tools \
     locales \
     dialog \
-    efibootmgr
+    efibootmgr \
+    iputils-ping \
+    iproute2 
   #&& rm -rf /var/lib/apt/lists/*
 
 
+RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
+  apt-get install -y \
+    ubuntu-minimal
+
+
+RUN locale-gen en_GB.UTF-8
+RUN locale-gen it_IT.UTF-8
+RUN update-locale LANG=it_IT.UTF-8 LANGUAGE=it:en_US:en
+
+RUN echo Europe/Rome > /etc/timezone
+RUN cp /usr/share/zoneinfo/Europe/Rome /etc/localtime
 
 RUN useradd -ms /bin/bash ubuntu
 RUN usermod -a -G sudo ubuntu
 
-#USER apprunner
 
 ########################################################
 ####### PXE ############################################
@@ -60,12 +72,6 @@ RUN grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o ${TFTP_ROOT}/gru
 
 
 
-#RUN cp /boot/pcmemtestx64.efi ${TFTP_ROOT}/boot/
-
-# pcmemtest
-#RUN cp /boot/pcmemtest.bin ${TFTP_ROOT}/boot
-
-
 
 
 ########################################################
@@ -76,18 +82,14 @@ FROM pxe as nfs
 #RUN bash -c echo "livenet" > /etc/hostname
 #RUN echo "127.0.1.1 livenet" >> /etc/hosts
 
-RUN locale-gen en_GB.UTF-8
-RUN locale-gen it_IT.UTF-8
-RUN update-locale LANG=it_IT.UTF-8 LANGUAGE=it:en_US:en
-
-# adjust timezone (later run dpkg-reconfigure tzdata)
-#RUN echo Europe/Rome > /etc/timezone
-#RUN cp /usr/share/zoneinfo/Europe/Rome /etc/localtime
 
 
 RUN set -x && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq -y openssl nfs-kernel-server && \
-    mkdir /exports
+    DEBIAN_FRONTEND=noninteractive apt-get install -qq -y \
+      openssl \
+      nfs-kernel-server \
+      iproute2
+
 
 RUN mkdir -p /var/lib/nfs/rpc_pipefs /var/lib/nfs/v4recovery && \
     echo "rpc_pipefs    /var/lib/nfs/rpc_pipefs rpc_pipefs      defaults        0       0" >> /etc/fstab && \
@@ -103,12 +105,12 @@ EXPOSE 2049/tcp
 #EXPOSE 20048/tcp
 
 
-FROM nfs
+FROM nfs as runtime
 
-COPY overlay/etc /
-COPY overlay/usr/sbin/ln-mng /usr/sbin
-COPY overlay/usr/sbin/policy-rc.d /usr/sbin
-ENV RESUME auto 
-RUN update-initramfs -c -k all
+COPY ./overlay /tmp/overlay
+RUN cp -vR /tmp/overlay/* / && rm -fR /tmp/overlay
+
+RUN RESUME=auto update-initramfs -c -k all
+#RUN /bin/bash -c "source /etc/livenet/livenet.conf && RESUME=auto dpkg-reconfigure linux-image-${KERNEL}"
 
 CMD ["/usr/local/bin/entrypoint.sh"]

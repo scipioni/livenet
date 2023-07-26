@@ -1,7 +1,7 @@
 DEFAULT menu.c32
 MENU TITLE Livenet Server
-PROMPT 0 
-TIMEOUT 0
+PROMPT 0
+TIMEOUT 30
 
 #MENU COLOR TABMSG  37;40  #ffffffff #00000000
 #MENU COLOR TITLE   37;40  #ffffffff #00000000 
@@ -9,12 +9,11 @@ TIMEOUT 0
 #MENU COLOR UNSEL    37;40 #ffffffff #00000000
 #MENU COLOR BORDER   37;40 #ffffffff #00000000
 
+label live
+    menu label Ubuntu 22.04 - live
+    kernel ../vmlinuz
+    append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.192:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
 
 label memtest
     menu label pcmemtest
     linux ../pcmemtest.bin
-
-label live
-   menu label Ubuntu 22.04 - live
-   kernel ../kernel
-   append initrd=../initrd ro livenet_root=192.168.124.192:/images/trusty livenet_profile=default
