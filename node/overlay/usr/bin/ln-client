@@ -1,0 +1,476 @@
+#!/bin/bash
+
+# Run only client Livenet
+
+PROGNAME=${0##*/}
+PROGVERSION=0.1.0
+
+
+check_jail() {
+    if [ ! "`< /etc/hostname`" = "`hostname`" ]; then
+        echo "This program run only on live client, not in chroot jail. Use ln-mng instead." 1>&2
+        exit 1
+    fi
+}
+
+. /etc/livenet/livenet.conf
+
+usage()
+{
+  cat << EOF
+        Usage: $PROGNAME <command> [--help] 
+
+        --install: install livenet on LROOT partition
+	--install-with-gui: install livenet (called by ln-install service)
+        [--force] --boot {local|nfs}: prepare local disk to boot on disk or nfs
+        --standalone: revert image to standalone mode
+        --reset-lightdm: clean lightdm between sessions
+        --session-wait: exec ratpoison session with message
+        --user <user> --scan <path>: execute clamav and remount share in rw for user
+        --shutdown: called from acpid. Used to shutdown only in lightdm login screen.
+        --kiosk: kiosk session
+        --kiosk-loop: kiosk session
+        --monitors-clone: clone second monitor (if connected) to first monitor
+	--vboxsetup: rebuild virtualbox modules
+	--grub-update: run grub-update if needed
+
+        Options:
+EOF
+}
+
+SHORTOPTS="hv"
+LONGOPTS="help,version,install,install-with-gui,grub-update,boot:,force,standalone,sync-state,reset-lightdm,session-wait,user:,scan:,shutdown,kiosk,kiosk-loop,monitors-clone,vboxsetup"
+
+ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@" )
+eval set -- "$ARGS"
+
+do_install() {
+    #DEVICE=eth0
+    if [ ! -f /${STATETMP}/net-*.conf ]; then
+        echo "Works only in nfs mode"
+        exit 1
+    fi
+
+    if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
+        echo "Create partition labelled LROOT before"
+        exit 1
+    fi
+
+    if [ ! -e /dev/disk/by-label/${SWAP_LABEL} ]; then
+        echo "Continue without partition labelled LSWAP"
+    fi
+
+    start_time=$(date +%s)
+
+    echo -n "Formatting root partition ${ROOT_LABEL} ..."
+    mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-label/${ROOT_LABEL}
+    [ $? = 0 ] && echo "OK"
+    
+    ( sleep 2 && tune2fs -i0 -c0 /dev/disk/by-label/${ROOT_LABEL} > /dev/null 2>&1 ) &
+
+
+    if [ -e /dev/disk/by-label/${SWAP_LABEL} ]; then
+        echo -n "Formatting swap ${SWAP_LABEL} ..."
+        mkswap -L ${SWAP_LABEL} /dev/disk/by-label/${SWAP_LABEL} >/dev/null 2>&1
+        [ $? = 0 ] && echo "OK"
+    fi
+
+    wait 
+    trap "umount_root; exit 1" SIGINT
+
+    mount_root
+    
+    mkdir -p ${roottmppath}/etc/livenet # this flag and FLAG_RELEASE is needed to detect if fill not end
+
+    backupmnt=/tmp/.backup
+    mkdir -p ${backupmnt}
+
+    mountpoint -q ${backupmnt} && umount ${backupmnt} 
+    BACKUPSERVER=${LIVENET_ROOT%%:*}
+    echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
+    mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${backupmnt}
+    if [ ! $? = 0 ]; then
+        echo "Error mounting ${BACKUPSERVER}:${BACKUP}, exit"
+        umount_root
+        exit 1
+    fi
+    
+    # find latest tarball available
+    archive=`ls ${backupmnt}/${RELEASE}_*.tar.* | tail -n1`
+    if [ -z "${archive}" ]; then
+        echo "No image tarball found. Create it with ln-image --backup"
+        umount_root
+        exit 1
+    fi
+
+    update=`echo ${archive} | sed -e 's/^.*\(........-....\)\.tar\..*$/\1/'`
+    echo "Using snapshot ${update} ..."
+    cd ${roottmppath} 
+    nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
+    cd / # release mount point!
+
+    umount ${backupmnt}
+
+    # update state    
+    cd /${STATETMP}
+    find etc -depth -not -name '.wh.*' -print0 | cpio --unconditional --null -pud ${roottmppath} 2>/dev/null
+
+    # register current update
+    ln -sf /${ALLUPDATES}/${update} ${roottmppath}${UPDATE_FLAG}
+
+    touch ${roottmppath}/${FLAG_RELEASE}
+    echo "LIVENET_ROOT=${LIVENET_ROOT}" >> ${roottmppath}/etc/livenet/local/host.conf
+    echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >> ${roottmppath}/etc/default/grub.options
+    . /etc/livenet/boot/00-update.local ${roottmppath}
+
+    grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
+    for i in proc dev sys; do
+        mount -o bind /$i ${roottmppath}/$i
+    done
+    chroot ${roottmppath} update-grub
+    echo "Saving profile ${PROFILE}"
+    chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
+    for i in proc dev sys; do
+        umount ${roottmppath}/$i
+    done
+
+    umount_root
+
+    finish_time=$(date +%s)
+    echo "Time elapsed: $(( $((finish_time - start_time)) /60 )) min."
+}
+
+do_boot() {
+    ROOTMOUNTED=$1
+    for module in $(ls /etc/livenet/boot/*.default /etc/livenet/boot/*.${ROOTMOUNTED} | sort); do
+        mm=$(basename ${module})
+        if [ -x ${module} ]; then
+            do_log "Configuring ${mm}.${ROOTMOUNTED}"
+            . ${module} ""
+        else
+            do_log "Skip ${mm}"
+        fi
+    done
+}
+
+do_standalone() {
+    for f in /etc/initramfs-tools/initramfs.conf \
+        /etc/network/interfaces \
+        /etc/rsyslog.conf \
+        /etc/auto.master \
+        /etc/kernel-img.conf \
+        /etc/kernel/postinst.d/zz-update-grub; do
+        [ -h ${f} ] && rm -f ${f}
+        cp -a /livenet/${f}.local.standalone ${f}
+        #update-alternatives --remove-all $(basename $f) >/dev/null 2>&1
+    done
+    
+    cp -a /etc/fstab.local.default /etc/fstab
+
+    rm -f /etc/init/network-manager.override
+    
+    rm -f /etc/kernel/postinst.d/zz-livenet
+
+    chmod +x /usr/lib/accountsservice/accounts-daemon
+    chmod +x /etc/init.d/unattended-upgrades
+    chmod +x /usr/bin/zeitgeist-datahub 
+    chmod +x /usr/bin/zeitgeist-daemon 
+    chmod +x /usr/lib/zeitgeist/zeitgeist-fts
+
+    rm -f /usr/sbin/policy-rc.d
+
+    # revert without ldap
+    auth-client-config -a -p lac_ldap -r >/dev/null 2>&1
+
+    apt-get remove --purge --yes nslcd nscd
+    
+    update-initramfs -u
+
+    pam-auth-update
+
+    chmod -x /etc/livenet/boot/*
+    rm /etc/debian_chroot
+    userdel guest
+
+    # enable dynamic resolvconf
+    dpkg-reconfigure resolvconf
+    echo -n > /etc/resolvconf/resolv.conf.d/original
+
+    # or commenting dns=dnsmasq in /etc/NetworkManager/NetworkManager.conf
+}
+
+
+do_sync_state() {
+    export LANG=en
+
+    SERVERRW=$( echo ${LIVENET_ROOT} | sed -n -r "s|^(.+):.+$|\1| p" )
+    [ -z "${SERVERRW}" ] && ( echo "no SERVERRW defined" && exit 1 )
+
+    MAC=$( ifconfig ${DEVICE} | sed -n -r "s|^.*HWaddr ([A-Za-z0-9:]+).*$|\1| p" | tr -d ':' | tr '[a-z]' '[A-Z]' )
+
+    mount -n -o rw,atime -o ${NFSOPTS} ${SERVERRW}:${STATENFS}/${MAC}_${RELEASE} /${STATETMP}/persistent
+
+    cd /${STATETMP}
+
+    # o così
+    rsync -av --delete --exclude '*.wh.*' etc persistent
+
+    # o pomì
+    # rm -fR persistent/*
+    #find etc -depth -not -name '.wh.*' -print0 | cpio --null -pud persistent 2>/dev/null
+
+    umount /${STATETMP}/persistent
+}
+        
+do_session_wait() {
+    ratpoison &
+    do_setbg login
+    for i in $( seq 20 10 99 ) 9999; do 
+        sleep $(($i/2))
+        echo $i
+    done | zenity --progress --no-cancel --auto-close --width 400 --text "Aggiornamento in corso ..."
+}
+
+do_scan() {
+    SHARE=$1
+    USER=$2
+    
+    
+    export DISPLAY=:0.0 
+    USERHOME=$( getent passwd ${USER} | awk -F: '{print $6}' )
+    export XAUTHORITY=${USERHOME}/.Xauthority
+    
+    if [ ! -x /usr/bin/clamscan ]; then
+        zenity --error --text "Clamav non trovato" 
+        return
+    fi
+
+    flagvirus=/tmp/.foundviruses
+    clamscan --exclude=.*.[Cc][Hh][Kk] --infected -r -v ${SHARE} | tee >( grep FOUND > ${flagvirus} ) | zenity --progress --pulsate --auto-close --text "Scansione in corso ..."
+    scandialog=$?
+
+    if [ ${scandialog} != 0 ]; then
+        rm -f ${flagvirus}
+        # lasciamo montato il drive per renderlo inutilizzabile
+        return
+    fi         
+    virus=$( cat ${flagvirus} | wc -l )
+    if [ $virus -gt 0 ]; then
+        zenity --error --text "Attenzione\!\nTrovati Virus\!\nNumero di minacce rilevate: $virus\n\nREPORT\n____________\n$(cat ${flagvirus})" &
+        sleep 1
+        rm -f ${flagvirus}
+        # lasciamo montato il drive per renderlo inutilizzabile
+        return
+    fi
+    rm -f ${flagvirus}
+    mount -o remount,uid=${USER},rw ${SHARE} >/dev/null 2>&1
+    if [ $? = 0 ]; then
+        zenity --info --text "Aprire l'icona USB sul desktop" &
+    fi    
+}
+
+do_kiosk() {
+    ratpoison &
+    wmpid=$!
+    sleep 2 # Wait until ratpoison starts up.
+    PATH=/opt/firefox:${PATH}
+
+    if [ -f ~/.run ]; then
+    	exec ~/.run 
+    else
+        if [ -f ~/.url_to_open ]; then
+           URL=$(cat ~/.url_to_open)
+        fi
+        exec firefox ${URL}
+    fi
+}
+
+do_kiosk_loop() {
+ratpoison &
+    #Disable right mouse button
+    xmodmap -e "pointer = 1 2 11"
+    #Enable us keyboard for user
+    setxkbmap us
+    #Run Xscreensaver
+    xscreensaver -nosplash &
+    wmpid=$!
+    sleep 2 # Wait until ratpoison starts up.
+    PATH=/opt/firefox:${PATH}
+
+    if [ -f ~/.url_to_open ]; then
+        URL=$(cat ~/.url_to_open)
+    fi
+
+    while true; do
+      firefox ${URL}
+    done
+
+    wait $wmpid
+}
+
+do_monitors_clone() {
+    PORTS=$(xrandr -q | grep " connected" | awk '{ print $1 }')
+    PORT1=$(echo $PORTS | awk '{print $1}')
+    PORT2=$(echo $PORTS | awk '{print $2}')
+
+    if [ -n "$PORT1" ] && [ -n "$PORT2" ]; then
+        MODE=$( xrandr -q | grep -A1 " connected" | egrep "^\s+[0-9]+x[0-9]+" | awk '{ print $1 }' | sort -h | head -n 1 )
+        echo "Dual monitor detected, setting $PORT1 and $PORT2 to $MODE"
+        set -x
+        xrandr --output ${PORT1} --mode ${MODE}
+        xrandr --output ${PORT2} --mode ${MODE} --same-as ${PORT1} 
+        if [ $? != 0 ]; then # non esiste una risoluzione in comune, passo a una risoluzione di compromesso
+            MODE=1024x768
+            echo "No common resolution, try workaround $MODE"
+            xrandr --output ${PORT1} --mode ${MODE}
+            xrandr --output ${PORT2} --mode ${MODE} --same-as ${PORT1} 
+        fi
+    else
+        echo "No dual monitor detected, exit"
+    fi
+}
+
+do_vboxsetup() {
+    PACKAGE=$( dpkg -l | egrep "ii\s+virtualbox" | awk '{ print $2 }' )
+    if [ -z "${PACKAGE}" ]; then
+        echo "Virtualbox is not installed"
+        exit 1
+    fi
+    VERSION=$( dpkg -s ${PACKAGE} | sed -n 's|^Version: \([0-9\.]\+\).*|\1|p' )
+    /usr/share/virtualbox/src/vboxhost/do_dkms uninstall vboxhost vboxdrv vboxnetflt vboxnetadp
+    cat > /tmp/dkms <<EOF
+#!/bin/sh
+
+KERNEL_VERSION=\$( ls -X /lib/modules | tail -n1 )
+exec /usr/sbin/dkms -k \${KERNEL_VERSION} \$*
+EOF
+
+    chmod +x /tmp/dkms
+    export PATH=/tmp:${PATH}
+    /usr/share/virtualbox/src/vboxhost/do_dkms install vboxhost ${VERSION}
+    rm -f /tmp/dkms
+}
+
+
+do_grub_update() {
+    if [ /etc/default/grub -nt /boot/grub/grub.cfg ] \
+        || [ /etc/grub.d/01_security -nt /boot/grub/grub.cfg ] \
+        || [ /boot/initrd -nt /boot/grub/grub.cfg ] \
+        || [ /etc/grub.d/30_os-prober -nt /boot/grub/grub.cfg ]; then
+        echo "Updating grub"
+        /usr/sbin/update-grub
+    fi
+}
+
+
+while true; do
+   case $1 in
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      -v|--version)
+        echo "$PROGVERSION"
+        ;;
+      --install)
+        check_jail
+	do_install
+	break
+	;;
+      --install-with-gui)
+	if [ "${LIVENET_ACTION}" != "install" ] && [ "${LIVENET_ACTION}" != "install_force" ]; then
+	   echo "no livenet_action=install in cmdline"
+	   exit 0
+	fi
+        check_jail
+    	update-alternatives --set lightdm.conf /etc/lightdm/lightdm.conf.nfs.special
+	systemctl restart lightdm
+	do_install
+    	sleep 5
+    	update-alternatives /etc/lightdm/lightdm.conf
+	systemctl restart lightdm
+	if [ "${LIVENET_ACTION_END}" = "halt" ]; then
+	    halt -p
+	fi
+	if [ "${LIVENET_ACTION_END}" = "reboot" ]; then
+	    reboot -f
+	fi
+	break
+	;;
+
+      --force)
+        FORCE=true
+        ;;
+      --boot)
+        shift 
+        ROOTMOUNTED=${1:=nfs}
+        [ -n "${FORCE}" ] || check_jail
+        do_boot ${ROOTMOUNTED}
+	break
+	;;
+      --standalone)
+        do_standalone
+        exit $?
+        ;;
+      --sync-state)
+        do_sync_state
+        break
+        ;;
+      --reset-lightdm)
+        rm -fR /var/lib/lightdm/.cache/* 
+        break
+        ;;
+      --session-wait)
+        do_session_wait
+        break
+        ;;
+      --user)
+        shift
+        USER=$1
+        ;;
+      --scan)
+        shift
+        do_scan $1 ${USER}
+        exit 0
+        ;;
+      --shutdown)
+        ck-list-sessions | grep -q LoginWindow
+        if [ $? = 0 ]; then
+            /sbin/shutdown -h now "Power button pressed"
+        fi
+        break
+        ;;
+      --kiosk)
+        do_kiosk
+        break
+        ;;
+      --kiosk-loop)
+        do_kiosk_loop
+        break
+        ;;
+      --monitors-clone)
+        do_monitors_clone
+        break
+        ;;
+      --vboxsetup)
+        shift
+        do_vboxsetup $1
+        exit 0
+        ;;
+      --grub-update)
+	do_grub_update
+	break
+	;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        shift
+        break
+        ;;
+   esac
+   shift
+done
+
+exit 0
