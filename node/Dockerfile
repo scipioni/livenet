@@ -32,6 +32,7 @@ RUN cp /usr/share/zoneinfo/Europe/Rome /etc/localtime
 
 RUN useradd -ms /bin/bash ubuntu
 RUN usermod -a -G sudo ubuntu
+RUN echo "ubuntu:ubuntu" | chpasswd
 
 
 ########################################################

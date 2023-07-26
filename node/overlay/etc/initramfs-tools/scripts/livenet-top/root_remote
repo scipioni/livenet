@@ -58,10 +58,11 @@ sync_state_nfs ()
 
 LANG=en
 
-modprobe nfsv3 >/dev/null &
-    
+#modprobe nfsv3 >/dev/null &
+modprobe nfsv4 >/dev/null &
+
 mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755 
-    
+
 cd ${rootmnt}
 cp -a /dev .
 mkdir -p ${rootmnt}/${NFSRO}
@@ -73,10 +74,13 @@ touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 wait # nfs module go in background 
 
 # nfsv3
-mount -t nfs -o ro,${NFSOPTS} ${LIVENET_ROOT} ${NFSRO} 
+#mount -t nfs -o ro,${NFSOPTS} ${LIVENET_ROOT} ${NFSRO} 
+
+
+#mount -t nfs -o ro,vers=4 ${LIVENET_ROOT} ${NFSRO} 
 
 #nfsv4
-#mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
+mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
 if [ ! $? = 0 ]; then
     do_log "Cannot mount nfs root, reboot"
     sleep 10

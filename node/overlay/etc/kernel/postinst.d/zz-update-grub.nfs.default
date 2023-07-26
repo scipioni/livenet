@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# no grub update in nfs mode
+
+exit 0

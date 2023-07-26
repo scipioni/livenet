@@ -28,9 +28,10 @@ cp /etc/livenet/livenet.conf ${DESTDIR}/conf
 cp /etc/initramfs-tools/scripts/functions-livenet ${DESTDIR}/conf
 
 manual_add_modules aufs
-#manual_add_modules overlayfs
+manual_add_modules overlayfs
 auto_add_modules net
-auto_add_modules nfsv3
+#auto_add_modules nfs4
+#force_load nfs4
 
 # pulizia di firmware non necessario e pesante
 set +e
@@ -44,9 +45,9 @@ set -e
 #cp -au /etc/console-setup/cached.kmap.gz ${DESTDIR}/etc/boottime.kmap.gz
 
 # nfs4
-#copy_exec /usr/sbin/rpc.idmapd /bin
-#copy_exec /sbin/mount.nfs /bin
-#cp -au /etc/netconfig ${DESTDIR}/etc/netconfig
+copy_exec /usr/sbin/rpc.idmapd /bin
+copy_exec /sbin/mount.nfs /bin
+cp -au /etc/netconfig ${DESTDIR}/etc/netconfig
 
 #cat > ${DESTDIR}/etc/passwd <<EOF
 #nobody::65534:65534:nobody:/nonexistent:/bin/sh
@@ -58,7 +59,7 @@ set -e
 # debug purpose ################
 # ricordati di mettere FRAMEBUFFER=n in /etc/initramfs-tools/conf.d/splash
 #copy_exec /sbin/ifconfig
-#copy_exec /sbin/lsmod /bin
+copy_exec /sbin/lsmod /bin
 #copy_exec /usr/bin/lspci /bin
 #################################
 

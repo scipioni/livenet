@@ -15,15 +15,15 @@ mountroot ()
     run_scripts /scripts/livenet-top
     [ "$quiet" != "y" ] && log_end_msg
 
-    for x in /run/net-*.conf /tmp/net-*.conf ; do
-        . ${x}
-    done
+    #for x in /run/net-*.conf /tmp/net-*.conf ; do
+    #    . ${x}
+    #done
 
-    if [ -z "${ROOTMOUNTED}" ]; then
-        do_log "ERROR: no valid boot detected"
-        sleep 3600
-        halt
-    fi
+    #if [ -z "${ROOTMOUNTED}" ]; then
+    #    do_log "ERROR: no valid boot detected"
+    #    sleep 3600
+    #    halt
+    #fi
 
     [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/livenet-bottom"
     run_scripts /scripts/livenet-bottom

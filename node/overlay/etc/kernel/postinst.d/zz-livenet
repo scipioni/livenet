@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Author: Stefano Scipioni
+
+KERNEL=$1
+echo "Running last customization in kernel image"
+
+if [ -z "${KERNEL}" ]; then
+    echo "This script must be called by dpkg-reconfigure linux-image"
+    echo "See /etc/kernel-img.conf"
+    exit 1
+fi
+
+INITRD=/boot/initrd.img-${KERNEL}
+TMPDIR=/var/cache/livenet/tmp-initramfs-$KERNEL
+
+mkdir -p ${TMPDIR}
+rm -fR ${TMPDIR}/*
+unmkinitramfs  ${INITRD} ${TMPDIR}
+
+# this hack free 400Kb in zipped initrd image
+#rm bin/sh
+#ln -s busybox bin/sh
+#(find . | cpio --quiet -o -H newc | gzip -9 >"${INITRD}") || exit 1
+
+echo "builded system available for inspection in ${TMPDIR}"
+
+# hard link because tftp does not see symbolic link
+cd /boot
+#rm -f initrd kernel
+#ln -f initrd.img-${KERNEL} initrd
+#ln -f vmlinuz-${KERNEL} kernel
+
+# to read from tftp
+chmod +r kernel
+
