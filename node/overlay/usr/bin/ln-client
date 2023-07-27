@@ -16,23 +16,22 @@ check_jail() {
 
 usage() {
     cat <<EOF
-        Usage: $PROGNAME <command> [--help] 
+    Usage: $PROGNAME <command> [--help] 
 
-        --install: install livenet on LROOT partition
-	    --install-with-gui: install livenet (called by ln-install service)
-        [--force] --boot {local|nfs}: prepare local disk to boot on disk or nfs
-        --standalone: revert image to standalone mode
-        --reset-lightdm: clean lightdm between sessions
-        --session-wait: exec ratpoison session with message
-        --user <user> --scan <path>: execute clamav and remount share in rw for user
-        --shutdown: called from acpid. Used to shutdown only in lightdm login screen.
-        --kiosk: kiosk session
-        --kiosk-loop: kiosk session
-        --monitors-clone: clone second monitor (if connected) to first monitor
-	    --vboxsetup: rebuild virtualbox modules
-	    --grub-update: run grub-update if needed
+    --install: install livenet on LROOT partition
+    --install-with-gui: install livenet (called by ln-install service)
+    [--force] --boot {local|nfs}: prepare local disk to boot on disk or nfs
+    --standalone: revert image to standalone mode
+    --reset-lightdm: clean lightdm between sessions
+    --session-wait: exec ratpoison session with message
+    --user <user> --scan <path>: execute clamav and remount share in rw for user
+    --shutdown: called from acpid. Used to shutdown only in lightdm login screen.
+    --kiosk: kiosk session
+    --kiosk-loop: kiosk session
+    --monitors-clone: clone second monitor (if connected) to first monitor
+    --vboxsetup: rebuild virtualbox modules
+    --grub-update: run grub-update if needed
 
-        Options:
 EOF
 }
 

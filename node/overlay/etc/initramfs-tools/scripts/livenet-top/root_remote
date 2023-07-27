@@ -73,6 +73,7 @@ mkdir -p  ${rootmnt}/${WORKDIR}/var ${rootmnt}/${WORKDIR}/etc
 mkdir -m 1777 ${rootmnt}/tmp
 touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 
+
 wait # nfs module go in background 
 
 # nfsv3
@@ -89,7 +90,7 @@ if [ ! $? = 0 ]; then
     reboot
 fi
 
-for folder in bin boot lib lib64 opt root sbin usr mnt selinux livenet;  do
+for folder in bin boot home lib lib32 lib64 libx32 media mnt opt root sbin opt root sbin usr;  do
     [ -d ${NFSRO}/${folder} ] && ln -s ${NFSRO}/${folder} ${folder}
 done
 
@@ -110,6 +111,9 @@ mount -t overlay overlay -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/var,workd
 
 touch ${rootmnt}/${FLAG_RELEASE}
 touch ${rootmnt}/${FLAG_NFS} # flag
+
+echo "127.0.0.1 localhost livenet" >> ${rootmnt}/etc/hosts
+echo "livenet" >> ${rootmnt}/etc/hostname
 
 
 for x in /run/net-*.conf /tmp/net-*.conf; do

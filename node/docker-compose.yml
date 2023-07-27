@@ -28,9 +28,8 @@ services:
       # - ./overlay/etc/initramfs-tools/scripts/livenet-top:/etc/initramfs-tools/scripts/livenet-top
       # - ./overlay/usr/sbin/ln-mng:/usr/sbin/ln-mng
       # - ./overlay/usr/sbin/policy-rc.d:/usr/sbin/policy-rc.d
-    ports:
-      - 2049:2049
-      #- 20048:20048
+    # ports:
+    #   - 2049:2049
     networks:
       - livenet_macvlan
 
