@@ -27,8 +27,8 @@ cp /etc/livenet/livenet.conf ${DESTDIR}/conf
 [ -f /etc/livenet/livenet.conf.override ] && cp /etc/livenet/livenet.conf.override ${DESTDIR}/conf
 cp /etc/initramfs-tools/scripts/functions-livenet ${DESTDIR}/conf
 
-manual_add_modules aufs
-manual_add_modules overlayfs
+#manual_add_modules aufs
+manual_add_modules overlay
 auto_add_modules net
 #auto_add_modules nfs4
 #force_load nfs4

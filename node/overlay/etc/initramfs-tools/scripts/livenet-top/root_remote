@@ -16,6 +16,7 @@ prereqs)
 esac
 echo $DESCRIPTION
 
+WORKDIR=.workdir
 . /scripts/functions
 . /scripts/functions-livenet
 log_begin_msg "$DESCRIPTION"
@@ -68,6 +69,7 @@ cp -a /dev .
 mkdir -p ${rootmnt}/${NFSRO}
 mkdir ${rootmnt}/proc ${rootmnt}/sys ${rootmnt}/home ${rootmnt}/media 
 mkdir -p  ${rootmnt}/${STATETMP}/var ${rootmnt}/${STATETMP}/etc 
+mkdir -p  ${rootmnt}/${WORKDIR}/var ${rootmnt}/${WORKDIR}/etc 
 mkdir -m 1777 ${rootmnt}/tmp
 touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 
@@ -97,13 +99,14 @@ sync_state_nfs
 mkdir ${rootmnt}/var ${rootmnt}/etc
 
 # aufs
-mount -t aufs -o dirs=${STATETMP}/etc=rw:${NFSRO}/etc=ro aufs etc
-mount -t aufs -o dirs=${STATETMP}/var=rw:${NFSRO}/var=ro aufs var
+#mount -t aufs -o dirs=${STATETMP}/etc=rw:${NFSRO}/etc=ro aufs etc
+#mount -t aufs -o dirs=${STATETMP}/var=rw:${NFSRO}/var=ro aufs var
 
 # overlayfs
 #mount -t overlayfs -o lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc overlayfs etc
 #mount -t overlayfs -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/etc overlayfs var
-
+mount -t overlay overlay -o lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc,workdir=${WORKDIR}/etc etc
+mount -t overlay overlay -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/var,workdir=${WORKDIR}/var var
 
 touch ${rootmnt}/${FLAG_RELEASE}
 touch ${rootmnt}/${FLAG_NFS} # flag

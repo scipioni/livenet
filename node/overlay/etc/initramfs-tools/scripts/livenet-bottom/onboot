@@ -32,6 +32,7 @@ done
 mount -n -o bind /sys /root/sys
 mount -n -o bind /proc /root/proc
 
+#do_debug_shell
 chroot /root /usr/bin/ln-client --force --boot ${ROOTMOUNTED}
 
 umount /root/sys

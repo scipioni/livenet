@@ -23,6 +23,10 @@ tasks:
       - docker compose up
       #- docker run --name lnode -it -d -p 2049:2049 -p 20048:20048 ${IMAGE} || true
 
+  logs:
+    cmds:
+      - sudo journalctl -f
+
   cli:
     cmds:
       - docker compose exec lnode bash
