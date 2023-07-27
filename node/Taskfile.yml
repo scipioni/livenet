@@ -20,6 +20,9 @@ tasks:
     cmds:
       - mkdir -p runtime
       - touch runtime/bash_history
+      - sudo ip link add dummy0 type dummy || true
+      - sudo ip link set dummy0 up
+      - sudo ip link set dummy0 master livenet || true
       - docker compose up
       #- docker run --name lnode -it -d -p 2049:2049 -p 20048:20048 ${IMAGE} || true
 
@@ -58,7 +61,7 @@ tasks:
   mount:
     cmds:
       - mkdir -p /tmp/test
-      - sudo mount -t nfs -o vers=4,loud localhost:/ /tmp/test
+      - sudo mount -t nfs -o vers=4,loud 192.168.124.192:/ /tmp/test
       - ls /tmp/test
       - sudo umount /tmp/test
 
@@ -82,9 +85,6 @@ tasks:
         sudo ip link set mcvlan-ingress up
         sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
 
-        sudo ip link add dummy0 type dummy || true
-        sudo ip link set dummy0 up
-        sudo ip link set dummy0 master livenet
         
         docker compose down
 
