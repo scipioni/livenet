@@ -104,7 +104,7 @@ tasks:
     desc: "boot systemrescuecd"
     cmds:
       - |
-        [ -f runtime/systemrescue-10.01-amd64.iso ] || https://fastly-cdn.system-rescue.org/releases/10.01/systemrescue-10.01-amd64.iso
+        [ -f runtime/systemrescue-10.01-amd64.iso ] || wget https://fastly-cdn.system-rescue.org/releases/10.01/systemrescue-10.01-amd64.iso
         qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
           -cdrom runtime/systemrescue-10.01-amd64.iso
 
