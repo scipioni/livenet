@@ -23,7 +23,7 @@ tasks:
       # - sudo ip link add dummy0 type dummy || true
       # - sudo ip link set dummy0 up
       # - sudo ip link set dummy0 master livenet || true
-      - sudo iptables -P FORWARD ACCEPT
+      #- sudo iptables -P FORWARD ACCEPT
       - docker compose up
       #- docker run --name lnode -it -d -p 2049:2049 -p 20048:20048 ${IMAGE} || true
 
