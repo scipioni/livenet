@@ -101,10 +101,11 @@ COPY entrypoint.sh /usr/local/bin/
 RUN chmod +rx /usr/local/bin/entrypoint.sh
 COPY exports /etc/exports
 
-
+# nfsv4
 EXPOSE 2049/tcp
-#EXPOSE 20048/tcp
 
+# minihttpd
+EXPOSE 8095/tcp
 
 FROM nfs as runtime
 

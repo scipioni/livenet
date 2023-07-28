@@ -61,6 +61,7 @@ cp -au /etc/netconfig ${DESTDIR}/etc/netconfig
 #copy_exec /sbin/ifconfig
 copy_exec /sbin/lsmod /bin
 #copy_exec /usr/bin/lspci /bin
+copy_exec /usr/bin/ping /bin
 #################################
 
 # wireless #####################

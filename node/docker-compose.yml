@@ -28,11 +28,12 @@ services:
       # - ./overlay/etc/initramfs-tools/scripts/livenet-top:/etc/initramfs-tools/scripts/livenet-top
       # - ./overlay/usr/sbin/ln-mng:/usr/sbin/ln-mng
       # - ./overlay/usr/sbin/policy-rc.d:/usr/sbin/policy-rc.d
-    # ports:
+    #ports:
     #   - 2049:2049
-    networks:
-      - livenet_macvlan
+    #networks:
+    #  - livenet_macvlan
+    network_mode: host
 
-networks:
-  livenet_macvlan:
-    external: true
+# networks:
+#   livenet_macvlan:
+#     external: true

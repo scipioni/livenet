@@ -83,6 +83,9 @@ wait # nfs module go in background
 #mount -t nfs -o ro,vers=4 ${LIVENET_ROOT} ${NFSRO} 
 
 #nfsv4
+echo mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
+do_debug_shell
+
 mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
 if [ ! $? = 0 ]; then
     do_log "Cannot mount nfs root, reboot"

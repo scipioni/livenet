@@ -12,7 +12,7 @@ TIMEOUT 30
 label live
     menu label Ubuntu 22.04 - live
     kernel ../vmlinuz
-    append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.192:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
+    append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
 
 label memtest
     menu label pcmemtest

@@ -20,9 +20,10 @@ tasks:
     cmds:
       - mkdir -p runtime
       - touch runtime/bash_history
-      - sudo ip link add dummy0 type dummy || true
-      - sudo ip link set dummy0 up
-      - sudo ip link set dummy0 master livenet || true
+      # - sudo ip link add dummy0 type dummy || true
+      # - sudo ip link set dummy0 up
+      # - sudo ip link set dummy0 master livenet || true
+      - sudo iptables -P FORWARD ACCEPT
       - docker compose up
       #- docker run --name lnode -it -d -p 2049:2049 -p 20048:20048 ${IMAGE} || true
 
@@ -61,7 +62,7 @@ tasks:
   mount:
     cmds:
       - mkdir -p /tmp/test
-      - sudo mount -t nfs -o vers=4,loud 192.168.124.192:/ /tmp/test
+      - sudo mount -t nfs -o vers=4,loud,retry=0,timeo=5 192.168.124.1:/ /tmp/test
       - ls /tmp/test
       - sudo umount /tmp/test
 
@@ -78,12 +79,12 @@ tasks:
         sudo virsh net-info livenet && sudo virsh net-destroy livenet || true
         sudo virsh net-define libvirt/net-livenet.xml
         sudo virsh net-start livenet
-        docker network rm livenet_macvlan 2>/dev/null || true 
-        docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1 --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
-        sudo ip link add mcvlan-ingress link livenet type macvlan mode bridge
-        sudo ip addr add 192.168.124.223 dev mcvlan-ingress
-        sudo ip link set mcvlan-ingress up
-        sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
+        # docker network rm livenet_macvlan 2>/dev/null || true 
+        # docker network create -d macvlan --subnet=192.168.124.0/24 --gateway=192.168.124.1 --aux-address="host=192.168.124.223" --ip-range=192.168.124.192/27  -o parent=livenet livenet_macvlan || true
+        # sudo ip link add mcvlan-ingress link livenet type macvlan mode bridge
+        # sudo ip addr add 192.168.124.223 dev mcvlan-ingress
+        # sudo ip link set mcvlan-ingress up
+        # sudo ip route add 192.168.124.192/27 dev mcvlan-ingress
         docker compose down
 
   vm:disk:
@@ -98,9 +99,15 @@ tasks:
       - |
         qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
           -drive id=vda,file=${DISK}
-        #  -drive if=pflash,format=raw,readonly=on,file=OVMF_CODE.fd \
-        #  -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd
-  
+
+  vm:cd:
+    desc: "boot systemrescuecd"
+    cmds:
+      - |
+        [ -f runtime/systemrescue-10.01-amd64.iso ] || https://fastly-cdn.system-rescue.org/releases/10.01/systemrescue-10.01-amd64.iso
+        qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
+          -cdrom runtime/systemrescue-10.01-amd64.iso
+
   vm:efi:
     desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
     cmds:

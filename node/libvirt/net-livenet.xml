@@ -14,16 +14,16 @@
       <!-- bios pxe via http -->
       <!-- <bootp file="http://192.168.124.192:8095/bios/pxelinux.0"/> -->
       <!-- bios pxe via tftp -->
-      <bootp file='bios/pxelinux.0' server='192.168.124.192'/>
+      <bootp file='bios/pxelinux.0' server='192.168.124.1'/>
     </dhcp>
   </ip>
   <dnsmasq:options>
     <dnsmasq:option value="# uefi via tftp"/>
     <dnsmasq:option value="dhcp-match=set:efi-x64-pxe,option:client-arch,7"/>
-    <dnsmasq:option value="dhcp-boot=tag:efi-x64-pxe,grub-node/bootx64.efi,,192.168.124.192"/>
+    <dnsmasq:option value="dhcp-boot=tag:efi-x64-pxe,grub-node/bootx64.efi,,192.168.124.1"/>
     <dnsmasq:option value="# uefi via http"/>
     <dnsmasq:option value="dhcp-match=set:efi-x64-http,option:client-arch,16"/>
-    <dnsmasq:option value="dhcp-boot=tag:efi-x64-http,http://192.168.124.192:8095/grub-node/bootx64.efi"/>
+    <dnsmasq:option value="dhcp-boot=tag:efi-x64-http,http://192.168.124.1:8095/grub-node/bootx64.efi"/>
     <dnsmasq:option value="dhcp-option-force=tag:efi-x64-http,60,HTTPClient"/>
   </dnsmasq:options>
 </network>
