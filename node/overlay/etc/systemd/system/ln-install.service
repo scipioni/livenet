@@ -1,0 +1,14 @@
+[Unit]
+Description=install local livenet
+#Requires=display-manager.service
+#After=display-manager.service
+ConditionPathExists=/ro/bin
+
+[Service]
+Type=oneshot
+#ExecStart=/usr/bin/ln-client --install-with-gui
+ExecStart=/usr/bin/ln-client --install
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=check if home need to clean
+ConditionPathExists=!/ro/sbin
+
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/zfs rollback -r rpool/home/accounts@snap0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

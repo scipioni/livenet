@@ -107,10 +107,18 @@ EXPOSE 2049/tcp
 # minihttpd
 EXPOSE 8095/tcp
 
+
+########################################################
+####### final ############################################
+########################################################
+
+
 FROM nfs as runtime
 
 COPY ./overlay /tmp/overlay
 RUN cp -vR /tmp/overlay/* / && rm -fR /tmp/overlay
+
+RUN mkdir -p /var/cache/livenet
 
 RUN RESUME=auto update-initramfs -c -k all
 #RUN /bin/bash -c "source /etc/livenet/livenet.conf && RESUME=auto dpkg-reconfigure linux-image-${KERNEL}"

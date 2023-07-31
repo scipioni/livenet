@@ -1,9 +1,0 @@
-do_configure_xorg() {
-    [ -n "${LOCAL_CONFIG}" ] && DEFAULT="--default ${LOCAL_CONFIG}"
-    /etc/livenet/bin/ln-config-xorg --outfile /etc/X11/xorg.conf --template /etc/livenet/xorg.conf.in --default /etc/default/console-setup
-}
-
-do_configure_ldap() {
-    do_update_alternatives /etc/ldap/ldap.conf
-}
-

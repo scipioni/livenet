@@ -49,7 +49,7 @@ do_install() {
     fi
 
     if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
-        echo "Create partition labelled LROOT before"
+        echo "Create partition labelled ${ROOT_LABEL} before"
         exit 1
     fi
 

@@ -1,0 +1,6 @@
+if [ "${LIVENET_ACTION}" = "install" ] || [ "${LIVENET_ACTION}" = "install_force" ]; then
+    service_switch ln-install on
+    update-alternatives --set lightdm.conf /livenet/etc/lightdm/lightdm.conf.local.special
+else
+    service_switch ln-install off
+fi

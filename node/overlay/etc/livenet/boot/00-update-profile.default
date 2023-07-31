@@ -1,0 +1,3 @@
+echo "Saving profile ${PROFILE}"
+update-alternatives --set livenet.conf /etc/livenet/local/livenet.conf.nfs.${PROFILE}
+

@@ -67,9 +67,9 @@ mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755
 cd ${rootmnt}
 cp -a /dev .
 mkdir -p ${rootmnt}/${NFSRO}
-mkdir ${rootmnt}/proc ${rootmnt}/sys ${rootmnt}/home ${rootmnt}/media 
-mkdir -p  ${rootmnt}/${STATETMP}/var ${rootmnt}/${STATETMP}/etc 
-mkdir -p  ${rootmnt}/${WORKDIR}/var ${rootmnt}/${WORKDIR}/etc 
+mkdir ${rootmnt}/proc ${rootmnt}/sys ${rootmnt}/media 
+mkdir -p  ${rootmnt}/${STATETMP}/var ${rootmnt}/${STATETMP}/etc ${rootmnt}/${STATETMP}/home 
+mkdir -p  ${rootmnt}/${WORKDIR}/var ${rootmnt}/${WORKDIR}/etc ${rootmnt}/${WORKDIR}/home
 mkdir -m 1777 ${rootmnt}/tmp
 touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 
@@ -108,6 +108,8 @@ mkdir ${rootmnt}/var ${rootmnt}/etc
 #mount -t overlayfs -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/etc overlayfs var
 mount -t overlay overlay -o lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc,workdir=${WORKDIR}/etc etc
 mount -t overlay overlay -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/var,workdir=${WORKDIR}/var var
+mount -t overlay overlay -o lowerdir=${NFSRO}/home,upperdir=${STATETMP}/home,workdir=${WORKDIR}/home home
+
 
 touch ${rootmnt}/${FLAG_RELEASE}
 touch ${rootmnt}/${FLAG_NFS} # flag
@@ -120,4 +122,9 @@ for x in /run/net-*.conf /tmp/net-*.conf; do
     ROOTMOUNTED=nfs
     echo "ROOTMOUNTED=${ROOTMOUNTED}" >> ${x}
 done
+
+do_log "xxx end $DESCRIPTION"
+log_end_msg
+
+
 

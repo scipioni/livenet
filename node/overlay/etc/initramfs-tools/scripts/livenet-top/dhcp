@@ -67,6 +67,7 @@ for x in /run/net-"${DEVICE}".conf /run/net-*.conf /tmp/net-*conf; do
     if [ -e "$x" ]; then
         . ${x}
         [ "x${LIVENET_ROOT}" = "xauto" ] && LIVENET_ROOT=${ROOTSERVER}:${ROOTPATH}
+        log_end_msg
         exit 0
     fi
 done
@@ -79,4 +80,3 @@ echo '-------------'
 do_debug_shell
 
 
-log_end_msg

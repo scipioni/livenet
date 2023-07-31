@@ -1,0 +1,12 @@
+[Unit]
+Description=check if grub need update
+ConditionPathExists=!/ro/bin
+
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ln-client --grub-update
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
