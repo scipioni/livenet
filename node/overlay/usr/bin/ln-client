@@ -5,6 +5,8 @@
 PROGNAME=${0##*/}
 PROGVERSION=0.1.0
 
+set -x
+
 check_jail() {
     if [ ! "$(</etc/hostname)" = "$(hostname)" ]; then
         echo "This program run only on live client, not in chroot jail. Use ln-mng instead." 1>&2
@@ -91,31 +93,31 @@ do_install() {
     backupmnt=/tmp/.backup
     mkdir -p ${backupmnt}
 
-    # mountpoint -q ${backupmnt} && umount ${backupmnt}
-    # BACKUPSERVER=${LIVENET_ROOT%%:*}
-    # echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
-    # mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${backupmnt}
-    # if [ ! $? = 0 ]; then
-    #     echo "Error mounting ${BACKUPSERVER}:${BACKUP}, exit"
-    #     umount_root
-    #     exit 1
-    # fi
+    mountpoint -q ${backupmnt} && umount ${backupmnt}
+    BACKUPSERVER=${LIVENET_ROOT%%:*}
+    echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
+    mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${backupmnt}
+    if [ ! $? = 0 ]; then
+        echo "Error mounting ${BACKUPSERVER}:${BACKUP}, exit"
+        umount_root
+        exit 1
+    fi
 
-    # # find latest tarball available
-    # archive=$(ls ${backupmnt}/${RELEASE}_*.tar.* | tail -n1)
-    # if [ -z "${archive}" ]; then
-    #     echo "No image tarball found. Create it with ln-image --backup"
-    #     umount_root
-    #     exit 1
-    # fi
+    # find latest tarball available
+    archive=$(ls ${backupmnt}/*.tar.* | tail -n1)
+    if [ -z "${archive}" ]; then
+        echo "No image tarball found. Create it with ln-image --backup"
+        umount_root
+        exit 1
+    fi
 
     # update=$(echo ${archive} | sed -e 's/^.*\(........-....\)\.tar\..*$/\1/')
     # echo "Using snapshot ${update} ..."
-    # cd ${roottmppath}
-    # nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
-    # cd / # release mount point!
+    cd ${roottmppath}
+    nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
+    cd / # release mount point!
 
-    # umount ${backupmnt}
+    umount ${backupmnt}
 
     # # update state
     # cd /${STATETMP}

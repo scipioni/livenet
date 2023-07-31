@@ -25,7 +25,8 @@ RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
 RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
   apt-get install -y \
     gdisk \
-    openssh-server
+    openssh-server \
+    pigz
 
 RUN locale-gen en_GB.UTF-8
 RUN locale-gen it_IT.UTF-8

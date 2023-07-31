@@ -9,16 +9,15 @@ TIMEOUT 30
 #MENU COLOR UNSEL    37;40 #ffffffff #00000000
 #MENU COLOR BORDER   37;40 #ffffffff #00000000
 
+label live
+    menu label Ubuntu 22.04 - live
+    kernel ../vmlinuz
+    append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
 
 label install
     menu label Ubuntu 22.04 - format and install
     kernel ../vmlinuz
     append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default livenet_action=install livenet_format=yes net.ifnames=0 biosdevname=0
-
-label live
-    menu label Ubuntu 22.04 - live
-    kernel ../vmlinuz
-    append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
 
 label memtest
     menu label pcmemtest

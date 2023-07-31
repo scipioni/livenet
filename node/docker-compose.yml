@@ -21,6 +21,7 @@ services:
       #### releases
       - ./releases:/mnt/releases
       #### node
+      - ./overlay/usr/bin/ln-client:/usr/bin/ln-client
       # - ./overlay/etc/livenet:/etc/livenet
       # - ./overlay/etc/initramfs-tools/conf.d:/etc/initramfs-tools/conf.d
       # - ./overlay/etc/initramfs-tools/hooks:/etc/initramfs-tools/hooks

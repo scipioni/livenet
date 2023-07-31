@@ -1,1 +1,2 @@
-/ *(ro,fsid=0,sync,no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+/ *(ro,fsid=0,no_subtree_check,no_auth_nlm,insecure,no_root_squash)
+/mnt/releases *(ro,no_subtree_check,no_auth_nlm,insecure,no_root_squash,nohide)

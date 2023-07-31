@@ -123,7 +123,6 @@ for x in /run/net-*.conf /tmp/net-*.conf; do
     echo "ROOTMOUNTED=${ROOTMOUNTED}" >> ${x}
 done
 
-do_log "xxx end $DESCRIPTION"
 log_end_msg
 
 
