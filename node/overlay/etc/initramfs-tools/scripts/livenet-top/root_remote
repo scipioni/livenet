@@ -94,7 +94,7 @@ for folder in bin boot home lib lib32 lib64 libx32 media mnt opt root sbin opt r
     [ -d ${NFSRO}/${folder} ] && ln -s ${NFSRO}/${folder} ${folder}
 done
 
-sync_state_nfs
+#sync_state_nfs
 
 # clean rw space 
 mkdir ${rootmnt}/var ${rootmnt}/etc
@@ -116,7 +116,7 @@ touch ${rootmnt}/${FLAG_NFS} # flag
 
 echo "127.0.0.1 localhost livenet" >> ${rootmnt}/etc/hosts
 echo "livenet" >> ${rootmnt}/etc/hostname
-
+echo "nameserver 8.8.8.8" >> ${rootmnt}/etc/resolv.conf
 
 for x in /run/net-*.conf /tmp/net-*.conf; do
     ROOTMOUNTED=nfs

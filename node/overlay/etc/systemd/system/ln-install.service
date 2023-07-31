@@ -6,6 +6,7 @@ ConditionPathExists=/ro/bin
 
 [Service]
 Type=oneshot
+EnvironmentFile=/etc/livenet/livenet.conf
 #ExecStart=/usr/bin/ln-client --install-with-gui
 ExecStart=/usr/bin/ln-client --install
 RemainAfterExit=yes

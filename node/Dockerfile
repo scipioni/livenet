@@ -22,6 +22,9 @@ RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
   apt-get install -y \
     ubuntu-minimal
 
+RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
+  apt-get install -y \
+    gdisk
 
 RUN locale-gen en_GB.UTF-8
 RUN locale-gen it_IT.UTF-8
@@ -32,7 +35,7 @@ RUN cp /usr/share/zoneinfo/Europe/Rome /etc/localtime
 
 RUN useradd -ms /bin/bash ubuntu
 RUN usermod -a -G sudo ubuntu
-RUN echo "ubuntu:ubuntu" | chpasswd
+RUN echo "ubuntu:u" | chpasswd
 
 
 ########################################################

@@ -48,6 +48,16 @@ do_install() {
         exit 1
     fi
 
+    if [ "${LIVENET_FORMAT}" = "yes" ]; then
+        echo "Formatting disk ..."
+        DEVICE=/dev/sda # TODO, selezionarlo tra sda,vda,nvme
+        wipefs -af $DEVICE
+        sgdisk -Z \
+            -n 1::300M -t 1:EF00 -c 1:BOOT \
+            -N 2 -t 2:8300 -c 2:${ROOT_LABEL} $DEVICE
+        mkfs.ext4 -q -F -L ${ROOT_LABEL} ${DEVICE}2
+    fi
+
     if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
         echo "Create partition labelled ${ROOT_LABEL} before"
         exit 1
@@ -81,56 +91,56 @@ do_install() {
     backupmnt=/tmp/.backup
     mkdir -p ${backupmnt}
 
-    mountpoint -q ${backupmnt} && umount ${backupmnt}
-    BACKUPSERVER=${LIVENET_ROOT%%:*}
-    echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
-    mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${backupmnt}
-    if [ ! $? = 0 ]; then
-        echo "Error mounting ${BACKUPSERVER}:${BACKUP}, exit"
-        umount_root
-        exit 1
-    fi
+    # mountpoint -q ${backupmnt} && umount ${backupmnt}
+    # BACKUPSERVER=${LIVENET_ROOT%%:*}
+    # echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
+    # mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${backupmnt}
+    # if [ ! $? = 0 ]; then
+    #     echo "Error mounting ${BACKUPSERVER}:${BACKUP}, exit"
+    #     umount_root
+    #     exit 1
+    # fi
 
-    # find latest tarball available
-    archive=$(ls ${backupmnt}/${RELEASE}_*.tar.* | tail -n1)
-    if [ -z "${archive}" ]; then
-        echo "No image tarball found. Create it with ln-image --backup"
-        umount_root
-        exit 1
-    fi
+    # # find latest tarball available
+    # archive=$(ls ${backupmnt}/${RELEASE}_*.tar.* | tail -n1)
+    # if [ -z "${archive}" ]; then
+    #     echo "No image tarball found. Create it with ln-image --backup"
+    #     umount_root
+    #     exit 1
+    # fi
 
-    update=$(echo ${archive} | sed -e 's/^.*\(........-....\)\.tar\..*$/\1/')
-    echo "Using snapshot ${update} ..."
-    cd ${roottmppath}
-    nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
-    cd / # release mount point!
+    # update=$(echo ${archive} | sed -e 's/^.*\(........-....\)\.tar\..*$/\1/')
+    # echo "Using snapshot ${update} ..."
+    # cd ${roottmppath}
+    # nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
+    # cd / # release mount point!
 
-    umount ${backupmnt}
+    # umount ${backupmnt}
 
-    # update state
-    cd /${STATETMP}
-    find etc -depth -not -name '.wh.*' -print0 | cpio --unconditional --null -pud ${roottmppath} 2>/dev/null
+    # # update state
+    # cd /${STATETMP}
+    # find etc -depth -not -name '.wh.*' -print0 | cpio --unconditional --null -pud ${roottmppath} 2>/dev/null
 
-    # register current update
-    ln -sf /${ALLUPDATES}/${update} ${roottmppath}${UPDATE_FLAG}
+    # # register current update
+    # ln -sf /${ALLUPDATES}/${update} ${roottmppath}${UPDATE_FLAG}
 
-    touch ${roottmppath}/${FLAG_RELEASE}
-    echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
-    echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
-    . /etc/livenet/boot/00-update.local ${roottmppath}
+    # touch ${roottmppath}/${FLAG_RELEASE}
+    # echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
+    # echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
+    # . /etc/livenet/boot/00-update.local ${roottmppath}
 
-    grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
-    for i in proc dev sys; do
-        mount -o bind /$i ${roottmppath}/$i
-    done
-    chroot ${roottmppath} update-grub
-    echo "Saving profile ${PROFILE}"
-    chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
-    for i in proc dev sys; do
-        umount ${roottmppath}/$i
-    done
+    # grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
+    # for i in proc dev sys; do
+    #     mount -o bind /$i ${roottmppath}/$i
+    # done
+    # chroot ${roottmppath} update-grub
+    # echo "Saving profile ${PROFILE}"
+    # chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
+    # for i in proc dev sys; do
+    #     umount ${roottmppath}/$i
+    # done
 
-    umount_root
+    # umount_root
 
     finish_time=$(date +%s)
     echo "Time elapsed: $(($((finish_time - start_time)) / 60)) min."

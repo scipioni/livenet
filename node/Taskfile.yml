@@ -98,7 +98,8 @@ tasks:
       - task: vm:disk
       - |
         qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
-          -drive id=vda,file=${DISK}
+          -drive id=vda,file=${DISK} \
+          -boot n
 
   vm:cd:
     desc: "boot systemrescuecd"
