@@ -18,6 +18,8 @@ services:
       - ./overlay/boot/pxelinux.cfg:/boot/bios/pxelinux.cfg
       - ./overlay/boot/grub.cfg:/boot/grub-node/grub.cfg
       - /dev/log:/dev/log
+      #### releases
+      - ./releases:/mnt/releases
       #### node
       # - ./overlay/etc/livenet:/etc/livenet
       # - ./overlay/etc/initramfs-tools/conf.d:/etc/initramfs-tools/conf.d

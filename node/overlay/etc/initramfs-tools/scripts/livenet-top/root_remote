@@ -114,8 +114,8 @@ mount -t overlay overlay -o lowerdir=${NFSRO}/home,upperdir=${STATETMP}/home,wor
 touch ${rootmnt}/${FLAG_RELEASE}
 touch ${rootmnt}/${FLAG_NFS} # flag
 
-echo "127.0.0.1 localhost livenet" >> ${rootmnt}/etc/hosts
-echo "livenet" >> ${rootmnt}/etc/hostname
+echo "127.0.0.1 localhost lnode" >> ${rootmnt}/etc/hosts
+echo "lnode" >> ${rootmnt}/etc/hostname
 echo "nameserver 8.8.8.8" >> ${rootmnt}/etc/resolv.conf
 
 for x in /run/net-*.conf /tmp/net-*.conf; do
