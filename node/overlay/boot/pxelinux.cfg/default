@@ -20,7 +20,7 @@ label install
     append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default livenet_action=install livenet_format=yes net.ifnames=0 biosdevname=0
 
 label local
-    MENU LABEL local hard drive
+    MENU LABEL Local disk
     LOCALBOOT 0
 
 label memtest

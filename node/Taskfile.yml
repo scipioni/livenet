@@ -50,7 +50,7 @@ tasks:
         docker diff ${NODE} > releases/${RELEASE}.diff
         docker commit ${ID} livenet/node:${RELEASE}
         docker export ${NODE} --output="releases/${RELEASE}.tar"
-        gzip releases/${RELEASE}.tar
+        pigz releases/${RELEASE}.tar
 
   destroy:
     cmds:
@@ -102,4 +102,5 @@ tasks:
         cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /tmp/OVMF_VARS.fd
         qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
           -drive if=pflash,format=raw,unit=0,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
-          -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd
+          -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd \
+          -boot d

@@ -31,7 +31,7 @@ echo "starting mini httpd"
 mini_httpd -p 8095 -h 0.0.0.0 -d /boot -l /dev/stdout -D &
 
 echo "starting rsyncd"
-rsync --daemon
+rsync --config=/etc/rsyncd.conf --daemon
 
 # Partially set 'unofficial Bash Strict Mode' as described here: http://redsymbol.net/articles/unofficial-bash-strict-mode/
 # We don't set -e because the pidof command returns an exit code of 1 when the specified process is not found

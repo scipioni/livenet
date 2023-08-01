@@ -27,7 +27,8 @@ RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
     gdisk \
     openssh-server \
     pigz \
-    rsync
+    rsync \
+    parted
 
 RUN locale-gen en_GB.UTF-8
 RUN locale-gen it_IT.UTF-8

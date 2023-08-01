@@ -1,6 +1,13 @@
 # Livenet node build and serve
 
 
+## prereq
+
+- docker compose
+- qemu and libvirtd
+- pigz
+
+
 ## build
 
 

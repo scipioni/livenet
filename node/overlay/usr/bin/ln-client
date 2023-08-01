@@ -53,12 +53,18 @@ do_install() {
     if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
     #if [ "${LIVENET_FORMAT}" = "yes" ]; then
         echo "Formatting disk ..."
-        DEVICE=/dev/sda # TODO, selezionarlo tra sda,vda,nvme
-        wipefs -af $DEVICE
-        sgdisk -Z \
-            -n 1::300M -t 1:EF00 -c 1:BOOT \
-            -N 2 -t 2:8300 -c 2:${ROOT_LABEL} $DEVICE
-        mkfs.ext4 -q -F -L ${ROOT_LABEL} ${DEVICE}2
+        DISK=/dev/sda # TODO, selezionarlo tra sda,vda,nvme
+        wipefs -af $DISK
+
+        # legacy (BIOS) booting:
+        sgdisk -a1 -n1:34:2047 -t1:EF02 $DISK
+
+        # UEFI booting
+        sgdisk -n2:1M:+512M -t2:EF00 $DISK
+        parted $DISK set 2 bios_grub on # needed for embedding grub in this partition 
+
+        sgdisk -n3 -t3:8300 -c3:${ROOT_LABEL} $DISK
+        mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-partlabel/${ROOT_LABEL}
     #fi
     fi
 
@@ -119,6 +125,12 @@ do_install() {
     cd / # release mount point!
 
     umount ${backupmnt}
+
+
+    # overlay sync
+    LIVENET_HOST=$( echo ${LIVENET_ROOT} | awk -F ':' '{ print $1 }' )
+    rsync -av ${LIVENET_HOST}::overlay/etc/ ${roottmppath}/etc/
+    rsync -av ${LIVENET_HOST}::overlay/usr/ ${roottmppath}/usr/
 
     # # update state
     # cd /${STATETMP}
