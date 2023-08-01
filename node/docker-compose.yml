@@ -9,6 +9,7 @@ services:
       context: .
     privileged: true
     volumes:
+      ### da notare che questi binds non sono exportati via nfs
       # solo durante sviluppo
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh
       #- ./docker/exports:/etc/exports
@@ -21,7 +22,7 @@ services:
       #### releases
       - ./releases:/mnt/releases
       #### node
-      - ./overlay/usr/bin/ln-client:/usr/bin/ln-client
+      #- ./overlay/usr/bin/ln-client:/usr/bin/ln-client
       # - ./overlay/etc/livenet:/etc/livenet
       # - ./overlay/etc/initramfs-tools/conf.d:/etc/initramfs-tools/conf.d
       # - ./overlay/etc/initramfs-tools/hooks:/etc/initramfs-tools/hooks

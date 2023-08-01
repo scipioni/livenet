@@ -5,6 +5,7 @@
 PROGNAME=${0##*/}
 PROGVERSION=0.1.0
 
+# xxxxxx
 set -x
 
 check_jail() {
@@ -50,7 +51,8 @@ do_install() {
         exit 1
     fi
 
-    if [ "${LIVENET_FORMAT}" = "yes" ]; then
+    if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
+    #if [ "${LIVENET_FORMAT}" = "yes" ]; then
         echo "Formatting disk ..."
         DEVICE=/dev/sda # TODO, selezionarlo tra sda,vda,nvme
         wipefs -af $DEVICE
@@ -58,12 +60,11 @@ do_install() {
             -n 1::300M -t 1:EF00 -c 1:BOOT \
             -N 2 -t 2:8300 -c 2:${ROOT_LABEL} $DEVICE
         mkfs.ext4 -q -F -L ${ROOT_LABEL} ${DEVICE}2
+    #fi
     fi
 
-    if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
-        echo "Create partition labelled ${ROOT_LABEL} before"
-        exit 1
-    fi
+        #echo "Create partition labelled ${ROOT_LABEL} before"
+        #exit 1
 
     if [ ! -e /dev/disk/by-label/${SWAP_LABEL} ]; then
         echo "Continue without partition labelled LSWAP"
@@ -113,6 +114,7 @@ do_install() {
 
     # update=$(echo ${archive} | sed -e 's/^.*\(........-....\)\.tar\..*$/\1/')
     # echo "Using snapshot ${update} ..."
+    echo "uncompressing ${archive}"
     cd ${roottmppath}
     nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
     cd / # release mount point!
@@ -126,23 +128,23 @@ do_install() {
     # # register current update
     # ln -sf /${ALLUPDATES}/${update} ${roottmppath}${UPDATE_FLAG}
 
-    # touch ${roottmppath}/${FLAG_RELEASE}
-    # echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
-    # echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
+    touch ${roottmppath}/${FLAG_RELEASE}
+    echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
+    echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
     # . /etc/livenet/boot/00-update.local ${roottmppath}
 
-    # grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
-    # for i in proc dev sys; do
-    #     mount -o bind /$i ${roottmppath}/$i
-    # done
-    # chroot ${roottmppath} update-grub
-    # echo "Saving profile ${PROFILE}"
-    # chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
-    # for i in proc dev sys; do
-    #     umount ${roottmppath}/$i
-    # done
+    grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
+    for i in proc dev sys; do
+        mount -o bind /$i ${roottmppath}/$i
+    done
+    chroot ${roottmppath} update-grub
+    echo "Saving profile ${PROFILE}"
+    chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
+    for i in proc dev sys; do
+        umount ${roottmppath}/$i
+    done
 
-    # umount_root
+    umount_root
 
     finish_time=$(date +%s)
     echo "Time elapsed: $(($((finish_time - start_time)) / 60)) min."
