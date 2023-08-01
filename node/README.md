@@ -31,6 +31,14 @@ task vm:bios
 task vm:efi
 ```
 
+## release
+
+make release
+
+```
+task commit -- 0.0.1
+```
+
 
 ## documentation
 

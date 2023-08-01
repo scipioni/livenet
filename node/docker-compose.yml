@@ -12,6 +12,7 @@ services:
       ### da notare che questi binds non sono exportati via nfs
       # solo durante sviluppo
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh
+      - ./overlay/etc/rsyncd.conf:/etc/rsyncd.conf
       #- ./docker/exports:/etc/exports
       #### pxe
       - ./runtime/bash_history:/root/.bash_history
@@ -19,8 +20,9 @@ services:
       - ./overlay/boot/pxelinux.cfg:/boot/bios/pxelinux.cfg
       - ./overlay/boot/grub.cfg:/boot/grub-node/grub.cfg
       - /dev/log:/dev/log
-      #### releases
+      #### releases e overlay
       - ./releases:/mnt/releases
+      - ./overlay:/mnt/overlay
       #### node
       #- ./overlay/usr/bin/ln-client:/usr/bin/ln-client
       # - ./overlay/etc/livenet:/etc/livenet

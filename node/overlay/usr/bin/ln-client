@@ -5,7 +5,6 @@
 PROGNAME=${0##*/}
 PROGVERSION=0.1.0
 
-# xxxxxx
 set -x
 
 check_jail() {

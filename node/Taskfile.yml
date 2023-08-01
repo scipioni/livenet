@@ -18,7 +18,7 @@ tasks:
 
   start:
     cmds:
-      - mkdir -p runtime
+      - mkdir -p runtime releases
       - touch runtime/bash_history
       - docker compose up
 
@@ -30,7 +30,8 @@ tasks:
     cmds:
       - docker compose exec lnode bash
 
-  cli:ssh:
+  ssh:
+    desc: "connect to client node"
     cmds:
       - ssh root@192.168.124.18
 
