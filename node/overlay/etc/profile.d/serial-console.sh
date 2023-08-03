@@ -1,0 +1,1 @@
+stty rows 50 cols 132

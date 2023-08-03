@@ -28,7 +28,8 @@ RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
     openssh-server \
     pigz \
     rsync \
-    parted
+    parted \
+    vim
 
 RUN locale-gen en_GB.UTF-8
 RUN locale-gen it_IT.UTF-8
