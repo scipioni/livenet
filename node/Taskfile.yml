@@ -86,6 +86,15 @@ tasks:
         qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
           -drive id=vda,file=${DISK} \
           -boot n
+  
+  vm:bios:local:
+    desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
+    cmds:
+      - task: vm:disk
+      - |
+        qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
+          -drive id=vda,file=${DISK} \
+          -boot d
 
   vm:cd:
     desc: "boot systemrescuecd"

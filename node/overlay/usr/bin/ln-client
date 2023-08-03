@@ -5,8 +5,6 @@
 PROGNAME=${0##*/}
 PROGVERSION=0.1.0
 
-set -x
-
 check_jail() {
     if [ ! "$(</etc/hostname)" = "$(hostname)" ]; then
         echo "This program run only on live client, not in chroot jail. Use ln-mng instead." 1>&2
@@ -52,7 +50,7 @@ do_install() {
 
     if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
     #if [ "${LIVENET_FORMAT}" = "yes" ]; then
-        echo "Formatting disk ..."
+        echo "No ${ROOT_LABEL} present, formatting disk required..."
         DISK=/dev/sda # TODO, selezionarlo tra sda,vda,nvme
         wipefs -af $DISK
 
@@ -77,9 +75,9 @@ do_install() {
 
     start_time=$(date +%s)
 
-    echo -n "Formatting root partition ${ROOT_LABEL} ..."
+    echo "Formatting root partition ${ROOT_LABEL} ..."
     mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-label/${ROOT_LABEL}
-    [ $? = 0 ] && echo "OK"
+    #[ $? = 0 ] && echo "OK"
 
     (sleep 2 && tune2fs -i0 -c0 /dev/disk/by-label/${ROOT_LABEL} >/dev/null 2>&1) &
 
@@ -128,9 +126,10 @@ do_install() {
 
 
     # overlay sync
+    echo "Sync remote overlay ..."
     LIVENET_HOST=$( echo ${LIVENET_ROOT} | awk -F ':' '{ print $1 }' )
-    rsync -av ${LIVENET_HOST}::overlay/etc/ ${roottmppath}/etc/
-    rsync -av ${LIVENET_HOST}::overlay/usr/ ${roottmppath}/usr/
+    rsync -a ${LIVENET_HOST}::overlay/etc/ ${roottmppath}/etc/
+    rsync -a ${LIVENET_HOST}::overlay/usr/ ${roottmppath}/usr/
 
     # # update state
     # cd /${STATETMP}
@@ -144,6 +143,7 @@ do_install() {
     echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
     # . /etc/livenet/boot/00-update.local ${roottmppath}
 
+    echo "Installing grub ..."
     grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
     for i in proc dev sys; do
         mount -o bind /$i ${roottmppath}/$i

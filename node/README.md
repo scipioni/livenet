@@ -37,7 +37,6 @@ task cli
 task vm:bios
 task vm:efi
 ```
-
 ## release
 
 make release
@@ -45,6 +44,19 @@ make release
 ```
 task commit -- 0.0.1
 ```
+
+## install node client
+
+on node
+```
+ln-install --client
+```
+
+after boot with
+```
+task vm:bios:local
+```
+
 
 
 ## documentation
