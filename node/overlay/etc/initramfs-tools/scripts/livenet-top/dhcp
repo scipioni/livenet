@@ -46,6 +46,7 @@ do_dhcp() {
         done
 	    do_log "running dhcp client on ${DEVICE}"
         ipconfig -t ${ROUNDTTT} -c dhcp -i "LIVENET" "${DEVICE}"
+        [ $? -eq 0 ] && break
     done
 }
 
