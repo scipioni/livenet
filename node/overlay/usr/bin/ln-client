@@ -151,6 +151,7 @@ do_install() {
     chroot ${roottmppath} update-grub
     echo "Saving profile ${PROFILE}"
     chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
+    chroot ${roottmppath} /bin/sh -c "ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
     for i in proc dev sys; do
         umount ${roottmppath}/$i
     done

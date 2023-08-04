@@ -2,8 +2,6 @@
 
 # Run only in CHROOT jail
 
-set -x
-
 PROGNAME=${0##*/}
 
 # if [ "$1" != "--bootstrap" ]; then
@@ -13,25 +11,26 @@ PROGNAME=${0##*/}
 #     fi
 # fi
 
-usage()
-{
-  cat << EOF
+#set -x
+
+usage() {
+    cat <<EOF
         Usage: $PROGNAME <command> [--help] 
 
 	command:
 
-        --bootstrap: first stanza operations 
-        --clean: clean stanza
-        --kernel: rebuild initramfs
-        --kernel-remove-old: remove old kernels
-        --italian: install italian language
-        --profile-delete <profile>: remove profile from /etc /usr and /livenet
-        --profiles: make diversions and hard link 
+        # --bootstrap: first stanza operations 
+        # --clean: clean stanza
+        # --kernel: rebuild initramfs
+        # --kernel-remove-old: remove old kernels
+        # --italian: install italian language
+        # --profile-delete <profile>: remove profile from /etc /usr and /livenet
+        # --profiles: make diversions and hard link 
         --profiles-list: show profiles list
-        --packages-base:
-        --packages:
-        --set-grub-password: set superuser password to grub
-	--version: show package version
+        # --packages-base:
+        # --packages:
+        # --set-grub-password: set superuser password to grub
+        # --version: show package version
 
 EOF
 }
@@ -39,20 +38,20 @@ EOF
 SHORTOPTS="hvte:"
 LONGOPTS="help,version,test,example:,bootstrap,profiles,packages-base,kernel,italian,packages,kernel-remove-old,force,clean,set-grub-password,profiles-list,list,profile-delete:"
 
-ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@" )
+ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@")
 eval set -- "$ARGS"
 
 do_check_alternative() {
     d=$1
     alternative_name=$2
 
-    #f=${d#${LIVENET_DIR}}   
-    f=${d}   
+    #f=${d#${LIVENET_DIR}}
+    f=${d}
 
     [ -n "${alternative_name}" ] || alternative_name=$(basename $f)
 
     # diversion
-    ########### 
+    ###########
     if [ -r ${d}.nfs.default ]; then
         if [ -h ${f} ]; then # is symbolic link
             rm -f ${f}
@@ -60,18 +59,18 @@ do_check_alternative() {
             [ -f ${f} ] && mv ${f} ${d}.local.standalone
         fi
         update-alternatives --remove-all ${alternative_name} >/dev/null 2>&1
-	mkdir -p $( dirname ${f} )
+        mkdir -p $(dirname ${f})
         for instance in ${d}.?*.?* ${d##/livenet}.?*.?*; do
             [ -e ${instance} ] || continue
             update-alternatives --install $f ${alternative_name} ${instance} 30
 
-            _profile=$( echo $instance | awk -F '.' '{ print $NF }' )
+            _profile=$(echo $instance | awk -F '.' '{ print $NF }')
             if [ ! -f /etc/livenet/local/livenet.conf.nfs.${_profile} ]; then
-                echo "PROFILE=${_profile}" > /etc/livenet/local/livenet.conf.nfs.${_profile}
+                echo "PROFILE=${_profile}" >/etc/livenet/local/livenet.conf.nfs.${_profile}
             fi
-        done 
+        done
         update-alternatives --set ${alternative_name} ${d}.nfs.default
-    else 
+    else
         log_error "${d}.nfs.default does not exists"
         return 1
     fi
@@ -85,39 +84,39 @@ do_bootstrap() {
     touch /etc/livenet/local/livenet.conf.nfs.default
 
     . /etc/livenet/livenet.conf
-    
-    mkdir -p $( dirname ${DIVERSIONS} )
+
+    mkdir -p $(dirname ${DIVERSIONS})
     [ -f ${DIVERSIONS_LOCAL} ] || touch ${DIVERSIONS_LOCAL}
 
     # there is at least one update!
-    [ -d /${ALLUPDATES} ] || mkdir -p /${ALLUPDATES} 
-    if [ `ls /${ALLUPDATES}/2???????-???? 2>/dev/null | wc -l` = 0 ]; then
-        u=${ALLUPDATES}/`date +%Y%m%d-0000`
+    [ -d /${ALLUPDATES} ] || mkdir -p /${ALLUPDATES}
+    if [ $(ls /${ALLUPDATES}/2???????-???? 2>/dev/null | wc -l) = 0 ]; then
+        u=${ALLUPDATES}/$(date +%Y%m%d-0000)
         touch /$u
-        echo $u > /${ALLUPDATES}/list
+        echo $u >/${ALLUPDATES}/list
     fi
-    
+
     # ln-shutdown service start/stop
     #if [ ! -f /etc/rc0.d/S19ln-shutdown ]; then
     #    echo "Activate ln-shutdown in runlevel 0"
     #    ln -s /etc/init.d/ln-shutdown /etc/rc0.d/S19ln-shutdown
     #fi
-   # 
-   # if [ ! -f /etc/rc6.d/S19ln-shutdown ]; then
-   #     echo "Activate ln-shutdown in runlevel 6"
-   #     ln -s /etc/init.d/ln-shutdown /etc/rc6.d/S19ln-shutdown
+    #
+    # if [ ! -f /etc/rc6.d/S19ln-shutdown ]; then
+    #     echo "Activate ln-shutdown in runlevel 6"
+    #     ln -s /etc/init.d/ln-shutdown /etc/rc6.d/S19ln-shutdown
     #fi
-    
+
     # install user needed by install mode (lightdm autologin user)
     id install >/dev/null 2>/dev/null
     if [ $? != 0 ]; then
         echo "Create 'install' user"
         useradd -u 499 -g users -s /bin/false -d /var/tmp -c "system account" install
     fi
-         
+
     do_profiles
-	 
-    # rebuild initram 
+
+    # rebuild initram
     #dpkg-reconfigure linux-image-${KERNEL}
     RESUME=auto update-initramfs -c -k ${KERNEL}
 
@@ -131,20 +130,19 @@ do_diversions_build() {
     find /etc /lib /usr -type f -a \( -name "*.nfs.*" \) ! -wholename "*.gz" \
         ! -wholename "*zz-update-grub*" \
         ! -wholename "*.dpkg-dist" \
-        ! -wholename "*.ucf-dist" \
-        | sed "s/\.nfs.\w\+//" | sort | uniq > ${DIVERSIONS}
-    find /etc /lib /usr -type d -a \( -name "*.nfs.*" \) | sed "s/\.nfs.\w\+//" | sed "s/\.local.\w\+//" | sort | uniq >> ${DIVERSIONS}
-    
+        ! -wholename "*.ucf-dist" |
+        sed "s/\.nfs.\w\+//" | sort | uniq >${DIVERSIONS}
+    find /etc /lib /usr -type d -a \( -name "*.nfs.*" \) | sed "s/\.nfs.\w\+//" | sed "s/\.local.\w\+//" | sort | uniq >>${DIVERSIONS}
+
     do_check_alternative /etc/kernel/postrm.d/zz-update-grub zz-update-grub-postrm >/dev/null
     do_check_alternative /etc/kernel/postinst.d/zz-update-grub zz-update-grub-postinst >/dev/null
 
-    [ -f ${DIVERSIONS_LOCAL} ] && cat ${DIVERSIONS_LOCAL} >> ${DIVERSIONS}
+    [ -f ${DIVERSIONS_LOCAL} ] && cat ${DIVERSIONS_LOCAL} >>${DIVERSIONS}
 }
 
-
 do_profiles_list() {
-    for i in /etc/livenet/local/livenet.conf.*.*; do 
-        i=$( echo $i | awk -F '.' '{ print " " $NF}' )
+    for i in /etc/livenet/local/livenet.conf.*.*; do
+        i=$(echo $i | awk -F '.' '{ print " " $NF}')
         [ $i = "special" ] || [ $i = "standalone" ] && continue
         echo $i
     done
@@ -152,21 +150,21 @@ do_profiles_list() {
 
 do_profiles() {
     . /etc/livenet/livenet.conf
-    
+
     do_diversions_build
-    
+
     if [ ! -f ${DIVERSIONS} ]; then
-        log_error "no ${DIVERSIONS} defined" 
+        log_error "no ${DIVERSIONS} defined"
         exit 1
     fi
 
     do_check_alternative /etc/livenet/local/livenet.conf >/dev/null
-    for f in $( egrep -v "^\s*$|^\s*#" ${DIVERSIONS} ); do 
+    for f in $(egrep -v "^\s*$|^\s*#" ${DIVERSIONS}); do
         echo " "$f
-	do_check_alternative ${f} >/dev/null
+        do_check_alternative ${f} >/dev/null
     done
 
-    echo 
+    echo
     echo "Detected profiles:"
     do_profiles_list
     echo
@@ -176,17 +174,17 @@ do_packages() {
     packages=$1
     tmp=/tmp/$$.apt
 
-    echo -n > ${tmp}
-    for APT in `find /etc/apt/ -name *.list`; do
-        grep -o "^deb http://ppa.launchpad.net/[a-z0-9\-]\+/[a-z0-9\-]\+" $APT | while read -r ENTRY ; do
-            USER=`echo $ENTRY | cut -d/ -f4`
-            PPA=`echo $ENTRY | cut -d/ -f5`
-            echo ppa:$USER/$PPA >> ${tmp}
+    echo -n >${tmp}
+    for APT in $(find /etc/apt/ -name *.list); do
+        grep -o "^deb http://ppa.launchpad.net/[a-z0-9\-]\+/[a-z0-9\-]\+" $APT | while read -r ENTRY; do
+            USER=$(echo $ENTRY | cut -d/ -f4)
+            PPA=$(echo $ENTRY | cut -d/ -f5)
+            echo ppa:$USER/$PPA >>${tmp}
         done
     done
 
     need_update=
-    for p in $( egrep "^ppa:" $packages ); do 
+    for p in $(egrep "^ppa:" $packages); do
         grep -q $p /tmp/$$.apt
         if [ $? != 0 ]; then
             echo "INSTALL $p"
@@ -200,7 +198,7 @@ do_packages() {
         apt-get update >/dev/null
     fi
 
-    for p in $( egrep -v "^\s*$|^\s*#|^ppa\:" $packages ); do 
+    for p in $(egrep -v "^\s*$|^\s*#|^ppa\:" $packages); do
         echo "Checking $p ..."
         dpkg -s $p >/dev/null 2>&1
         [ $? = 0 ] || apt-get -y install $p
@@ -208,8 +206,8 @@ do_packages() {
 }
 
 do_italian() {
-    apt-get install --yes $( check-language-support -l it )
-    apt-get install --yes $( check-language-support -l en )
+    apt-get install --yes $(check-language-support -l it)
+    apt-get install --yes $(check-language-support -l en)
 
     update-locale LANG=it_IT.UTF-8 LANGUAGE=it:en_US:en
 
@@ -221,8 +219,8 @@ do_italian() {
 do_grub_password() {
     GRUBPASS=$1
     echo
-    ENCPASS=$( python -c "from passlib.hash import grub_pbkdf2_sha512; print grub_pbkdf2_sha512.encrypt('${GRUBPASS}', rounds=10964, salt='liveme')" )
-    cat > /etc/grub.d/01_security <<EOF
+    ENCPASS=$(python -c "from passlib.hash import grub_pbkdf2_sha512; print grub_pbkdf2_sha512.encrypt('${GRUBPASS}', rounds=10964, salt='liveme')")
+    cat >/etc/grub.d/01_security <<EOF
 cat <<EOT
 set superusers="root"
 password_pbkdf2 root ${ENCPASS}
@@ -250,22 +248,21 @@ lens_switch() {
     lens=$1
     status=$2
     if [ "${status}" = "off" ]; then
-        current=$( find /usr/share/unity/lenses -name ${lens} )
+        current=$(find /usr/share/unity/lenses -name ${lens})
         if [ -n "${current}" ]; then
             echo "Switching off ${lens} lens"
             mv ${current} ${current}.disabled
         fi
     fi
-    
+
     if [ "${status}" = "on" ]; then
-        current=$( find /usr/share/unity/lenses -name ${lens}.disabled )
+        current=$(find /usr/share/unity/lenses -name ${lens}.disabled)
         if [ -n "${current}" ]; then
             echo "Switching on ${lens} lens"
             mv ${current}.disabled ${current}
         fi
     fi
 }
-
 
 do_check_lens() {
     what=$1
@@ -288,92 +285,91 @@ do_clean() {
             . ${module} ""
         else
             do_log "Skip ${mm}"
-	fi
+        fi
     done
 }
 
-
 while true; do
     case $1 in
-        -h|--help)
-            usage
-            exit 0
-            ;;
-        -v|--version)
-            apt-cache show livenet-client | sed -n 's/^Version:.\([0-9\.]\+\)-.*/\1/p'
-            ;;
-        --example|-e)
-            shift
-            echo "argument is $1"
-            ;;
-        --test)
-            echo "test"
-            ;;
-        --bootstrap)
-            do_bootstrap
-            do_clean
-            break
-            ;;
-        --profiles)
-            do_profiles
-            break
-            ;;
-        --profiles-list|--list)
-            do_profiles_list
-            break
-            ;;
-        --packages)
-            do_packages /etc/livenet/packages.conf
-            break
-            ;;
-        --packages-base)
-            do_packages /etc/livenet/packages-base.conf
-            break
-            ;;
-        --kernel)
-            . /etc/livenet/livenet.conf
-            #dpkg-reconfigure linux-image-${KERNEL}
-            RESUME=auto update-initramfs -c -k ${KERNEL}
-            break
-            ;;
-        --kernel-remove-old)
-            . /etc/livenet/livenet.conf
-            dpkg -l 'linux-*' | sed '/^ii/!d;/'"${KERNEL}"'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d' | xargs apt-get -y purge
-            break
-            ;;
-        --italian)
-            do_italian
-            break
-            ;;
-        --clean)
-            do_clean
-            break
-            ;;
-        --set-grub-password)
-            read -s -p "Enter Password: " GRUBPASS
-            do_grub_password ${GRUBPASS}
-            break
-            ;;
-        --profile-delete)
-            shift
-            profile=$1
-            if [ "${profile}" = "default" ] || [ "${profile}" = "special" ] || [ "${profile}" = "standalone" ]; then
-                echo "Profile ${profile} is not allowed"
-                exit 1
-            fi
-            find /etc /livenet /usr -name "*.*.${profile}" -exec rm \{\} \;
-            do_diversions_build
-            do_profiles --force
-            break
-            ;;
-        --)
-            shift
-            exit 1
-            ;;
-        *)
-            shift
-            break
-            ;;
+    -h | --help)
+        usage
+        exit 0
+        ;;
+    -v | --version)
+        apt-cache show livenet-client | sed -n 's/^Version:.\([0-9\.]\+\)-.*/\1/p'
+        ;;
+    --example | -e)
+        shift
+        echo "argument is $1"
+        ;;
+    --test)
+        echo "test"
+        ;;
+    # --bootstrap)
+    #     do_bootstrap
+    #     do_clean
+    #     break
+    #     ;;
+    --profiles)
+        do_profiles
+        break
+        ;;
+    --profiles-list | --list)
+        do_profiles_list
+        break
+        ;;
+    # --packages)
+    #     do_packages /etc/livenet/packages.conf
+    #     break
+    #     ;;
+    # --packages-base)
+    #     do_packages /etc/livenet/packages-base.conf
+    #     break
+    #     ;;
+    # --kernel)
+    #     . /etc/livenet/livenet.conf
+    #     #dpkg-reconfigure linux-image-${KERNEL}
+    #     RESUME=auto update-initramfs -c -k ${KERNEL}
+    #     break
+    #     ;;
+    # --kernel-remove-old)
+    #     . /etc/livenet/livenet.conf
+    #     dpkg -l 'linux-*' | sed '/^ii/!d;/'"${KERNEL}"'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d' | xargs apt-get -y purge
+    #     break
+    #     ;;
+    # --italian)
+    #     do_italian
+    #     break
+    #     ;;
+    # --clean)
+    #     do_clean
+    #     break
+    #     ;;
+    # --set-grub-password)
+    #     read -s -p "Enter Password: " GRUBPASS
+    #     do_grub_password ${GRUBPASS}
+    #     break
+    #     ;;
+    # --profile-delete)
+    #     shift
+    #     profile=$1
+    #     if [ "${profile}" = "default" ] || [ "${profile}" = "special" ] || [ "${profile}" = "standalone" ]; then
+    #         echo "Profile ${profile} is not allowed"
+    #         exit 1
+    #     fi
+    #     find /etc /livenet /usr -name "*.*.${profile}" -exec rm \{\} \;
+    #     do_diversions_build
+    #     do_profiles --force
+    #     break
+    #     ;;
+    --)
+        shift
+        exit 1
+        ;;
+    *)
+        shift
+        break
+        ;;
     esac
     shift
 done

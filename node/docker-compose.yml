@@ -13,6 +13,7 @@ services:
       # solo durante sviluppo
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh
       - ./overlay/etc/rsyncd.conf:/etc/rsyncd.conf
+      - ./overlay/usr/sbin/ln-mng:/usr/sbin/ln-mng
       #- ./docker/exports:/etc/exports
       #### pxe
       - ./runtime/bash_history:/root/.bash_history

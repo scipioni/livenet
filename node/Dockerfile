@@ -22,14 +22,16 @@ RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
   apt-get install -y \
     ubuntu-minimal
 
-RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
+RUN DEBIAN_FRONTEND=noninteractive \
   apt-get install -y \
     gdisk \
     openssh-server \
     pigz \
     rsync \
     parted \
-    vim
+    vim \
+    nano \
+    network-manager
 
 RUN locale-gen en_GB.UTF-8
 RUN locale-gen it_IT.UTF-8
@@ -129,6 +131,6 @@ RUN cp -vR /tmp/overlay/* / && rm -fR /tmp/overlay
 RUN mkdir -p /var/cache/livenet
 
 RUN RESUME=auto update-initramfs -c -k all
-#RUN /bin/bash -c "source /etc/livenet/livenet.conf && RESUME=auto dpkg-reconfigure linux-image-${KERNEL}"
+RUN ln-mng --profiles
 
 CMD ["/usr/local/bin/entrypoint.sh"]

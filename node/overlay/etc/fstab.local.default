@@ -1,0 +1,3 @@
+#LABEL=BOOT         /boot               ext4    noatime,nodiratime,commit=100           0       0
+LABEL=LROOT         /               ext4    noatime           0       0
+
