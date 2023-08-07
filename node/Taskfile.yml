@@ -49,8 +49,8 @@ tasks:
         [ -n "$RELEASE" ] || RELEASE={{.CLI_ARGS}}
         docker diff ${NODE} | docker compose exec -T lnode ln-mng --commit $RELEASE
         docker commit ${ID} livenet/node:${RELEASE}
-        docker export ${NODE} --output="releases/${RELEASE}.tar"
-        pigz releases/${RELEASE}.tar
+        docker export ${NODE} --output="releases/${RELEASE}-full.tar"
+        pigz releases/${RELEASE}-full.tar
         sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
         docker compose down
         docker compose up -d
@@ -61,6 +61,7 @@ tasks:
       - sed -i "s/VERSION=.*/VERSION=latest/" .env
       - docker compose down
       - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi
+      - task: build
       - task: start
       - sleep 2
       - task: commit
