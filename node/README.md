@@ -33,6 +33,10 @@ chroot in node live container
 task cli
 ```
 
+## destroy
+
+destroy all images and build 0.0.1 version
+
 ## test vm
 
 ```
