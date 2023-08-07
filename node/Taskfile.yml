@@ -66,7 +66,7 @@ tasks:
       - sleep 2
       - task: commit
         vars:
-          RELEASE: 0.0.1
+          RELEASE: 20230801.00
   mount:
     cmds:
       - mkdir -p /tmp/test

@@ -35,7 +35,7 @@ task cli
 
 ## destroy
 
-destroy all images and build 0.0.1 version
+destroy all images and build 20230801.00 version
 
 ## test vm
 
@@ -48,7 +48,7 @@ task vm:efi
 make release
 
 ```
-task commit -- 0.0.1
+task commit -- 20230801.00
 ```
 
 ## install node client

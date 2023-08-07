@@ -11,3 +11,4 @@
 /var/tmp
 /proc
 /sys
+.dockerenv

@@ -412,6 +412,12 @@ while true; do
     --install)
         check_jail
         do_install
+        if [ "${LIVENET_ACTION_END}" = "halt" ]; then
+            halt -p
+        fi
+        if [ "${LIVENET_ACTION_END}" = "reboot" ]; then
+            reboot -f
+        fi
         break
         ;;
     --install-with-gui)
