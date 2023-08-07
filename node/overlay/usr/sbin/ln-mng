@@ -36,7 +36,7 @@ EOF
 }
 
 SHORTOPTS="hvte:"
-LONGOPTS="help,version,test,example:,bootstrap,profiles,packages-base,kernel,italian,packages,kernel-remove-old,force,clean,set-grub-password,profiles-list,list,profile-delete:"
+LONGOPTS="help,version,test,example:,bootstrap,profiles,packages-base,kernel,italian,packages,kernel-remove-old,force,clean,set-grub-password,profiles-list,list,profile-delete:,commit:"
 
 ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@")
 eval set -- "$ARGS"
@@ -216,6 +216,7 @@ do_italian() {
     dpkg-reconfigure tzdata
 }
 
+
 do_grub_password() {
     GRUBPASS=$1
     echo
@@ -289,6 +290,39 @@ do_clean() {
     done
 }
 
+do_commit() {
+    RELEASE=$1
+    COMMIT=/tmp/commit.txt
+    SCRIPT=/tmp/script.txt
+    rm -f $SCRIPT $COMMIT
+    touch $SCRIPT $COMMIT
+    
+    while read entry
+    do
+        tmp=(${entry// / })
+        operation=${tmp[0]}
+        entity=${tmp[1]}
+        if [ $operation = "C" ] || [ $operation = "A" ]; then
+            #echo "operation:${operation} entity:${entity}"
+            if [ -f "${entity}" ]; then
+                echo "${entity}" >> ${COMMIT}
+            else
+                [ $entity = "/var" ] && continue
+                # echo "check folder ${entity} if empty"
+                find ${entity} -type d -empty -exec echo "mkdir -p " {} >> /mnt/releases/${RELEASE}-script.sh \;
+            fi
+        elif [ $operation = "D" ]; then
+            echo "rm -f '${entity}'" >> ${SCRIPT}
+        else
+            echo "ERROR: operation $operation not known on entity:$entity"
+        fi
+    done < /dev/stdin
+
+    tar -c --exclude=/run --exclude=/proc --exclude=/sys --exclude=/var/tmp --exclude=/tmp -T ${COMMIT}  | pigz > /mnt/releases/${RELEASE}-diff.tar.gz
+    cp ${SCRIPT} /mnt/releases/${RELEASE}-script.sh
+    chmod +x /mnt/releases/${RELEASE}-script.sh
+}
+
 while true; do
     case $1 in
     -h | --help)
@@ -316,6 +350,11 @@ while true; do
         ;;
     --profiles-list | --list)
         do_profiles_list
+        break
+        ;;
+    --commit)
+        shift
+        do_commit $1
         break
         ;;
     # --packages)

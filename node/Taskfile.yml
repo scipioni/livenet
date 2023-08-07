@@ -42,19 +42,20 @@ tasks:
 
   commit:
     desc: task commit -- 0.0.1
-    vars:
-      Id: Id
+    # vars:
+    #   Id: Id
     cmds:
       - |
         ID=$(docker container ls --all --quiet --no-trunc --filter "name=${NODE}")
         RELEASE={{.CLI_ARGS}}
-        docker diff ${NODE} > releases/${RELEASE}.diff
+        docker diff ${NODE} | docker compose exec -T lnode ln-mng --commit $RELEASE
         docker commit ${ID} livenet/node:${RELEASE}
         docker export ${NODE} --output="releases/${RELEASE}.tar"
         pigz releases/${RELEASE}.tar
 
   destroy:
     cmds:
+      - sudo rm -fR releases/*
       - docker compose down
       - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi
 
