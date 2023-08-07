@@ -57,6 +57,22 @@ after boot with
 task vm:bios:local
 ```
 
+## system alternatives and profiles
+
+```
+task cli
+# create alternatives
+/etc/fstab.local.default
+/etc/fstab.local.standalone
+# update alternatives
+ln-mng --profiles
+
+```
+
+profiles are defined with /etc/livenet/local/livenet.conf.nfs.* and are for example:
+- default
+- special
+- standalone
 
 
 ## documentation
