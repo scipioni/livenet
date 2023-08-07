@@ -291,6 +291,7 @@ do_clean() {
 }
 
 do_commit() {
+    . /etc/livenet/livenet.conf
     RELEASE=$1
     COMMIT=/tmp/commit.txt
     SCRIPT=/tmp/script.txt
@@ -318,7 +319,11 @@ do_commit() {
         fi
     done < /dev/stdin
 
-    tar -c --exclude=/run --exclude=/proc --exclude=/sys --exclude=/var/tmp --exclude=/tmp -T ${COMMIT}  | pigz > /mnt/releases/${RELEASE}-diff.tar.gz
+    echo "VERSION=${RELEASE}" > ${FLAG_VERSION}
+    echo ${FLAG_VERSION} >> ${COMMIT}
+
+    #tar -c --exclude=/run --exclude=/proc --exclude=/sys --exclude=/var/tmp --exclude=/tmp -T ${COMMIT}  | pigz > /mnt/releases/${RELEASE}-diff.tar.gz
+    tar -c --exclude-from=/etc/livenet/exclude -T ${COMMIT}  | pigz > /mnt/releases/${RELEASE}-diff.tar.gz
     cp ${SCRIPT} /mnt/releases/${RELEASE}-script.sh
     chmod +x /mnt/releases/${RELEASE}-script.sh
 }

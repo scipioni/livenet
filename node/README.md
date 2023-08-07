@@ -7,6 +7,8 @@
 - qemu and libvirtd
 - pigz
 
+create .env from env.sample
+
 
 ## build
 

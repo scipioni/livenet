@@ -1,0 +1,13 @@
+/var/lib/nfs/export-lock
+/var/lib/nfs/etab
+/var/lib/nfs/.etab.lock
+/mnt/overlay
+/mnt/releases
+/root/.bash_history
+/boot/grub-node/grub.cfg
+/boot/bios/pxelinux.cfg
+/run
+/tmp
+/var/tmp
+/proc
+/sys

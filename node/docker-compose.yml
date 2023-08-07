@@ -3,7 +3,7 @@ name: livenet
 
 services:
   lnode:
-    image: livener/node
+    image: livenet/node:${VERSION}
     container_name: lnode
     build:
       context: .

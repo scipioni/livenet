@@ -14,14 +14,16 @@ tasks:
     desc: build li
     cmds:
       - BUILDKIT_PROGRESS=plain docker compose build 
-      - rm -f releases/*
+      - sudo rm -f releases/*
       #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
 
   start:
     cmds:
       - mkdir -p runtime releases
       - touch runtime/bash_history
-      - docker compose up
+      - docker compose up -d
+      - sleep 2
+      - docker compose logs -f
 
   logs:
     cmds:
@@ -42,8 +44,6 @@ tasks:
 
   commit:
     desc: task commit -- 0.0.1
-    # vars:
-    #   Id: Id
     cmds:
       - |
         ID=$(docker container ls --all --quiet --no-trunc --filter "name=${NODE}")
@@ -52,10 +52,13 @@ tasks:
         docker commit ${ID} livenet/node:${RELEASE}
         docker export ${NODE} --output="releases/${RELEASE}.tar"
         pigz releases/${RELEASE}.tar
+        sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
+        docker compose down
+        docker compose up -d
 
   destroy:
     cmds:
-      - sudo rm -fR releases/*
+      - sudo rm -f releases/*
       - docker compose down
       - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi
 
