@@ -51,8 +51,8 @@ tasks:
         docker commit ${ID} livenet/node:${RELEASE}
         docker export ${NODE} --output="releases/${RELEASE}-full.tar"
         pigz releases/${RELEASE}-full.tar
-        sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
         docker compose down
+        sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
         docker compose up -d
 
   destroy:
