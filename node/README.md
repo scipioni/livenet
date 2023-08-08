@@ -33,9 +33,9 @@ chroot in node live container
 task cli
 ```
 
-## destroy
+## reset
 
-destroy all images and build 20230801.00 version
+reset image build 20230801.00 version
 
 ## test vm
 

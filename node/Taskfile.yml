@@ -61,6 +61,10 @@ tasks:
       - sed -i "s/VERSION=.*/VERSION=latest/" .env
       - docker compose down
       - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi || true
+
+  reset:
+    cmds:
+      - task: destroy
       - task: build
       - task: start
       - sleep 2
