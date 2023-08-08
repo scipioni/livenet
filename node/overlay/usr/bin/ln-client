@@ -124,12 +124,11 @@ do_install() {
 
     umount ${backupmnt}
 
-
-    # overlay sync
-    echo "Sync remote overlay ..."
-    LIVENET_HOST=$( echo ${LIVENET_ROOT} | awk -F ':' '{ print $1 }' )
-    rsync -a ${LIVENET_HOST}::overlay/etc/ ${roottmppath}/etc/
-    rsync -a ${LIVENET_HOST}::overlay/usr/ ${roottmppath}/usr/
+    sync_overlay
+    # echo "Sync remote overlay ..."
+    # LIVENET_HOST=$( echo ${LIVENET_ROOT} | awk -F ':' '{ print $1 }' )
+    # rsync -a ${LIVENET_HOST}::overlay/etc/ ${roottmppath}/etc/
+    # rsync -a ${LIVENET_HOST}::overlay/usr/ ${roottmppath}/usr/
 
     # # update state
     # cd /${STATETMP}
