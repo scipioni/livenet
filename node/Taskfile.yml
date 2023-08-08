@@ -59,7 +59,7 @@ tasks:
     cmds:
       - sudo rm -f releases/*
       - sed -i "s/VERSION=.*/VERSION=latest/" .env
-      - docker compose down
+      - docker compose down || true
       - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi || true
 
   reset:
