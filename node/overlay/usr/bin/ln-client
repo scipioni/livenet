@@ -94,21 +94,21 @@ do_install() {
 
     mkdir -p ${roottmppath}/etc/livenet # this flag and FLAG_RELEASE is needed to detect if fill not end
 
-    backupmnt=/tmp/.backup
-    mkdir -p ${backupmnt}
 
-    mountpoint -q ${backupmnt} && umount ${backupmnt}
-    BACKUPSERVER=${LIVENET_ROOT%%:*}
-    echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
-    mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${backupmnt}
+    mount_livenet_releases
+
+    # mkdir -p ${LIVENET_RELEASES_MNT}
+
+    # mountpoint -q ${LIVENET_RELEASES_MNT} && umount ${LIVENET_RELEASES_MNT}
+    # BACKUPSERVER=${LIVENET_ROOT%%:*}
+    # echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
+    # mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${LIVENET_RELEASES_MNT}
     if [ ! $? = 0 ]; then
-        echo "Error mounting ${BACKUPSERVER}:${BACKUP}, exit"
-        umount_root
         exit 1
     fi
 
     # find latest tarball available
-    archive=$(ls ${backupmnt}/*-full.tar.* | tail -n1)
+    archive=$(ls ${LIVENET_RELEASES_MNT}/*-full.tar.* | tail -n1)
     if [ -z "${archive}" ]; then
         echo "No image tarball found. Create it with task commit"
         umount_root
@@ -120,11 +120,11 @@ do_install() {
     echo "uncompressing ${archive}"
     cd ${roottmppath}
     nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
+    sync_overlay
     cd / # release mount point!
 
-    umount ${backupmnt}
+    umount ${LIVENET_RELEASES_MNT}
 
-    sync_overlay
     # echo "Sync remote overlay ..."
     # LIVENET_HOST=$( echo ${LIVENET_ROOT} | awk -F ':' '{ print $1 }' )
     # rsync -a ${LIVENET_HOST}::overlay/etc/ ${roottmppath}/etc/
