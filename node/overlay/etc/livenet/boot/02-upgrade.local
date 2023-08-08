@@ -12,18 +12,17 @@ _upgrade_to() {
     echo "upgrade to $filename"
 
     cd /
-    tar --numeric-owner -xf $filename
+    tar --numeric-owner -xf ${filename}-diff.tar.gz
+
+    source ${filename}-script.sh
+    source /etc/livenet/livenet.conf
 }
-
-
-
 
 for filename in ${LIVENET_RELEASES_MNT}/*-diff.tar.gz; do
     remote_version=$(basename $filename | sed "s/-.*//")
 
     if [ ${remote_version/./} -gt ${VERSION/./} ]; then
-        #echo "upgrade from ${VERSION} to ${remote_version}"
-        _upgrade_to $filename
+        _upgrade_to ${filename/-*/}
     fi
 done
 
