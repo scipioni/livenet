@@ -11,13 +11,11 @@ prereqs()
 }
 
 case $1 in
-# get pre-requisites
 prereqs)
        prereqs
        exit 0
        ;;
 esac
-#echo $DESCRIPTION
 
 . /scripts/functions
 . /scripts/functions-livenet
@@ -32,6 +30,9 @@ done
 mount -n -o bind /sys /root/sys
 mount -n -o bind /proc /root/proc
 
+do_log "running ln-client --force --boot ${ROOTMOUNTED}"
+
+#do_debug_shell
 chroot /root /usr/bin/ln-client --force --boot ${ROOTMOUNTED}
 
 umount /root/sys

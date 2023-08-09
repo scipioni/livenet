@@ -9,7 +9,7 @@ mount_livenet_releases
 
 _upgrade_to() {
     filename=$1
-    echo "upgrade to $filename"
+    echo "Upgrade to $filename"
 
     cd /
     tar --numeric-owner -xf ${filename}-diff.tar.gz
@@ -26,6 +26,7 @@ for filename in ${LIVENET_RELEASES_MNT}/*-diff.tar.gz; do
     fi
 done
 
+umount ${LIVENET_RELEASES_MNT}
 
 
 

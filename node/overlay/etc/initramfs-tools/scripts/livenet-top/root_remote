@@ -96,27 +96,29 @@ done
 
 #sync_state_nfs
 
-# clean rw space 
-mkdir ${rootmnt}/var ${rootmnt}/etc
-
-# aufs
-#mount -t aufs -o dirs=${STATETMP}/etc=rw:${NFSRO}/etc=ro aufs etc
-#mount -t aufs -o dirs=${STATETMP}/var=rw:${NFSRO}/var=ro aufs var
 
 # overlayfs
-#mount -t overlayfs -o lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc overlayfs etc
-#mount -t overlayfs -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/etc overlayfs var
-mount -t overlay overlay -o lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc,workdir=${WORKDIR}/etc etc
-mount -t overlay overlay -o lowerdir=${NFSRO}/var,upperdir=${STATETMP}/var,workdir=${WORKDIR}/var var
-mount -t overlay overlay -o lowerdir=${NFSRO}/home,upperdir=${STATETMP}/home,workdir=${WORKDIR}/home home
+mkdir ${rootmnt}/var ${rootmnt}/etc
+mount -t overlay overlay -o xino=off,index=off,nfs_export=off,lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc,workdir=${WORKDIR}/etc etc
+mount -t overlay overlay -o xino=off,index=off,nfs_export=off,lowerdir=${NFSRO}/var,upperdir=${STATETMP}/var,workdir=${WORKDIR}/var var
+mount -t overlay overlay -o xino=off,index=off,nfs_export=off,lowerdir=${NFSRO}/home,upperdir=${STATETMP}/home,workdir=${WORKDIR}/home home
 
+
+# for idmapd
+mkdir -p /var/lib/nfs/rpc_pipefs
+mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs
+#rpc.idmapd
 
 touch ${rootmnt}/${FLAG_RELEASE}
 touch ${rootmnt}/${FLAG_NFS} # flag
 
-echo "127.0.0.1 localhost lnode" >> ${rootmnt}/etc/hosts
-echo "lnode" >> ${rootmnt}/etc/hostname
-echo "nameserver 8.8.8.8" >> ${rootmnt}/etc/resolv.conf
+#do_debug_shell
+rm ${rootmnt}/etc/hosts # without this there is a huge time for a unknown timeout
+echo "127.0.0.1 localhost lnode" > ${rootmnt}/etc/hosts
+rm ${rootmnt}/etc/hostname
+echo "lnode" > ${rootmnt}/etc/hostname
+rm ${rootmnt}/etc/resolv.conf
+echo "nameserver ${DNS}" > ${rootmnt}/etc/resolv.conf
 
 for x in /run/net-*.conf /tmp/net-*.conf; do
     ROOTMOUNTED=nfs

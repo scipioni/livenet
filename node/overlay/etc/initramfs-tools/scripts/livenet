@@ -25,7 +25,6 @@ mountroot ()
     #    halt
     #fi
 
-    [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/livenet-bottom"
+    [ "$quiet" != "y" ] && do_log "Running /scripts/livenet-bottom"
     run_scripts /scripts/livenet-bottom
-    [ "$quiet" != "y" ] && log_end_msg
 }

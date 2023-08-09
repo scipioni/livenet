@@ -14,7 +14,8 @@ RUN DEBIAN_FRONTEND=noninteractive RESUME=auto \
     dialog \
     efibootmgr \
     iputils-ping \
-    iproute2 
+    iproute2 \
+    strace
   #&& rm -rf /var/lib/apt/lists/*
 
 

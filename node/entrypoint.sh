@@ -85,6 +85,8 @@ while true; do
       echo "Startup of NFS failed, sleeping for 2s, then retrying..."
       sleep 2
     fi
+  
+    rpc.idmapd -S
 
   done
 

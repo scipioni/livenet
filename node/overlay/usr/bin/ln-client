@@ -1,16 +1,7 @@
 #!/bin/bash
 
-# Run only client Livenet
-
 PROGNAME=${0##*/}
 PROGVERSION=0.1.0
-
-check_jail() {
-    if [ ! "$(</etc/hostname)" = "$(hostname)" ]; then
-        echo "This program run only on live client, not in chroot jail. Use ln-mng instead." 1>&2
-        exit 1
-    fi
-}
 
 . /etc/livenet/livenet.conf
 
@@ -62,22 +53,12 @@ do_install() {
         parted $DISK set 2 bios_grub on # needed for embedding grub in this partition 
 
         sgdisk -n3 -t3:8300 -c3:${ROOT_LABEL} $DISK
-        mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-partlabel/${ROOT_LABEL}
-    #fi
+        sleep 2
     fi
-
-        #echo "Create partition labelled ${ROOT_LABEL} before"
-        #exit 1
-
-    if [ ! -e /dev/disk/by-label/${SWAP_LABEL} ]; then
-        echo "Continue without partition labelled LSWAP"
-    fi
+    echo "Formatting root partition by-partlabel ${ROOT_LABEL} ..."
+    mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-partlabel/${ROOT_LABEL}
 
     start_time=$(date +%s)
-
-    echo "Formatting root partition ${ROOT_LABEL} ..."
-    mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-label/${ROOT_LABEL}
-    #[ $? = 0 ] && echo "OK"
 
     (sleep 2 && tune2fs -i0 -c0 /dev/disk/by-label/${ROOT_LABEL} >/dev/null 2>&1) &
 
@@ -85,6 +66,8 @@ do_install() {
         echo -n "Formatting swap ${SWAP_LABEL} ..."
         mkswap -L ${SWAP_LABEL} /dev/disk/by-label/${SWAP_LABEL} >/dev/null 2>&1
         [ $? = 0 ] && echo "OK"
+    else
+        echo "Continue without partition labelled LSWAP"
     fi
 
     wait
@@ -96,13 +79,6 @@ do_install() {
 
 
     mount_livenet_releases
-
-    # mkdir -p ${LIVENET_RELEASES_MNT}
-
-    # mountpoint -q ${LIVENET_RELEASES_MNT} && umount ${LIVENET_RELEASES_MNT}
-    # BACKUPSERVER=${LIVENET_ROOT%%:*}
-    # echo "Try to mount from ${BACKUPSERVER}:${BACKUP} ..."
-    # mount -o vers=4,proto=tcp,ro,timeo=30,retry=0,soft,rsize=262144 ${BACKUPSERVER}:${BACKUP} ${LIVENET_RELEASES_MNT}
     if [ ! $? = 0 ]; then
         exit 1
     fi
@@ -115,9 +91,7 @@ do_install() {
         exit 1
     fi
 
-    # update=$(echo ${archive} | sed -e 's/^.*\(........-....\)\.tar\..*$/\1/')
-    # echo "Using snapshot ${update} ..."
-    echo "uncompressing ${archive}"
+    echo "Uncompressing ${archive}"
     cd ${roottmppath}
     nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
     sync_overlay
@@ -125,10 +99,6 @@ do_install() {
 
     umount ${LIVENET_RELEASES_MNT}
 
-    # echo "Sync remote overlay ..."
-    # LIVENET_HOST=$( echo ${LIVENET_ROOT} | awk -F ':' '{ print $1 }' )
-    # rsync -a ${LIVENET_HOST}::overlay/etc/ ${roottmppath}/etc/
-    # rsync -a ${LIVENET_HOST}::overlay/usr/ ${roottmppath}/usr/
 
     # # update state
     # cd /${STATETMP}
@@ -151,24 +121,6 @@ do_install() {
     echo "Saving profile ${PROFILE}"
     chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
     chroot ${roottmppath} /bin/sh -c "ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
-#     chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/systemd/resolved.conf.d/ && cat > /etc/systemd/resolved.conf.d/dns_servers.conf << EOF
-# [Resolve]
-# DNS=8.8.8.8
-# Domains=~.
-# EOF
-# "
-#     chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/netplan && cat > /etc/netplan/50-network.yaml << EOF
-# ---
-# network:
-#   version: 2
-#   renderer: NetworkManager
-
-#   ethernets:
-#     eth0:
-#       dhcp4: true
-# ...
-# EOF
-# "
 
     for i in proc dev sys; do
         umount ${roottmppath}/$i
@@ -396,6 +348,13 @@ do_grub_update() {
         [ /etc/grub.d/30_os-prober -nt /boot/grub/grub.cfg ]; then
         echo "Updating grub"
         /usr/sbin/update-grub
+    fi
+}
+
+check_jail() {
+    if [ ! "$(</etc/hostname)" = "$(hostname)" ]; then
+        echo "This program run only on live client, not in chroot jail. Use ln-mng instead." 1>&2
+        exit 1
     fi
 }
 

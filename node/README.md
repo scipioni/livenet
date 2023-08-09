@@ -45,11 +45,17 @@ task vm:efi
 ```
 ## release
 
-make release
+make commit
 
 ```
 task commit -- 20230801.00
 ```
+
+and eventually full release
+```
+task release -- 20230801.00
+```
+
 
 ## install node client
 

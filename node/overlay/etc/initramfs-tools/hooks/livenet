@@ -45,16 +45,15 @@ set -e
 #cp -au /etc/console-setup/cached.kmap.gz ${DESTDIR}/etc/boottime.kmap.gz
 
 # nfs4
+echo nobody::65534:65534::/:/usr/bin/nologin >> ${DESTDIR}/etc/passwd
+echo nobody::65534: >> ${DESTDIR}/etc/group
 copy_exec /usr/sbin/rpc.idmapd /bin
 copy_exec /sbin/mount.nfs /bin
+mkdir -p ${DESTDIR}/usr/lib/x86_64-linux-gnu/libnfsidmap
+cp -au /usr/lib/x86_64-linux-gnu/libnfsidmap/nsswitch.so ${DESTDIR}/usr/lib/x86_64-linux-gnu/libnfsidmap
 cp -au /etc/netconfig ${DESTDIR}/etc/netconfig
+mkdir -p ${DESTDIR}/var/lib/nfs/rpc_pipefs/ 
 
-#cat > ${DESTDIR}/etc/passwd <<EOF
-#nobody::65534:65534:nobody:/nonexistent:/bin/sh
-#EOF
-#cat > ${DESTDIR}/etc/group <<EOF
-#nogroup:x:65534:
-#EOF
 
 # debug purpose ################
 # ricordati di mettere FRAMEBUFFER=n in /etc/initramfs-tools/conf.d/splash
@@ -62,6 +61,7 @@ cp -au /etc/netconfig ${DESTDIR}/etc/netconfig
 copy_exec /sbin/lsmod /bin
 #copy_exec /usr/bin/lspci /bin
 copy_exec /usr/bin/ping /bin
+copy_exec /usr/bin/strace /bin
 #################################
 
 # wireless #####################

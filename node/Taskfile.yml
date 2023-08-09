@@ -41,7 +41,7 @@ tasks:
       - docker diff ${NODE}
 
   commit:
-    desc: task commit -- 0.0.1
+    desc: task commit -- 20230808.00
     cmds:
       - |
         ID=$(docker container ls --all --quiet --no-trunc --filter "name=${NODE}")
@@ -49,11 +49,17 @@ tasks:
         [ -n "$RELEASE" ] || RELEASE={{.CLI_ARGS}}
         docker diff ${NODE} | docker compose exec -T lnode ln-mng --commit $RELEASE
         docker commit ${ID} livenet/node:${RELEASE}
-        docker export ${NODE} --output="releases/${RELEASE}-full.tar"
-        pigz releases/${RELEASE}-full.tar
         docker compose down
         sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
         docker compose up -d
+  
+  release:
+    cmds:
+      - |
+        RELEASE={{.RELEASE}}
+        [ -n "$RELEASE" ] || RELEASE={{.CLI_ARGS}}
+        docker export ${NODE} --output="releases/${RELEASE}-full.tar"
+        pigz releases/${RELEASE}-full.tar
 
   destroy:
     cmds:
@@ -71,6 +77,10 @@ tasks:
       - task: commit
         vars:
           RELEASE: 20230801.00
+      - task: release
+        vars:
+          RELEASE: 20230801.00
+          
   mount:
     cmds:
       - mkdir -p /tmp/test
