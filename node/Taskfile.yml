@@ -21,7 +21,7 @@ tasks:
     cmds:
       - mkdir -p runtime releases
       - touch runtime/bash_history
-      - docker compose up -d
+      - docker compose up -d --remove-orphans
 
   logs:
     cmds:

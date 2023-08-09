@@ -18,15 +18,16 @@ usage() {
         Usage: $PROGNAME <command> [--help] 
 
 	command:
+        --profiles-list: show profiles list
+        --profiles: make diversions and hard link 
+        --profile-delete <profile>: remove profile from /etc /usr and /livenet
+        --commit: make commit
 
         # --bootstrap: first stanza operations 
         # --clean: clean stanza
         # --kernel: rebuild initramfs
         # --kernel-remove-old: remove old kernels
         # --italian: install italian language
-        # --profile-delete <profile>: remove profile from /etc /usr and /livenet
-        # --profiles: make diversions and hard link 
-        --profiles-list: show profiles list
         # --packages-base:
         # --packages:
         # --set-grub-password: set superuser password to grub
@@ -41,7 +42,7 @@ LONGOPTS="help,version,test,example:,bootstrap,profiles,packages-base,kernel,ita
 ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@")
 eval set -- "$ARGS"
 
-do_check_alternative() {
+_do_check_alternative() {
     d=$1
     alternative_name=$2
 
@@ -76,55 +77,55 @@ do_check_alternative() {
     fi
 }
 
-do_bootstrap() {
-    echo "Bootstrap..."
+# do_bootstrap() {
+#     echo "Bootstrap..."
 
-    # maybe best place is in /var
-    mkdir -p /etc/livenet/configured /etc/livenet/local
-    touch /etc/livenet/local/livenet.conf.nfs.default
+#     # maybe best place is in /var
+#     mkdir -p /etc/livenet/configured /etc/livenet/local
+#     touch /etc/livenet/local/livenet.conf.nfs.default
 
-    . /etc/livenet/livenet.conf
+#     . /etc/livenet/livenet.conf
 
-    mkdir -p $(dirname ${DIVERSIONS})
-    [ -f ${DIVERSIONS_LOCAL} ] || touch ${DIVERSIONS_LOCAL}
+#     mkdir -p $(dirname ${DIVERSIONS})
+#     [ -f ${DIVERSIONS_LOCAL} ] || touch ${DIVERSIONS_LOCAL}
 
-    # there is at least one update!
-    [ -d /${ALLUPDATES} ] || mkdir -p /${ALLUPDATES}
-    if [ $(ls /${ALLUPDATES}/2???????-???? 2>/dev/null | wc -l) = 0 ]; then
-        u=${ALLUPDATES}/$(date +%Y%m%d-0000)
-        touch /$u
-        echo $u >/${ALLUPDATES}/list
-    fi
+#     # there is at least one update!
+#     [ -d /${ALLUPDATES} ] || mkdir -p /${ALLUPDATES}
+#     if [ $(ls /${ALLUPDATES}/2???????-???? 2>/dev/null | wc -l) = 0 ]; then
+#         u=${ALLUPDATES}/$(date +%Y%m%d-0000)
+#         touch /$u
+#         echo $u >/${ALLUPDATES}/list
+#     fi
 
-    # ln-shutdown service start/stop
-    #if [ ! -f /etc/rc0.d/S19ln-shutdown ]; then
-    #    echo "Activate ln-shutdown in runlevel 0"
-    #    ln -s /etc/init.d/ln-shutdown /etc/rc0.d/S19ln-shutdown
-    #fi
-    #
-    # if [ ! -f /etc/rc6.d/S19ln-shutdown ]; then
-    #     echo "Activate ln-shutdown in runlevel 6"
-    #     ln -s /etc/init.d/ln-shutdown /etc/rc6.d/S19ln-shutdown
-    #fi
+#     # ln-shutdown service start/stop
+#     #if [ ! -f /etc/rc0.d/S19ln-shutdown ]; then
+#     #    echo "Activate ln-shutdown in runlevel 0"
+#     #    ln -s /etc/init.d/ln-shutdown /etc/rc0.d/S19ln-shutdown
+#     #fi
+#     #
+#     # if [ ! -f /etc/rc6.d/S19ln-shutdown ]; then
+#     #     echo "Activate ln-shutdown in runlevel 6"
+#     #     ln -s /etc/init.d/ln-shutdown /etc/rc6.d/S19ln-shutdown
+#     #fi
 
-    # install user needed by install mode (lightdm autologin user)
-    id install >/dev/null 2>/dev/null
-    if [ $? != 0 ]; then
-        echo "Create 'install' user"
-        useradd -u 499 -g users -s /bin/false -d /var/tmp -c "system account" install
-    fi
+#     # install user needed by install mode (lightdm autologin user)
+#     id install >/dev/null 2>/dev/null
+#     if [ $? != 0 ]; then
+#         echo "Create 'install' user"
+#         useradd -u 499 -g users -s /bin/false -d /var/tmp -c "system account" install
+#     fi
 
-    do_profiles
+#     do_profiles
 
-    # rebuild initram
-    #dpkg-reconfigure linux-image-${KERNEL}
-    RESUME=auto update-initramfs -c -k ${KERNEL}
+#     # rebuild initram
+#     #dpkg-reconfigure linux-image-${KERNEL}
+#     RESUME=auto update-initramfs -c -k ${KERNEL}
 
-    systemctl enable ln-install.service --no-reload
-    systemctl enable ln-grub.service --no-reload
-}
+#     systemctl enable ln-install.service --no-reload
+#     systemctl enable ln-grub.service --no-reload
+# }
 
-do_diversions_build() {
+_do_diversions_build() {
     . /etc/livenet/livenet.conf
     echo "Searching and building diversions from /etc,/lib,/usr directories and merge ${DIVERSIONS_LOCAL}"
     find /etc /lib /usr -type f -a \( -name "*.nfs.*" \) ! -wholename "*.gz" \
@@ -134,8 +135,8 @@ do_diversions_build() {
         sed "s/\.nfs.\w\+//" | sort | uniq >${DIVERSIONS}
     find /etc /lib /usr -type d -a \( -name "*.nfs.*" \) | sed "s/\.nfs.\w\+//" | sed "s/\.local.\w\+//" | sort | uniq >>${DIVERSIONS}
 
-    do_check_alternative /etc/kernel/postrm.d/zz-update-grub zz-update-grub-postrm >/dev/null
-    do_check_alternative /etc/kernel/postinst.d/zz-update-grub zz-update-grub-postinst >/dev/null
+    _do_check_alternative /etc/kernel/postrm.d/zz-update-grub zz-update-grub-postrm >/dev/null
+    _do_check_alternative /etc/kernel/postinst.d/zz-update-grub zz-update-grub-postinst >/dev/null
 
     [ -f ${DIVERSIONS_LOCAL} ] && cat ${DIVERSIONS_LOCAL} >>${DIVERSIONS}
 }
@@ -151,17 +152,17 @@ do_profiles_list() {
 do_profiles() {
     . /etc/livenet/livenet.conf
 
-    do_diversions_build
+    _do_diversions_build
 
     if [ ! -f ${DIVERSIONS} ]; then
         log_error "no ${DIVERSIONS} defined"
         exit 1
     fi
 
-    do_check_alternative /etc/livenet/local/livenet.conf >/dev/null
+    _do_check_alternative /etc/livenet/local/livenet.conf >/dev/null
     for f in $(egrep -v "^\s*$|^\s*#" ${DIVERSIONS}); do
         echo " "$f
-        do_check_alternative ${f} >/dev/null
+        _do_check_alternative ${f} >/dev/null
     done
 
     echo
@@ -170,68 +171,68 @@ do_profiles() {
     echo
 }
 
-do_packages() {
-    packages=$1
-    tmp=/tmp/$$.apt
+# do_packages() {
+#     packages=$1
+#     tmp=/tmp/$$.apt
 
-    echo -n >${tmp}
-    for APT in $(find /etc/apt/ -name *.list); do
-        grep -o "^deb http://ppa.launchpad.net/[a-z0-9\-]\+/[a-z0-9\-]\+" $APT | while read -r ENTRY; do
-            USER=$(echo $ENTRY | cut -d/ -f4)
-            PPA=$(echo $ENTRY | cut -d/ -f5)
-            echo ppa:$USER/$PPA >>${tmp}
-        done
-    done
+#     echo -n >${tmp}
+#     for APT in $(find /etc/apt/ -name *.list); do
+#         grep -o "^deb http://ppa.launchpad.net/[a-z0-9\-]\+/[a-z0-9\-]\+" $APT | while read -r ENTRY; do
+#             USER=$(echo $ENTRY | cut -d/ -f4)
+#             PPA=$(echo $ENTRY | cut -d/ -f5)
+#             echo ppa:$USER/$PPA >>${tmp}
+#         done
+#     done
 
-    need_update=
-    for p in $(egrep "^ppa:" $packages); do
-        grep -q $p /tmp/$$.apt
-        if [ $? != 0 ]; then
-            echo "INSTALL $p"
-            add-apt-repository --yes $p
-            need_update=true
-        fi
-    done
-    rm -f ${tmp}
+#     need_update=
+#     for p in $(egrep "^ppa:" $packages); do
+#         grep -q $p /tmp/$$.apt
+#         if [ $? != 0 ]; then
+#             echo "INSTALL $p"
+#             add-apt-repository --yes $p
+#             need_update=true
+#         fi
+#     done
+#     rm -f ${tmp}
 
-    if [ -n "${need_update}" ]; then
-        apt-get update >/dev/null
-    fi
+#     if [ -n "${need_update}" ]; then
+#         apt-get update >/dev/null
+#     fi
 
-    for p in $(egrep -v "^\s*$|^\s*#|^ppa\:" $packages); do
-        echo "Checking $p ..."
-        dpkg -s $p >/dev/null 2>&1
-        [ $? = 0 ] || apt-get -y install $p
-    done
-}
+#     for p in $(egrep -v "^\s*$|^\s*#|^ppa\:" $packages); do
+#         echo "Checking $p ..."
+#         dpkg -s $p >/dev/null 2>&1
+#         [ $? = 0 ] || apt-get -y install $p
+#     done
+# }
 
-do_italian() {
-    apt-get install --yes $(check-language-support -l it)
-    apt-get install --yes $(check-language-support -l en)
+# do_italian() {
+#     apt-get install --yes $(check-language-support -l it)
+#     apt-get install --yes $(check-language-support -l en)
 
-    update-locale LANG=it_IT.UTF-8 LANGUAGE=it:en_US:en
+#     update-locale LANG=it_IT.UTF-8 LANGUAGE=it:en_US:en
 
-    dpkg-reconfigure keyboard-configuration
-    dpkg-reconfigure console-setup
-    dpkg-reconfigure tzdata
-}
+#     dpkg-reconfigure keyboard-configuration
+#     dpkg-reconfigure console-setup
+#     dpkg-reconfigure tzdata
+# }
 
 
-do_grub_password() {
-    GRUBPASS=$1
-    echo
-    ENCPASS=$(python -c "from passlib.hash import grub_pbkdf2_sha512; print grub_pbkdf2_sha512.encrypt('${GRUBPASS}', rounds=10964, salt='liveme')")
-    cat >/etc/grub.d/01_security <<EOF
-cat <<EOT
-set superusers="root"
-password_pbkdf2 root ${ENCPASS}
-EOT
-EOF
+# do_grub_password() {
+#     GRUBPASS=$1
+#     echo
+#     ENCPASS=$(python -c "from passlib.hash import grub_pbkdf2_sha512; print grub_pbkdf2_sha512.encrypt('${GRUBPASS}', rounds=10964, salt='liveme')")
+#     cat >/etc/grub.d/01_security <<EOF
+# cat <<EOT
+# set superusers="root"
+# password_pbkdf2 root ${ENCPASS}
+# EOT
+# EOF
 
-    chmod +x /etc/grub.d/01_security
-    chown root:root /etc/grub.d/01_security
-    chmod o-rwx /etc/grub.d/01_security
-}
+#     chmod +x /etc/grub.d/01_security
+#     chown root:root /etc/grub.d/01_security
+#     chmod o-rwx /etc/grub.d/01_security
+# }
 
 do_check_services() {
     what=$1
@@ -245,37 +246,37 @@ do_check_services() {
     done
 }
 
-lens_switch() {
-    lens=$1
-    status=$2
-    if [ "${status}" = "off" ]; then
-        current=$(find /usr/share/unity/lenses -name ${lens})
-        if [ -n "${current}" ]; then
-            echo "Switching off ${lens} lens"
-            mv ${current} ${current}.disabled
-        fi
-    fi
+# lens_switch() {
+#     lens=$1
+#     status=$2
+#     if [ "${status}" = "off" ]; then
+#         current=$(find /usr/share/unity/lenses -name ${lens})
+#         if [ -n "${current}" ]; then
+#             echo "Switching off ${lens} lens"
+#             mv ${current} ${current}.disabled
+#         fi
+#     fi
 
-    if [ "${status}" = "on" ]; then
-        current=$(find /usr/share/unity/lenses -name ${lens}.disabled)
-        if [ -n "${current}" ]; then
-            echo "Switching on ${lens} lens"
-            mv ${current}.disabled ${current}
-        fi
-    fi
-}
+#     if [ "${status}" = "on" ]; then
+#         current=$(find /usr/share/unity/lenses -name ${lens}.disabled)
+#         if [ -n "${current}" ]; then
+#             echo "Switching on ${lens} lens"
+#             mv ${current}.disabled ${current}
+#         fi
+#     fi
+# }
 
-do_check_lens() {
-    what=$1
-    for s in $(grep "^lens_${what}=" /etc/livenet/livenet.conf); do
-        unset lens_off lens_on
-        eval $s
-        lens=${lens_off}
-        [ -z "${lens}" ] && lens=${lens_on}
-        #echo "checking ${lens} is ${what}"
-        lens_switch ${lens} ${what}
-    done
-}
+# do_check_lens() {
+#     what=$1
+#     for s in $(grep "^lens_${what}=" /etc/livenet/livenet.conf); do
+#         unset lens_off lens_on
+#         eval $s
+#         lens=${lens_off}
+#         [ -z "${lens}" ] && lens=${lens_on}
+#         #echo "checking ${lens} is ${what}"
+#         lens_switch ${lens} ${what}
+#     done
+# }
 
 do_clean() {
     . /etc/livenet/livenet.conf
@@ -357,6 +358,18 @@ while true; do
         do_profiles_list
         break
         ;;
+    --profile-delete)
+        shift
+        profile=$1
+        if [ "${profile}" = "default" ] || [ "${profile}" = "special" ] || [ "${profile}" = "standalone" ]; then
+            echo "Profile ${profile} is not allowed"
+            exit 1
+        fi
+        find /etc /livenet /usr -name "*.*.${profile}" -exec rm \{\} \;
+        _do_diversions_build
+        do_profiles --force
+        break
+        ;;
     --commit)
         shift
         do_commit $1
@@ -392,18 +405,6 @@ while true; do
     # --set-grub-password)
     #     read -s -p "Enter Password: " GRUBPASS
     #     do_grub_password ${GRUBPASS}
-    #     break
-    #     ;;
-    # --profile-delete)
-    #     shift
-    #     profile=$1
-    #     if [ "${profile}" = "default" ] || [ "${profile}" = "special" ] || [ "${profile}" = "standalone" ]; then
-    #         echo "Profile ${profile} is not allowed"
-    #         exit 1
-    #     fi
-    #     find /etc /livenet /usr -name "*.*.${profile}" -exec rm \{\} \;
-    #     do_diversions_build
-    #     do_profiles --force
     #     break
     #     ;;
     --)

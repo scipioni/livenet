@@ -28,6 +28,9 @@ task start
 
 inspect logs with task logs
 
+
+## customize image
+
 chroot in node live container
 ```
 task cli
