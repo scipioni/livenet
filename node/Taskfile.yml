@@ -21,6 +21,7 @@ tasks:
     cmds:
       - mkdir -p runtime releases
       - touch runtime/bash_history
+      - sudo chown -R root:root overlay/
       - docker compose up -d
 
   logs:
@@ -80,7 +81,7 @@ tasks:
       - task: release
         vars:
           RELEASE: 20230801.00
-          
+
   mount:
     cmds:
       - mkdir -p /tmp/test
