@@ -21,8 +21,7 @@ tasks:
     cmds:
       - mkdir -p runtime releases
       - touch runtime/bash_history
-      - sudo chown -R root:root overlay/
-      - docker compose up -d
+      - docker compose up -d --remove-orphans
 
   logs:
     cmds:
