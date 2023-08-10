@@ -6,6 +6,7 @@
 - docker compose
 - qemu and libvirtd
 - pigz
+- spice-gtk
 
 create .env from env.sample
 
@@ -69,7 +70,7 @@ ln-install --client
 
 after boot with
 ```
-task vm:bios:local
+task vm
 ```
 
 ## system alternatives and profiles
