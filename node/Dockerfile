@@ -25,6 +25,7 @@ RUN apt-get update \
   pigz \
   rsync \
   parted \
+  psmisc \
   vim \
   nano \
   && apt-get clean
