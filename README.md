@@ -1,5 +1,5 @@
 # Livenet 2023
 
 
-[Server](server/README.md)
+[Build node](node/README.md)
 
