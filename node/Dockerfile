@@ -120,8 +120,15 @@ RUN DEBIAN_FRONTEND=noninteractive \
   language-pack-en \
   wamerican \
   wbritish \
+  lightdm \
+  lightdm-gtk-greeter \
+  plymouth-themes \
+  plymouth-theme-ubuntu-gnome-logo \
   && apt-get clean
 
+# settiamo lightdm al posto di gdm3
+RUN echo /usr/sbin/lightdm > /etc/X11/default-display-manager \
+  && dpkg-reconfigure -fnoninteractive lightdm
 
 ########################################################
 ####### overlay and initramfs ##########################

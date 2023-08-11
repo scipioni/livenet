@@ -5,17 +5,16 @@
 
 
 # temporaneamente quando usiamo qemu --nographic
-GRUB_TERMINAL_INPUT="console serial"
-GRUB_TERMINAL_OUTPUT="gfxterm serial"
-GRUB_SERIAL_COMMAND="serial --unit=0 --speed=115200"
+# GRUB_TERMINAL_INPUT="console serial"
+# GRUB_TERMINAL_OUTPUT="gfxterm serial"
+# GRUB_SERIAL_COMMAND="serial --unit=0 --speed=115200"
 
 
 GRUB_DEFAULT=0
 GRUB_TIMEOUT_STYLE=hidden
 GRUB_TIMEOUT=5
 GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
-#GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
-GRUB_CMDLINE_LINUX_DEFAULT=""
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
 GRUB_CMDLINE_LINUX="console=ttyS0,115200 boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0"
 
 # Uncomment to enable BadRAM filtering, modify to suit your needs
