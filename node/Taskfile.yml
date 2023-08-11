@@ -67,6 +67,7 @@ tasks:
       - sed -i "s/VERSION=.*/VERSION=latest/" .env
       - docker compose down || true
       - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi || true
+      - rm -f runtime/vm.qcow2
 
   reset:
     cmds:
