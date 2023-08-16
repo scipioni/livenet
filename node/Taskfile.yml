@@ -116,7 +116,7 @@ tasks:
     desc: "spice client"
     cmds:
       - sleep 1
-      - spicy -h localhost -p 5900
+      - spicy -h localhost -p 5910
   
   vm:bios:local:
     desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
@@ -124,7 +124,7 @@ tasks:
       - task: vm:disk
       - |
         qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
-          -spice port=5900,addr=0.0.0.0,disable-ticketing \
+          -spice port=5910,addr=0.0.0.0,disable-ticketing \
           -drive id=vda,file=${DISK} \
           -boot d
 
