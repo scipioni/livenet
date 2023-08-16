@@ -12,7 +12,13 @@ TIMEOUT 30
 label live
     menu label Ubuntu 22.04 - live
     kernel ../vmlinuz
-    append initrd=../initrd.img console=ttyS0 ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
+    append initrd=../initrd.img splash ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
+
+label live serial console
+    menu label Ubuntu 22.04 - live serial console
+    kernel ../vmlinuz
+    append initrd=../initrd.img console=ttyS0 splash ro livenet_root=192.168.124.1:/ boot=livenet livenet_profile=default net.ifnames=0 biosdevname=0
+
 
 label install
     menu label Ubuntu 22.04 - format and install
