@@ -1,10 +1,8 @@
 
 do_log() {
-    echo "Hello World" > /dev/ttyS0 
-    echo "$@" > /dev/ttyS0
+    [ -f /dev/ttyS0 ] && echo "$@" > /dev/ttyS0
     echo "$@" 
     if [ -x /bin/plymouth ] && plymouth --ping; then
-        #/bin/plymouth --update="$@"
         /bin/plymouth message --text="$@"
     fi
 }
