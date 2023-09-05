@@ -14,6 +14,7 @@ prereqs)
        exit 0
        ;;
 esac
+echo "ENTERING livenet-top::root_remote"
 echo $DESCRIPTION
 
 WORKDIR=.workdir
@@ -61,7 +62,13 @@ LANG=en
 
 #modprobe nfsv3 >/dev/null &
 modprobe nfsv4 >/dev/null &
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! rootmnt ----> ${rootmnt}"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NFSRO ----> ${NFSRO}}"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! STATETMP ----> ${STATETMP}}"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WORKDIR ----> ${WORKDIR}}"
 
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r {LIVENET_ROOT} {NFSRO} -o {NFSOPTSV4}"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}"
 mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755 
 
 cd ${rootmnt}
@@ -127,5 +134,5 @@ done
 
 log_end_msg
 
-
+echo "LEAVING livenet-top::root_remote"
 

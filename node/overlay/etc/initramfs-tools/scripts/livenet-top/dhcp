@@ -14,7 +14,6 @@ prereqs)
        exit 0
        ;;
 esac
-echo $DESCRIPTION
 
 . /scripts/functions
 . /scripts/functions-livenet
@@ -80,4 +79,4 @@ echo '-------------'
 
 do_debug_shell
 
-
+echo "LEAVING livenet-top::dhcp"

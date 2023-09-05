@@ -19,6 +19,9 @@ esac
 
 . /scripts/functions
 . /scripts/functions-livenet
+
+echo "ENTERING livenet-bottom::onboot"
+
 log_begin_msg "$DESCRIPTION"
     
 echo "LIVENET_ROOT=${LIVENET_ROOT}" >> /tmp/net-${DEVICE}.conf # utilized by ln-client --install
@@ -43,3 +46,4 @@ umount /root/proc
 
 log_end_msg
 
+echo "LEAVING livenet-bottom::onboot"

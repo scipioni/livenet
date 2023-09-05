@@ -74,7 +74,7 @@ tasks:
       - task: destroy
       - task: build
       - task: start
-      - sleep 2
+      - sleep 5
       - task: commit
         vars:
           RELEASE: 20230801.00

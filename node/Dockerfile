@@ -77,9 +77,9 @@ RUN cp -rf /usr/lib/grub/i386-pc ${TFTP_ROOT}/grub-node \
   && cp -a /usr/lib/grub/x86_64-efi ${TFTP_ROOT}/grub-node/ \
   && grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o ${TFTP_ROOT}/grub-node/bootx64.efi -p '/grub-node' efinet tftp
 
-EXPOSE 67/tcp \
-  67/udp \
-  69/udp
+# EXPOSE 67/tcp \
+#   67/udp \
+#   69/udp
 
 ########################################################
 ####### NFS ############################################
@@ -94,7 +94,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -qq -y \
 RUN mkdir -p /var/lib/nfs/rpc_pipefs /var/lib/nfs/v4recovery && \
   echo "rpc_pipefs    /var/lib/nfs/rpc_pipefs rpc_pipefs      defaults        0       0" >> /etc/fstab && \
   echo "nfsd  /proc/fs/nfsd   nfsd    defaults        0       0" >> /etc/fstab
-
 
 COPY entrypoint.sh /usr/local/bin/
 COPY exports /etc/exports
@@ -112,6 +111,7 @@ EXPOSE 8095/tcp
 FROM nfs as packages
 
 RUN DEBIAN_FRONTEND=noninteractive \
+  apt-get update && \
   apt-get install -qq -y \
   ubuntu-desktop \
   language-selector-common \
@@ -124,6 +124,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
   lightdm-gtk-greeter \
   plymouth-themes \
   plymouth-theme-ubuntu-gnome-logo \
+  mc tree \
   && apt-get clean
 
 # settiamo lightdm al posto di gdm3
@@ -135,11 +136,13 @@ RUN echo /usr/sbin/lightdm > /etc/X11/default-display-manager \
 ########################################################
 FROM packages
 
-COPY ./overlay /tmp/overlay
-RUN cp -vR /tmp/overlay/* / \
-  && rm -fR /tmp/overlay \
-  && mkdir -p /var/cache/livenet
+# COPY ./overlay /tmp/overlay
+# RUN cp -vR /tmp/overlay/* / \
+#   && rm -fR /tmp/overlay \
+#   && mkdir -p /var/cache/livenet
 
+COPY ./overlay/ /
+RUN mkdir -p /var/cache/livenet
 RUN RESUME=auto update-initramfs -c -k all
 RUN ln-mng --profiles
 

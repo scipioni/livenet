@@ -17,9 +17,15 @@ case "$1" in
        ;;
 esac
 
+# Funzioni di supporto (package: initramfs-tools-core), ad esempio copy_exec
 . /usr/share/initramfs-tools/hook-functions
 
+# ${DESTDIR} è una variabile esportata da mkinitramfs
+# è il percorso della radice della nuova initramfs
 rm ${DESTDIR}/bin/cpio # importante! altrimenti rimane un cpio troppo semplificato
+
+
+# funzione che copia un binario nell'immagine, assicurandosi che vi siano anche tutte le librerie necessarie.
 copy_exec /bin/cpio /bin
 
 mkdir -p ${DESTDIR}/conf
