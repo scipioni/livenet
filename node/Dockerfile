@@ -27,7 +27,6 @@ RUN apt-get update \
   parted \
   psmisc \
   vim \
-  nano \
   && apt-get clean
 
 RUN locale-gen en_GB.UTF-8 \
@@ -77,16 +76,18 @@ RUN cp -rf /usr/lib/grub/i386-pc ${TFTP_ROOT}/grub-node \
   && cp -a /usr/lib/grub/x86_64-efi ${TFTP_ROOT}/grub-node/ \
   && grub-mkimage -d /usr/lib/grub/x86_64-efi/  -O x86_64-efi -o ${TFTP_ROOT}/grub-node/bootx64.efi -p '/grub-node' efinet tftp
 
-# EXPOSE 67/tcp \
-#   67/udp \
-#   69/udp
+# minihttpd
+EXPOSE 8095/tcp
 
 ########################################################
 ####### NFS ############################################
 ########################################################
 FROM pxe as nfs
+ARG DEBIAN_FRONTEND=noninteractive
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -qq -y \
+RUN apt-get update
+#RUN DEBIAN_FRONTEND=noninteractive apt-get install -qq -y \
+RUN apt-get install -qq -y \
   openssl \
   nfs-kernel-server \
   && apt-get clean
@@ -102,16 +103,13 @@ RUN chmod +rx /usr/local/bin/entrypoint.sh
 # nfsv4
 EXPOSE 2049/tcp
 
-# minihttpd
-EXPOSE 8095/tcp
-
 ########################################################
 ####### packages #######################################
 ########################################################
 FROM nfs as packages
-
-RUN DEBIAN_FRONTEND=noninteractive \
-  apt-get update && \
+ARG DEBIAN_FRONTEND=noninteractive
+# RUN DEBIAN_FRONTEND=noninteractive \
+RUN  apt-get update && \
   apt-get install -qq -y \
   ubuntu-desktop \
   language-selector-common \
@@ -124,7 +122,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
   lightdm-gtk-greeter \
   plymouth-themes \
   plymouth-theme-ubuntu-gnome-logo \
-  mc tree \
+  mc tree  nano netcat \
   && apt-get clean
 
 # settiamo lightdm al posto di gdm3

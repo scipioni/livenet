@@ -7,13 +7,15 @@ dotenv: [".env"]
 tasks:
   default:
     cmds:
-      - go-task -l
+      - task -l
     silent: true
 
   build:
     desc: build li
     cmds:
-      - BUILDKIT_PROGRESS=plain docker compose build 
+      - |
+        [[ $(lsb_release -is) == 'RedHatEnterprise' ]] && BUILDKIT_PROGRESS=plain podman-compose build && exit 0
+        BUILDKIT_PROGRESS=plain ${_compose} build 
       - sudo rm -f releases/*
       #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
 
@@ -21,7 +23,7 @@ tasks:
     cmds:
       - mkdir -p runtime releases
       - touch runtime/bash_history
-      - docker compose up -d --remove-orphans
+      - ${_compose} up -d --remove-orphans
 
   logs:
     cmds:
@@ -29,7 +31,7 @@ tasks:
 
   cli:
     cmds:
-      - docker compose exec lnode bash
+      - ${_compose} exec lnode bash        
 
   ssh:
     desc: "connect to client node"
@@ -38,35 +40,36 @@ tasks:
 
   diff:
     cmds:
-      - docker diff ${NODE}
+      - ${_docker} diff ${NODE}
 
   commit:
     desc: task commit -- 20230808.00
     cmds:
       - |
-        ID=$(docker container ls --all --quiet --no-trunc --filter "name=${NODE}")
+        ID=$(${_docker} container ls --all --quiet --no-trunc --filter "name=${NODE}")
         RELEASE={{.RELEASE}}
         [ -n "$RELEASE" ] || RELEASE={{.CLI_ARGS}}
-        docker diff ${NODE} | docker compose exec -T lnode ln-mng --commit $RELEASE
-        docker commit ${ID} livenet/node:${RELEASE}
-        docker compose down
+        ${_docker} diff ${NODE} | ${_compose} exec -T lnode ln-mng --commit $RELEASE
+        ${_docker} commit ${ID} livenet/node:${RELEASE}
+        ${_compose} down 
+        
         sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
-        docker compose up -d
+        docker-compose up -d
   
   release:
     cmds:
       - |
         RELEASE={{.RELEASE}}
         [ -n "$RELEASE" ] || RELEASE={{.CLI_ARGS}}
-        docker export ${NODE} --output="releases/${RELEASE}-full.tar"
+        ${_docker} export ${NODE} --output="releases/${RELEASE}-full.tar"
         pigz releases/${RELEASE}-full.tar
 
   destroy:
     cmds:
       - sudo rm -f releases/*
       - sed -i "s/VERSION=.*/VERSION=latest/" .env
-      - docker compose down || true
-      - docker images | grep livenet/node | awk '{print $3}' | xargs docker rmi || true
+      - ${_compose} down -t 60 || true
+      - ${_docker} images | grep livenet/node | awk '{print $3}' | xargs ${_docker} rmi || true
       - rm -f runtime/vm.qcow2
 
   reset:
@@ -96,7 +99,7 @@ tasks:
         sudo virsh net-info livenet && sudo virsh net-destroy livenet || true
         sudo virsh net-define libvirt/net-livenet.xml
         sudo virsh net-start livenet
-        docker compose down
+        ${_compose} down
 
   vm:disk:
     cmds:
