@@ -14,7 +14,6 @@ tasks:
     desc: build li
     cmds:
       - |
-        [[ $(lsb_release -is) == 'RedHatEnterprise' ]] && BUILDKIT_PROGRESS=plain podman-compose build && exit 0
         BUILDKIT_PROGRESS=plain ${_compose} build 
       - sudo rm -f releases/*
       #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
