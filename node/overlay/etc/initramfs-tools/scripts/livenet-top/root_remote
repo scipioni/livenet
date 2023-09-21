@@ -69,6 +69,8 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WORKDIR ----> ${WORKDIR}}"
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r {LIVENET_ROOT} {NFSRO} -o {NFSOPTSV4}"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}"
+
+# Monta un file system
 mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755 
 
 cd ${rootmnt}
