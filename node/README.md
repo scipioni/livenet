@@ -7,6 +7,15 @@
 - qemu and libvirtd
 - pigz
 - spice-gtk
+```
+yay -S qemu-desktop libvirt spice-gtk pigz
+yay -R firewalld
+sudo systemctl start libvirtd
+sudo systemctl enable libvirtd
+# add user to libvirt group
+sudo su
+echo "allow livenet" >> /etc/qemu/bridge.conf
+```
 
 create .env from env.sample
 
@@ -46,6 +55,11 @@ reset image build 20230801.00 version
 ```
 task vm:bios
 task vm:efi
+```
+
+connect to client
+```
+ssh root@192.168.124.18
 ```
 ## release
 

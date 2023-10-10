@@ -113,6 +113,7 @@ do_install() {
     # . /etc/livenet/boot/00-update.local ${roottmppath}
 
     echo "Installing grub ..."
+    # check /sys/firmware/efi
     grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
     for i in proc dev sys; do
         mount -o bind /$i ${roottmppath}/$i

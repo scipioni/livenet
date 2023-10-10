@@ -7,7 +7,7 @@ dotenv: [".env"]
 tasks:
   default:
     cmds:
-      - task -l
+      - go-task -l
     silent: true
 
   build:
@@ -129,10 +129,22 @@ tasks:
           -spice port=5910,addr=0.0.0.0,disable-ticketing \
           -drive id=vda,file=${DISK} \
           -boot d
+  
+  vm:efi:local:
+    desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
+    cmds:
+      - task: vm:disk
+      - |
+        qemu-system-x86_64 -nographic -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
+          -spice port=5910,addr=0.0.0.0,disable-ticketing \
+          -drive if=pflash,format=raw,unit=0,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
+          -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd \
+          -drive id=vda,file=${DISK} \
+          -boot d
 
   vm:
     desc: "boot local disk vm with spice client"
-    deps: [vm:spice, vm:bios:local]
+    deps: [vm:spice, vm:efi:local]
 
 
   vm:cd:
@@ -146,9 +158,11 @@ tasks:
   vm:efi:
     desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
     cmds:
+      - task: vm:disk
       - |
         cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /tmp/OVMF_VARS.fd
         qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
           -drive if=pflash,format=raw,unit=0,readonly=on,file=/usr/share/edk2-ovmf/x64/OVMF_CODE.fd \
           -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd \
+          -drive id=vda,file=${DISK} \
           -boot d
