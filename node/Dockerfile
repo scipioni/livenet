@@ -113,7 +113,8 @@ EXPOSE 2049/tcp
 ########################################################
 FROM nfs as packages
 ARG DEBIAN_FRONTEND=noninteractive
-# RUN DEBIAN_FRONTEND=noninteractive \
+ARG GREETER_VERSION=3.5.2
+
 RUN  apt-get update && \
   apt-get install -qq -y \
   ubuntu-desktop \
@@ -128,11 +129,17 @@ RUN  apt-get update && \
   plymouth-themes \
   plymouth-theme-ubuntu-gnome-logo \
   mc tree  nano netcat \
+  wget curl \
   && apt-get clean
 
 # settiamo lightdm al posto di gdm3
 RUN echo /usr/sbin/lightdm > /etc/X11/default-display-manager \
   && dpkg-reconfigure -fnoninteractive lightdm
+
+# installiamo web-greeter
+RUN cd /tmp && \
+  wget https://github.com/JezerM/web-greeter/releases/download/${GREETER_VERSION}/web-greeter-${GREETER_VERSION}-ubuntu.deb && \
+  apt install ./web-greeter-${GREETER_VERSION}-ubuntu.deb
 
 ########################################################
 ####### overlay and initramfs ##########################
