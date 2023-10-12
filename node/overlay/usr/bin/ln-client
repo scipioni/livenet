@@ -50,7 +50,7 @@ do_install() {
 
         # UEFI booting
         sgdisk -n2:1M:+512M -t2:EF00 $DISK
-        parted $DISK set 2 bios_grub on # needed for embedding grub in this partition 
+        #parted $DISK set 2 bios_grub on # needed for embedding grub in this partition 
         mkfs.fat -F32 ${DISK}2
         parted $DISK set 2 esp on
 
@@ -122,7 +122,6 @@ do_install() {
         mount ${DISK}2 ${roottmppath}/boot/efi
         grub-install --efi-directory=${roottmppath}/boot/efi --boot-directory=${roottmppath}/boot
         # A QUESTO PUNTO CI DEVE ESSERE la directory ${roottmppath}/boot/efi/EFI
-        # grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch
     else
         grub-install --force --boot-directory=${roottmppath}/boot --recheck /dev/[sv]da
     fi

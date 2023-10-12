@@ -139,7 +139,7 @@ RUN echo /usr/sbin/lightdm > /etc/X11/default-display-manager \
 # installiamo web-greeter
 RUN cd /tmp && \
   wget https://github.com/JezerM/web-greeter/releases/download/${GREETER_VERSION}/web-greeter-${GREETER_VERSION}-ubuntu.deb && \
-  apt install ./web-greeter-${GREETER_VERSION}-ubuntu.deb
+  apt-get install -qq -y ./web-greeter-${GREETER_VERSION}-ubuntu.deb 
 
 ########################################################
 ####### overlay and initramfs ##########################
