@@ -17,6 +17,7 @@ RUN apt-get update \
   dialog \
   apt-utils \
   efibootmgr \
+  dosfstools \
   iputils-ping \
   iproute2 \
   strace \

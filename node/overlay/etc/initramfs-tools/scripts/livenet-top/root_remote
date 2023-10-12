@@ -18,6 +18,7 @@ echo "ENTERING livenet-top::root_remote"
 echo $DESCRIPTION
 
 WORKDIR=.workdir
+
 . /scripts/functions
 . /scripts/functions-livenet
 log_begin_msg "$DESCRIPTION"
@@ -62,15 +63,16 @@ LANG=en
 
 #modprobe nfsv3 >/dev/null &
 modprobe nfsv4 >/dev/null &
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! rootmnt ----> ${rootmnt}"
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NFSRO ----> ${NFSRO}}"
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! STATETMP ----> ${STATETMP}}"
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WORKDIR ----> ${WORKDIR}}"
 
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r {LIVENET_ROOT} {NFSRO} -o {NFSOPTSV4}"
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}"
+do_log "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! root ----> ${ROOT}"
+do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! rootmnt ----> ${rootmnt}"
+do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! nfsro ----> ${NFSRO}}"
+do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! statetmp ----> ${STATETMP}}"
+do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! workdir ----> ${WORKDIR}}"
+do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}"
 
-# Monta un file system
+# Monta un file system in ram
+do_log "mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755"
 mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755 
 
 cd ${rootmnt}
@@ -82,7 +84,7 @@ mkdir -p  ${rootmnt}/${WORKDIR}/var ${rootmnt}/${WORKDIR}/etc ${rootmnt}/${WORKD
 mkdir -m 1777 ${rootmnt}/tmp
 touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 
-
+# Aspetta che il modulo nfsv4 sia installato
 wait # nfs module go in background 
 
 # nfsv3
@@ -95,6 +97,7 @@ wait # nfs module go in background
 mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
 if [ ! $? = 0 ]; then
     do_log "Cannot mount nfs root, reboot"
+
     sleep 10
     reboot
 fi
@@ -107,34 +110,41 @@ done
 
 
 # overlayfs
-mkdir ${rootmnt}/var ${rootmnt}/etc
+do_log "==== Overlayfs ===="
+mkdir ${rootmnt}/var ${rootmnt}/etc  && do_log "Creazione ${rootmnt}/var ${rootmnt}/etc !!"
+
 mount -t overlay overlay -o xino=off,index=off,nfs_export=off,lowerdir=${NFSRO}/etc,upperdir=${STATETMP}/etc,workdir=${WORKDIR}/etc etc
 mount -t overlay overlay -o xino=off,index=off,nfs_export=off,lowerdir=${NFSRO}/var,upperdir=${STATETMP}/var,workdir=${WORKDIR}/var var
 mount -t overlay overlay -o xino=off,index=off,nfs_export=off,lowerdir=${NFSRO}/home,upperdir=${STATETMP}/home,workdir=${WORKDIR}/home home
-
 
 # for idmapd
 mkdir -p /var/lib/nfs/rpc_pipefs
 mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs
 #rpc.idmapd
 
+do_log "touch ${rootmnt}/${FLAG_RELEASE}"
+do_log "touch ${rootmnt}/${FLAG_NFS}"
 touch ${rootmnt}/${FLAG_RELEASE}
 touch ${rootmnt}/${FLAG_NFS} # flag
 
 #do_debug_shell
 rm ${rootmnt}/etc/hosts # without this there is a huge time for a unknown timeout
+do_log "127.0.0.1 localhost lnode > ${rootmnt}/etc/hosts"
 echo "127.0.0.1 localhost lnode" > ${rootmnt}/etc/hosts
 rm ${rootmnt}/etc/hostname
+do_log "lnode > ${rootmnt}/etc/hostname"
 echo "lnode" > ${rootmnt}/etc/hostname
 rm ${rootmnt}/etc/resolv.conf
+do_log "nameserver ${DNS} > ${rootmnt}/etc/resolv.conf"
 echo "nameserver ${DNS}" > ${rootmnt}/etc/resolv.conf
 
 for x in /run/net-*.conf /tmp/net-*.conf; do
     ROOTMOUNTED=nfs
+    do_log "ROOTMOUNTED=${ROOTMOUNTED} >> ${x}"
     echo "ROOTMOUNTED=${ROOTMOUNTED}" >> ${x}
 done
 
 log_end_msg
-
+#do_debug_shell
 echo "LEAVING livenet-top::root_remote"
 

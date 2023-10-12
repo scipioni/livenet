@@ -36,6 +36,7 @@ mount -n -o bind /proc /root/proc
 do_log "running ln-client --force --boot ${ROOTMOUNTED}"
 
 #do_debug_shell
+do_log "chroot /root /usr/bin/ln-client --force --boot ${ROOTMOUNTED}"
 chroot /root /usr/bin/ln-client --force --boot ${ROOTMOUNTED}
 
 umount /root/sys
