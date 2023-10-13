@@ -101,7 +101,6 @@ do_install() {
 
     umount ${LIVENET_RELEASES_MNT}
 
-
     # # update state
     # cd /${STATETMP}
     # find etc -depth -not -name '.wh.*' -print0 | cpio --unconditional --null -pud ${roottmppath} 2>/dev/null
@@ -114,6 +113,14 @@ do_install() {
     echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
     echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
     # . /etc/livenet/boot/00-update.local ${roottmppath}
+    cat > ${roottmppath}/etc/X11/xorg.conf.d/00-keyboard.conf << EOF
+Section "InputClass"
+        Identifier "system-keyboard"
+        MatchIsKeyboard "on"
+        Option "XkbLayout" "it,us"
+        Option "XkbModel" "pc104"
+EndSection
+EOF
 
     echo "Installing grub ..."
     # check /sys/firmware/efi
@@ -145,6 +152,7 @@ do_install() {
 
 do_boot() {
     ROOTMOUNTED=$1
+    echo $ROOTMOUNTED > /etc/esecuzione
     for module in $(ls /etc/livenet/boot/*.default /etc/livenet/boot/*.${ROOTMOUNTED} | sort); do
         mm=$(basename ${module})
         if [ -x ${module} ]; then
