@@ -1,0 +1,12 @@
+echo "X11 layout inizio" > /var/log/aaa.log
+[[ -f /etc/X11/xorg.conf.d/00-keyboard.conf ]] && exit 0
+cat > /etc/X11/xorg.conf.d/00-keyboard.conf << EOF
+Section "InputClass"
+        Identifier "system-keyboard"
+        MatchIsKeyboard "on"
+        Option "XkbLayout" "it,us"
+        Option "XkbModel" "pc104"
+EndSection
+EOF
+
+echo "X11 layout fine" >> /var/log/aaa.log
