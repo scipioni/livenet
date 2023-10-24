@@ -1,6 +1,0 @@
-[theme]
-name=OrangeShark theme
-description=theme that uses bootstrap
-engine=lightdm-webkit-greeter
-url=index.html
-session=

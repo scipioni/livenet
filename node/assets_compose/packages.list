@@ -11,6 +11,9 @@ lightdm
 lightdm-gtk-greeter
 plymouth-themes
 plymouth-theme-ubuntu-gnome-logo
+libpam-script
+autofs
+sssd
 mc
 tree
 nano

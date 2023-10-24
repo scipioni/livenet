@@ -1,5 +1,0 @@
-#!/bin/sh
-
-export PATH=`pwd`:$PATH
-perl -pi -e "s|greeters-directory=.*|greeters-directory=$(pwd)|" lightdm.conf
-lightdm --test-mode --debug  -c `pwd`/lightdm.conf

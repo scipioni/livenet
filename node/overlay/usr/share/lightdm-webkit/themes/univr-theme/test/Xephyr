@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec /usr/bin/Xephyr -screen 1280x1024 $*
