@@ -1,0 +1,34 @@
+# this script enable only web traffic to specific IP and DNS
+VALIDIP="esamionline.univr.it giasso.univr.it intranet.univr.it cdnjs.cloudflare.com aap.univr.it"
+
+iptables -F
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+#iptables -P OUTPUT DROP
+
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# accept all traffic coming from your computer to your computer
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+# DNS
+iptables -A OUTPUT -p udp --dport 53 -m state --state NEW -j ACCEPT
+
+# LDAP
+iptables -A OUTPUT --destination gialds.univr.it -m state --state NEW -j ACCEPT
+
+# server livenet
+#iptables -A OUTPUT --destination livenet -m state --state NEW -j ACCEPT
+
+# icmp from outside
+iptables -A INPUT -p icmp -j ACCEPT
+
+iptables -A OUTPUT --destination localhost -m state --state NEW -j ACCEPT
+for IP in ${VALIDIP}; do
+    iptables -A OUTPUT --destination ${IP} -m state --state NEW -j ACCEPT
+done
+
+iptables -A OUTPUT -j LOG --log-prefix "DROP traffic detected: " --log-level 4
+iptables -A OUTPUT -p all -j REJECT

@@ -1,0 +1,2 @@
+startup_message off
+definekey top S-F5 abort

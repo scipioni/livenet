@@ -1,0 +1,17 @@
+Generated File. Do not edit.
+
+[HEADER]
+Version:0.19t:$
+Arch:x86_64-gcc3:$
+
+[PLUGINS]
+
+[INVALID]
+/usr/lib/mozilla/plugins/libfreshwrapper-libpdf-backend.so:$
+1517920895000:$
+/usr/lib/mozilla/plugins/libfreshwrapper-nacl.so:$
+1517920895000:$
+/usr/lib/mozilla/plugins/libfreshwrapper-libpdf-frontend.so:$
+1517920895000:$
+/usr/lib/mozilla/plugins/libgnome-shell-browser-plugin.so:$
+1557484990000:$

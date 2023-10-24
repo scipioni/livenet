@@ -1,0 +1,14 @@
+/sbin/iptables -F
+/sbin/iptables -X
+/sbin/iptables -t nat -F
+/sbin/iptables -t nat -X
+/sbin/iptables -t mangle -F
+/sbin/iptables -t mangle -X
+/sbin/iptables -t filter -F
+/sbin/iptables -t filter -X
+/sbin/iptables -P INPUT ACCEPT
+/sbin/iptables -P FORWARD ACCEPT
+/sbin/iptables -P OUTPUT ACCEPT
+echo 0 > /proc/sys/net/ipv4/ip_forward
+/usr/sbin/conntrack -F
+

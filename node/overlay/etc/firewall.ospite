@@ -1,0 +1,27 @@
+# utente ospite senza rete
+# this script enable only web traffic to specific IP and DNS
+iptables -F
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT DROP
+
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# accept all traffic coming from your computer to your computer 
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+# DNS
+iptables -A OUTPUT -p udp --dport 53 -m state --state NEW -j ACCEPT
+
+# LDAP
+iptables -A OUTPUT --destination gialds.univr.it -m state --state NEW -j ACCEPT
+
+# Net filesystem
+iptables -A INPUT  -s livenet-ver-srv.univr.it -j ACCEPT
+iptables -A OUTPUT -d livenet-ver-srv.univr.it -j ACCEPT
+
+# ip per utilizzo USB sessione windows 
+iptables -A INPUT -s 10.0.2.4 -j ACCEPT
+iptables -A OUTPUT -d 10.0.2.4 -j ACCEPT

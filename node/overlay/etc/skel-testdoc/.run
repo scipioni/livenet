@@ -1,0 +1,6 @@
+google-chrome  --disable  --disable-translate  --disable-infobars  \
+ --disable-suggestions-service  --disable-save-password-bubble  --ignore-certificate-errors  \
+ --disable-restore-session-state  --disable-session-crashed-bubble  --disable-restore-background-contents  \
+ --disable-new-tab-first-run  --start-maximized  --always-authorize-plugins \
+# --ppapi-flash-path=/usr/lib/pepperflashplugin-nonfree/libpepflashplayer.so \
+ http://esami.ctu.unimi.it/concorsocusmibio18_UNIVR 

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=/usr/local/bin/hometype.sh
+Hidden=false
+X-GNOME-Autostart-enabled=true
+Name=home_info
+Comment=some info about home directory
+

@@ -1,0 +1,27 @@
+[domain/default]
+cache_credentials = True
+autofs_provider = ldap
+ldap_search_base = dc=univr,dc=it?subtree?(&(inetUserStatus=active)(!(univrRapporti=FAC-NUL SID-UTE-STU-LMB)))
+ldap_default_bind_dn = uid=servicelab-delta,o=gia,dc=univr,dc=it
+ldap_default_authtok = v:|/^4eh0mM-G
+id_provider = ldap
+auth_provider = ldap
+chpass_provider = ldap
+access_provider = ldap
+ldap_uri = ldaps://gialds.univr.it
+ldap_network_timeout = 3
+#ldap_id_use_start_tls = True
+ldap_tls_cacert = /etc/ssl/certs/oig-ud-srv-chain.univr.it.pem
+ldap_tls_reqcert = hard
+#ignore_group_members = True
+#ldap_group_member = uniquemember
+#ldap_group_search_base = dc=univr,dc=it
+case_sensitive = false
+
+[sssd]
+services = nss, pam, autofs
+domains = default
+
+[nss]
+homedir_substring = /home
+filter_users = root,named,avahi,haldaemon,dbus,radiusd,news

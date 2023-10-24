@@ -1,0 +1,24 @@
+[domain/default]
+cache_credentials = True
+autofs_provider = ldap
+ldap_search_base = dc=univr,dc=it
+ldap_default_bind_dn = uid=servicelab-delta,o=gia,dc=univr,dc=it
+ldap_default_authtok = v:|/^4eh0mM-G
+id_provider = ldap
+auth_provider = ldap
+access_provider = ldap
+ldap_uri = ldaps://oig-ud-srv.univr.it
+ldap_network_timeout = 3
+#ldap_id_use_start_tls = True
+ldap_tls_cacert = /etc/ssl/certs/oig-ud-srv-chain.univr.it.pem
+ldap_tls_reqcert = hard
+ldap_access_order = filter
+ldap_access_filter = (&(inetUserStatus=active)(!(univrRapporti=FAC-NUL SID-UTE-STU-LMB)))
+case_sensitive = false
+
+[sssd]
+services = nss, pam, autofs
+domains = default
+
+[nss]
+homedir_substring = /home
