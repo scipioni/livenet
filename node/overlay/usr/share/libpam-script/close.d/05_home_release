@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#date >> /tmp/home_release
+#set -x
+set +e
+
+[ $(id -u ${PAM_USER}) -lt 500 ] && exit 0
+
+. /etc/livenet/livenet.conf
+
+#set -x
+if [ "${PAM_SERVICE}" = "lightdm" ] || [ "${PAM_SERVICE}" = "login" ]; then
+    log_lightdm "CHIUSURA SESSIONE UTENTE..."
+    HOME=$(getent passwd ${PAM_USER} | awk -F':' '{print $6}')
+    SEC=0
+    while [ 1 ]; do
+        SEC=$((SEC+1))
+        lsof -u ${PAM_USER} > /dev/null 2>&1
+        if [ $? = 1 ]; then
+            break
+        fi
+        [ ${SEC} -gt 3 ] && kill $(lsof -t -u ${PAM_USER})
+        if [ ${SEC} -gt 5 ]; then
+            kill -9 $(lsof -t -u ${PAM_USER})
+            break
+        fi 
+        #echo "lsof -t -u " $(lsof -t -u ${PAM_USER})
+	#echo "lsof -u " $(lsof -u ${PAM_USER})
+        SEC=$((SEC+1))
+        sleep 1
+    done
+    systemctl restart autofs
+
+    if [ -f ${HOME}/.temporary ]; then
+        sleep 1
+        log_lightdm "RIMOZIONE SESSIONE TEMPORANEA..."
+        chattr -i ${HOME}/.temporary
+        rm -fR /home/tmp/${PAM_USER}/
+	#exit 0
+    fi	    
+fi
+
+#umount -lf ${HOME} > /dev/null 2>&1
+
+#HOME_MOUNTED=$(mount | grep $PAM_USER | wc -l)
+
+#while [ ${HOME_MOUNTED} -gt 0 ]; do
+#	sleep 1
+#	SEC=$((SEC+1))
+#	HOME_MOUNTED=$(mount | grep $PAM_USER | wc -l)
+#
+#done
+#echo $SEC > /tmp/after.log
+
+#sleep 10
+
+
+
+exit 0

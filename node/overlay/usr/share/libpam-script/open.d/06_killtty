@@ -1,0 +1,14 @@
+pgrep kvm
+if [ $? -eq 0 ]; then
+   for i in `seq 1 6`;
+   do
+     outid=`pgrep -t tty"$i" bash`
+     if [ $? = 0 ]; then
+         kill -9 $outid
+     fi
+   done
+   cp /etc/security/access.conf.moodle /etc/security/access.conf
+else
+   cp /etc/security/access.conf.default /etc/security/access.conf
+fi
+

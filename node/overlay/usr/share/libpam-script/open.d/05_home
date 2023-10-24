@@ -1,0 +1,107 @@
+#!/bin/sh
+#
+# users in /home/*
+#
+# The environment variables passed by pam-script onto the script
+# (all will exist but some may be null if not applicable):
+#   PAM_SERVICE - the application that's invoking the PAM stack
+#   PAM_TYPE    - the module-type (e.g. auth,account,session,password)
+#   PAM_USER    - the user being authenticated into
+#   PAM_RUSER   - the remote user, the user invoking the application
+#   PAM_RHOST   - remote host
+#   PAM_TTY     - the controlling tty
+
+
+###[ "${PAM_SERVICE}" = "systemd-user" ] || exit 0
+
+[ "${PAM_SERVICE}" = "lightdm" ] || [ "${PAM_SERVICE}" = "login" ] || exit 0
+[ $(id -u ${PAM_USER}) -lt 500 ] && exit 0
+
+. /etc/livenet/livenet.conf
+
+set +e
+#set -x
+log_lightdm "Inizializzazione servizi..."
+
+systemctl restart autofs # dobbiamo resettare la cache 
+systemctl is-active --quiet autofs && echo "Autofs is ok"
+#sleep 3
+
+log_lightdm "Caricamento HOME utente..."
+
+HOME=$(getent passwd ${PAM_USER} | awk -F':' '{print $6}')
+
+localgroups=$( groups ${PAM_USER} )
+
+for SKEL in /etc/skel-${PAM_USER} /etc/skel; do
+    [ -d ${SKEL} ] && break
+done
+
+
+do_make_home() { 
+    echo "Making home=$HOME from skel=$SKEL user=$PAM_USER" | logger -t livenet
+    mkdir -p ${HOME}
+    rsync -a ${SKEL}/ ${HOME}/
+    chown -R ${PAM_USER} ${HOME}
+    chmod 700 ${HOME}
+    if [ -f ${HOME}/.temporary ]; then
+       chown root:root ${HOME}/.temporary
+       chattr +x ${HOME}/.temporary
+    fi
+
+    if [ -d /home/tmp ]; then
+        chmod 755 /home/tmp
+    fi
+
+
+}
+
+
+ping -c1 homes
+
+stat ${HOME}
+#sleep 3
+#ls ${HOME}
+#sleep 3
+
+if [ $? = 1 ]; then
+  log_lightdm "AVVIO SESSIONE TEMPORANEA..."
+  rm -fr /home/tmp/${PAM_USER}
+  # se non ho home la creo
+  ORIGINAL=$HOME
+  HOME=/home/tmp/${PAM_USER}
+  do_make_home
+  sleep 1
+  systemctl restart autofs # dobbiamo resettare la cache 
+  stat ${ORIGINAL} #/dev/null 0>&1
+else
+	sleep 3 
+fi
+
+#sleep 1
+
+#echo "$localgroups" | grep -q kiosk
+#if [ $? = 0 ]; then
+    #################
+    # kiosk mode
+    #################
+
+#    echo "user ${PAM_USER} in kiosk mode" | logger -t livenet
+#    rm -fR ${HOME}
+#    log_lightdm "Run in kiosk mode" 
+#    do_make_home
+#fi
+
+#elif [ -n "${PAM_USER}" ]; then 
+#	#[ -f ${HOME}/.temporary ] && rm -fR ${HOME}
+#	if [ ! -d ${HOME} ]; then
+#		#################
+#		# normal mode
+#		#################
+#		log_lightdm "Home creation schemas"
+#		do_make_home
+#    fi
+#fi
+
+exit 0
+

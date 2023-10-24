@@ -1,0 +1,23 @@
+#!/bin/sh
+
+[ $(id -u ${PAM_USER}) -lt 500 ] && exit 0
+
+if [ ! -f /etc/firewall.init ]; then
+    exit 0
+fi
+
+exec > /var/log/firewall.log
+exec 2>&1
+#set -x
+
+. /etc/firewall.init
+
+if [ -f /etc/firewall.${PAM_USER} ]; then
+    . /etc/firewall.${PAM_USER}
+else
+    echo "open firewall" | logger -t livenet
+    . /etc/firewall.default
+fi
+
+exit 0
+

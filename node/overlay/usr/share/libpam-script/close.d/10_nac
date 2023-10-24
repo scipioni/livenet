@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#exec > /tmp/log 2>&1
+#set -x
+
+set +e
+
+grep -q "^${PAM_USER}:" /etc/passwd
+[ $? = 0 ] && exit 0 # local user, no NAC
+
+. /etc/livenet/livenet.conf
+
+if [ "${livenet_8021x}" = "true" ]; then
+    pidof wpa_supplicant
+    if [ $? = 0 ]; then
+        log_lightdm "DISCONNESSIONE RETE..."
+        echo shutdown 802.1x | logger -t livenet
+        ( echo logoff | wpa_cli ) &
+        sleep 1
+        killall wpa_cli >/dev/null 2>&1
+        killall wpa_supplicant >/dev/null 2>&1
+        log_lightdm "RICONNESSIONE RETE..."
+	dhclient -r && dhclient
+
+    fi
+fi
+
+exit 0

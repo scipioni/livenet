@@ -156,7 +156,7 @@ EOF
 per-window=false
 sources=[('xkb', 'it'), ('xkb', 'us+symbolic')]
 EOF
-   dconf update
+   chroot ${roottmppath} /bin/sh -c "dconf update"
 
     for i in proc dev sys; do
         umount ${roottmppath}/$i
