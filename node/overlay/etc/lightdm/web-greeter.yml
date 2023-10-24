@@ -42,6 +42,7 @@ greeter:
 #
 layouts:
     - it
+    - us
 
 #
 # features:

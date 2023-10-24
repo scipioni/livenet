@@ -115,31 +115,40 @@ FROM nfs as packages
 ARG DEBIAN_FRONTEND=noninteractive
 ARG GREETER_VERSION=3.5.2
 
-RUN  apt-get update && \
-  apt-get install -qq -y \
-  ubuntu-desktop \
-  language-selector-common \
-  language-pack-it \
-  witalian \
-  language-pack-en \
-  wamerican \
-  wbritish \
-  lightdm \
-  lightdm-gtk-greeter \
-  plymouth-themes \
-  plymouth-theme-ubuntu-gnome-logo \
-  mc tree  nano netcat \
-  wget curl \
-  && apt-get clean
+COPY ./assets_compose/packages.sh /tmp/
+COPY ./assets_compose/packages.list /tmp
+WORKDIR /tmp
+RUN ./packages.sh 
 
+
+# --- spostato nello script
+# RUN  apt-get update && \
+#   apt-get install -qq -y \
+#   ubuntu-desktop \
+#   language-selector-common \
+#   language-pack-it \
+#   language-pack-en \
+#   witalian \
+#   wamerican \
+#   wbritish \
+#   lightdm \
+#   lightdm-gtk-greeter \
+#   plymouth-themes \
+#   plymouth-theme-ubuntu-gnome-logo \
+#   mc tree  nano netcat \
+#   wget curl \
+#   && apt-get clean
+
+
+# --- spostato nello script
 # settiamo lightdm al posto di gdm3
-RUN echo /usr/sbin/lightdm > /etc/X11/default-display-manager \
-  && dpkg-reconfigure -fnoninteractive lightdm
-
+# RUN echo /usr/sbin/lightdm > /etc/X11/default-display-manager \
+#   && dpkg-reconfigure -fnoninteractive lightdm
+# --- spostato nello script
 # installiamo web-greeter
-RUN cd /tmp && \
-  wget https://github.com/JezerM/web-greeter/releases/download/${GREETER_VERSION}/web-greeter-${GREETER_VERSION}-ubuntu.deb && \
-  apt-get install -qq -y ./web-greeter-${GREETER_VERSION}-ubuntu.deb 
+# RUN cd /tmp && \
+#   wget https://github.com/JezerM/web-greeter/releases/download/${GREETER_VERSION}/web-greeter-${GREETER_VERSION}-ubuntu.deb && \
+#   apt-get install -qq -y ./web-greeter-${GREETER_VERSION}-ubuntu.deb 
 
 ########################################################
 ####### overlay and initramfs ##########################

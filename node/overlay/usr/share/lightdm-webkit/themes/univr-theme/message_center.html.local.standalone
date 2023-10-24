@@ -1,0 +1,9 @@
+<style>
+.message {
+padding: 40px;
+font-size: 20px;
+}
+</style>
+
+<div class="message">
+</div>

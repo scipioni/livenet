@@ -113,6 +113,8 @@ do_install() {
     echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
     echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
     # . /etc/livenet/boot/00-update.local ${roottmppath}
+
+# Tastiera
     cat > ${roottmppath}/etc/X11/xorg.conf.d/00-keyboard.conf << EOF
 Section "InputClass"
         Identifier "system-keyboard"
@@ -121,6 +123,8 @@ Section "InputClass"
         Option "XkbModel" "pc104"
 EndSection
 EOF
+    chmod +x ${roottmppath}/etc/X11/xorg.conf.d/00-keyboard.conf
+    sed -i 's/^XKBLA.*/XKBLAYOUT="it"/' ${roottmppath}/etc/default/keyboard
 
     echo "Installing grub ..."
     # check /sys/firmware/efi
@@ -139,6 +143,20 @@ EOF
     echo "Saving profile ${PROFILE}"
     chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
     chroot ${roottmppath} /bin/sh -c "ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
+
+   chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/dconf/profile"
+   chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/dconf/db/local.d"
+   cat > ${roottmppath}/etc/dconf/profile/user << EOF
+user-db:user
+system-db:local
+EOF
+
+   cat > ${roottmppath}/etc/dconf/db/local.d/01-keyboard << EOF
+[org/gnome/desktop/input-sources]
+per-window=false
+sources=[('xkb', 'it'), ('xkb', 'us+symbolic')]
+EOF
+   dconf update
 
     for i in proc dev sys; do
         umount ${roottmppath}/$i
