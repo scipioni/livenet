@@ -1,8 +1,8 @@
 [LightDM]
 sessions-directory=/etc/livenet/sessions
 
-[SeatDefaults]
-greeter-session=lightdm-webkit-greeter
+[Seat:*]
+greeter-session=web-greeter
 greeter-hide-users=true
 allow-guest=false
 user-session=ubuntu
