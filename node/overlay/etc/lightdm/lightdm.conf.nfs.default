@@ -1,0 +1,11 @@
+[LightDM]
+sessions-directory=/etc/livenet/sessions
+
+[SeatDefaults]
+greeter-session=lightdm-webkit-greeter
+greeter-hide-users=true
+allow-guest=false
+user-session=ubuntu
+session-setup-script=ln-client --session-start
+session-cleanup-script=ln-client --reset-lightdm
+session-wrapper=/usr/local/bin/lightdm-sessions-wrapper

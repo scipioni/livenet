@@ -52,6 +52,14 @@ _do_check_alternative() {
     [ -n "${alternative_name}" ] || alternative_name=$(basename $f)
 
     # diversion
+    # 1) controlla che vi sia un nfs.default (ovvero che si tratta di una alternatives livenet)
+    # 2) se il file originale è un link simbolico lo cancella
+    #                         altrimenti  lo rinomina come local.standalone
+    # 3) rimuove tutte le alternative associate
+    # 4) crea la directory ( non dovrebbe esserci già se sono qui?) non l'ho capita
+    # 5) per ogni file con schema nome_alternative.qualcosa.qualcosa aggiungilo alla alternativa
+    # 6) se un profilo corrispondente ad un elemento di questa alternativa non esiste, crealo
+    # 7) mette la default come alternativa predefinita
     ###########
     if [ -r ${d}.nfs.default ]; then
         if [ -h ${f} ]; then # is symbolic link

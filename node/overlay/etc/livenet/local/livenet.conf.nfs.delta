@@ -1,0 +1,3 @@
+PROFILE=delta
+livenet_8021x=true
+SHUTDOWN_HOUR="05:00:00"

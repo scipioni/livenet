@@ -1,0 +1,13 @@
+[LightDM]
+sessions-directory=/etc/livenet/sessions-spec
+
+[SeatDefaults]
+autologin-user=install
+autologin-user-timeout=0
+autologin-session=session-wait
+greeter-session=lightdm-webkit-greeter
+greeter-hide-users=true
+allow-guest=false
+user-session=session-wait
+session-cleanup-script=ln-client --reset-lightdm
+
