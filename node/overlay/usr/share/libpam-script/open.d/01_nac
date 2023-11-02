@@ -9,16 +9,16 @@ TIMEOUT_NAC=15
 . /etc/livenet/livenet.conf
 
 #set +e
-logger "--------------------- 01_nac punto 1"
+logger ">>>>>>>>>>>>>>>>>>>>> 01_nac punto 1"
 [ "${livenet_8021x}" = "true" ] || exit 0
 
 # Provvisorio
-logger "--------------------- 01_nac punto 2"
+logger ">>>>>>>>>>>>>>>>>>>>> 01_nac punto 2"
 
 grep -q "^${PAM_USER}:" /etc/passwd
 [ $? = 0 ] && exit 0 # local user, no NAC
 # Provvisorio
-logger "--------------------- 01_cuc punto 3"
+logger ">>>>>>>>>>>>>>>>>>>>> 01_cuc punto 3"
 WPACONF=/run/user/${PAM_USER}/wpa_supplicant.conf
 
 for nic in /run/net-*.conf; do

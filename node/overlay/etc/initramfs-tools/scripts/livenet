@@ -14,6 +14,8 @@ mountroot ()
         set -x
     fi 
     
+    do_log "VARIABILE ROOT=${ROOT}"
+    sleep 20
     [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/livenet-top"
     run_scripts /scripts/livenet-top
     [ "$quiet" != "y" ] && log_end_msg
