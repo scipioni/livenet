@@ -1,7 +1,8 @@
 
 do_log() {
     [ -f /dev/ttyS0 ] && echo "$@" > /dev/ttyS0
-    echo "$@" 
+    logger -n 192.168.124.1 -P 5140 -t "Livenet" "$@"
+    #echo "$@" 
     if [ -x /bin/plymouth ] && plymouth --ping; then
         /bin/plymouth message --text="$@"
     fi

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # --> PAM_SERVICE='lightdm'
-
+logger -t "PAM SCRIPT AUTH" "Auth: ${PAM_USER} ${PAM_SERVICE}"
 # verificare se serve ancora ########
 mkdir -p -m 700 /run/user/${PAM_USER} 2>/dev/null
 chown ${PAM_USER} /run/user/${PAM_USER} 2>/dev/null

@@ -155,11 +155,6 @@ RUN ./packages.sh
 ########################################################
 FROM packages
 
-# COPY ./overlay /tmp/overlay
-# RUN cp -vR /tmp/overlay/* / \
-#   && rm -fR /tmp/overlay \
-#   && mkdir -p /var/cache/livenet
-
 COPY ./overlay/ /
 RUN mkdir -p /var/cache/livenet
 RUN RESUME=auto update-initramfs -c -k all

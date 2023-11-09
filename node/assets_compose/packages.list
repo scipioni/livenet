@@ -12,6 +12,7 @@ lightdm-gtk-greeter
 plymouth-themes
 plymouth-theme-ubuntu-gnome-logo
 libpam-script
+libsss-sudo
 autofs
 sssd
 mc
@@ -20,3 +21,4 @@ nano
 netcat
 wget
 curl
+tmux

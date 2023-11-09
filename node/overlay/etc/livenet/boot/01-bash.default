@@ -1,1 +1,6 @@
+
+. /conf/functions-livenet
+
+do_log "Attivazione shell di debug durante boot"
+
 /bin/bash

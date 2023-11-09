@@ -64,15 +64,15 @@ LANG=en
 #modprobe nfsv3 >/dev/null &
 modprobe nfsv4 >/dev/null &
 
-do_log "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! root ----> ${ROOT}"
-do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! rootmnt ----> ${rootmnt}"
-do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! nfsro ----> ${NFSRO}}"
-do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! statetmp ----> ${STATETMP}}"
-do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! workdir ----> ${WORKDIR}}"
-do_log "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}"
+go_log "Environment "
+do_log "    root ----> ${ROOT}"
+do_log "    rootmnt ----> ${rootmnt}"
+do_log "    nfsro ----> ${NFSRO}}"
+do_log "    statetmp ----> ${STATETMP}}"
+do_log "    workdir ----> ${WORKDIR}}"
+do_log "    mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}"
 
 # Monta un file system in ram
-do_log "mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755"
 mount -t tmpfs tmpfs ${rootmnt} -o rw,mode=0755 
 
 cd ${rootmnt}

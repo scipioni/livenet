@@ -22,6 +22,7 @@ for filename in ${LIVENET_RELEASES_MNT}/*-diff.tar.gz; do
     remote_version=$(basename $filename | sed "s/-.*//")
 
     if [ ${remote_version/./} -gt ${VERSION/./} ]; then
+        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "Livenet" "Upgrading to ${filename/-*/} ..."
         _upgrade_to ${filename/-*/}
     fi
 done
