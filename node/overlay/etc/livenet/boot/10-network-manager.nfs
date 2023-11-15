@@ -1,1 +1,1 @@
-systemctl disable network-manager 
+systemctl disable NetworkManager 

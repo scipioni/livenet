@@ -1,0 +1,9 @@
+#!/bin/bash
+case "${USER}" in
+        cisia) ln-client --kiosk ;;
+        cisia1) ln-client --kiosk ;;
+        tolcmed) ln-client --kiosk ;;
+        tolcmed1) ln-client --kiosk ;;
+        moodle) ln-client --kiosk ;;
+        *) $@ ;;
+esac

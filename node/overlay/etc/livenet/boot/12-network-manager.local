@@ -1,2 +1,2 @@
 #service_switch network-manager on
-systemctl enable network-manager
+systemctl start NetworkManager

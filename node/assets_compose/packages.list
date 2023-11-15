@@ -22,3 +22,4 @@ netcat
 wget
 curl
 tmux
+bsdutils

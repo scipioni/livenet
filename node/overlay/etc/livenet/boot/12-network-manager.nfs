@@ -1,2 +1,2 @@
 #service_switch network-manager off
-systemctl disable network-manager
+systemctl stop NetworkManager

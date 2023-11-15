@@ -1,1 +1,1 @@
-systemctl enable network-manager 
+systemctl enable NetworkManager 

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=xterm
+Comment=xterm
+Exec=xterm -maximized -font 10x20 -sb -rightbar
+Icon=
+Type=Application
