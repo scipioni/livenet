@@ -28,37 +28,6 @@ if [ -n "${ROOT}" ]; then
     exit 0
 fi
 
-sync_state_nfs ()
-{
-    MAC=$( ifconfig ${DEVICE} | sed -n -r "s|^.*HWaddr ([A-Z0-9:]+).*$|\1| p" | tr -d ':' )
-    SERVERRW=$( echo ${LIVENET_ROOT} | sed -n -r "s|^(.+):.+$|\1| p" )
-    
-    mkdir -p ${rootmnt}/${STATETMP}/persistent
-    # nfsv3
-    mount -t nfs -o rw,${NFSOPTS} ${SERVERRW}:${STATENFS} ${STATETMP}/persistent
-    # nfsv4
-    #mount.nfs -n ${SERVERRW}:${STATENFS} ${STATETMP}/persistent -o ${NFSOPTSV4}
-    if [ $? = 0 ]; then
-        STATE=${STATETMP}/persistent/${MAC}_${RELEASE}
-        
-        if [ ! -f ${STATE}/${FLAG_RELEASE} ]; then
-            do_log "New release detected ($RELEASE), reset state"
-            rm -fR ${STATE}
-            log_end_msg
-        fi
-
-        mkdir -p ${STATE}/etc/livenet 
-        for x in /run/net-*.conf /tmp/net-*conf; do
-            echo "SERVERRW=${SERVERRW}" >> ${x}
-            echo "MAC=${MAC}" >> ${x}
-        done
-        cp -a ${STATE}/etc ${rootmnt}/${STATETMP}
-        umount ${STATETMP}/persistent
-    else
-        do_log "Cannot sync state, skip"
-    fi
-}
-
 LANG=en
 
 #modprobe nfsv3 >/dev/null &
@@ -87,11 +56,6 @@ touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 # Aspetta che il modulo nfsv4 sia installato
 wait # nfs module go in background 
 
-# nfsv3
-#mount -t nfs -o ro,${NFSOPTS} ${LIVENET_ROOT} ${NFSRO} 
-
-
-#mount -t nfs -o ro,vers=4 ${LIVENET_ROOT} ${NFSRO} 
 
 #nfsv4
 mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
@@ -105,9 +69,6 @@ fi
 for folder in bin boot home lib lib32 lib64 libx32 media mnt opt root sbin opt root sbin usr;  do
     [ -d ${NFSRO}/${folder} ] && ln -s ${NFSRO}/${folder} ${folder}
 done
-
-#sync_state_nfs
-
 
 # overlayfs
 do_log "==== Overlayfs ===="

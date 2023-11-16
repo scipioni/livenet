@@ -51,6 +51,7 @@ while [ 1 ]; do
     sleep 1
 done
 
+do_log "Mount ${FSTYPE} ${ROOT} ${rootmnt} in read write mode"  
 mount -o rw -t ${FSTYPE} ${ROOT} ${rootmnt} # rw for update_root, after root partition is remounted ro in livenet-bottom scripts
 if [ ! $? == 0 ]; then # root mounted, try to update now
     do_log "ERROR: no local boot"

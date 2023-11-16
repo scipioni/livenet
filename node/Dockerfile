@@ -155,6 +155,7 @@ RUN ./packages.sh
 ########################################################
 FROM packages
 
+# Copia tuttle le personalizzazioni perché vengano inserite nell'immagine
 COPY ./overlay/ /
 RUN mkdir -p /var/cache/livenet
 RUN RESUME=auto update-initramfs -c -k all

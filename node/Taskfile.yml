@@ -53,7 +53,7 @@ tasks:
         ${_compose} down 
         
         sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
-        docker-compose up -d
+        ${_compose} up -d
   
   release:
     cmds:
@@ -166,3 +166,8 @@ tasks:
           -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd \
           -drive id=vda,file=${DISK} \
           -boot d
+
+  rsyslog:
+    desc: "launch a rsyslog server"
+    cmds: 
+      - bash ./scripts/rsyslog.sh

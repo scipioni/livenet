@@ -1,7 +1,8 @@
 
 do_log() {
     [ -f /dev/ttyS0 ] && echo "$@" > /dev/ttyS0
-    logger -n 192.168.124.1 -P 5140 -t "Livenet" "$@"
+    LIVENET_HOST=$( echo ${LIVENET_ROOT} | sed -n -r "s|^(.+):.+$|\1| p" )
+    ping -c 1 -W 1 ${LIVENET_HOST} &>/dev/null && logger -n ${LIVENET_HOST} -P 5140 -t "Livenet" "$@"
     #echo "$@" 
     if [ -x /bin/plymouth ] && plymouth --ping; then
         /bin/plymouth message --text="$@"

@@ -33,11 +33,8 @@ cp /etc/livenet/livenet.conf ${DESTDIR}/conf
 [ -f /etc/livenet/livenet.conf.override ] && cp /etc/livenet/livenet.conf.override ${DESTDIR}/conf
 cp /etc/initramfs-tools/scripts/functions-livenet ${DESTDIR}/conf
 
-#manual_add_modules aufs
 manual_add_modules overlay
 auto_add_modules net
-#auto_add_modules nfs4
-#force_load nfs4
 
 # pulizia di firmware non necessario e pesante
 set +e
@@ -60,23 +57,12 @@ cp -au /usr/lib/x86_64-linux-gnu/libnfsidmap/nsswitch.so ${DESTDIR}/usr/lib/x86_
 cp -au /etc/netconfig ${DESTDIR}/etc/netconfig
 mkdir -p ${DESTDIR}/var/lib/nfs/rpc_pipefs/ 
 
+# Se vuoi inviare i log al server rsyslog
+copy_exec /usr/bin/logger /bin
 
 # debug purpose ################
 # ricordati di mettere FRAMEBUFFER=n in /etc/initramfs-tools/conf.d/splash
-#copy_exec /sbin/ifconfig
 copy_exec /sbin/lsmod /bin
-#copy_exec /usr/bin/lspci /bin
 copy_exec /usr/bin/ping /bin
 copy_exec /usr/bin/strace /bin
-#################################
-
-# wireless #####################
-#copy_exec /sbin/iwconfig
-#copy_exec /sbin/iwlist
-#copy_exec /sbin/iwpriv
-#copy_exec /sbin/iwevent
-#copy_exec /sbin/iwgetid
-#copy_exec /sbin/iwspy
-#copy_exec /usr/sbin/rfkill
-#cp -au /lib/firmware/iwl*-[13].ucode ${DESTDIR}/lib/firmware
 #################################

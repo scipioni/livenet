@@ -1,4 +1,4 @@
-. /conf/functions-livenet
+. /scripts/functions-livenet
 
 do_log "Saving profile ${PROFILE}"
 

@@ -1,6 +1,7 @@
 
-. /conf/functions-livenet
+. /${NFSRO}/etc/initramfs-tools/scripts/functions-livenet
 
 do_log "Attivazione shell di debug durante boot"
-
-/bin/bash
+/sbin/getty -l sh -n 38400 tty0
+/sbin/getty -l sh -n 38400 tty0
+#/bin/bash
