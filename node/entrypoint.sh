@@ -20,7 +20,6 @@ stop()
   pid3=`pidof rpcbind`
   kill -TERM $pid1 $pid2 $pid3 > /dev/null 2>&1
   echo "Terminated."
-  exit
 }
 
 

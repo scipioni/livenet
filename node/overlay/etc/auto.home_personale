@@ -1,0 +1,4 @@
+#!/bin/sh
+ 
+/etc/auto.magic $1 "homes:/home/accounts/personale"
+exit 0

@@ -1,0 +1,4 @@
+#!/bin/sh
+ 
+/etc/auto.magic $1 "homes:/home/accounts/studenti"
+exit 0

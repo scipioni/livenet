@@ -1,0 +1,12 @@
+#!/bin/sh
+ 
+USER="$1"
+NFS=$2
+ 
+HOME="/home/tmp/${USER}"
+if [ -d ${HOME} ]; then
+        touch ${HOME}/.temporary
+        echo "-bind :${HOME}"
+else
+        echo "-wsize=8192,rsize=8192,vers=4,async,nolock,timeo=1,retry=0,retrans=1 ${NFS}/&"
+fi

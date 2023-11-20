@@ -13,6 +13,7 @@
 
 
 ###[ "${PAM_SERVICE}" = "systemd-user" ] || exit 0
+logger -t "05_home" "Esecuzione..."
 
 [ "${PAM_SERVICE}" = "lightdm" ] || [ "${PAM_SERVICE}" = "login" ] || exit 0
 [ $(id -u ${PAM_USER}) -lt 500 ] && exit 0
@@ -30,7 +31,7 @@ systemctl is-active --quiet autofs && echo "Autofs is ok"
 log_lightdm "Caricamento HOME utente..."
 
 HOME=$(getent passwd ${PAM_USER} | awk -F':' '{print $6}')
-
+logger -t "01_nac" "Caricament home (${HOME}) per l'utente ${PAM_USER}"
 localgroups=$( groups ${PAM_USER} )
 
 for SKEL in /etc/skel-${PAM_USER} /etc/skel; do
@@ -41,6 +42,7 @@ done
 do_make_home() { 
     echo "Making home=$HOME from skel=$SKEL user=$PAM_USER" | logger -t livenet
     mkdir -p ${HOME}
+    logger -t "05_home" "Sincronizzazione ${SKEL}/ ${HOME}/"
     rsync -a ${SKEL}/ ${HOME}/
     chown -R ${PAM_USER} ${HOME}
     chmod 700 ${HOME}
@@ -52,7 +54,7 @@ do_make_home() {
     if [ -d /home/tmp ]; then
         chmod 755 /home/tmp
     fi
-
+    logger -t "05_home" "Home ${HOME}/ pronta"
 
 }
 
