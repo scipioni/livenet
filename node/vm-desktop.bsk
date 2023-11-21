@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Windows 7
+Comment=Macchina virtuale predefinita
+Exec=ln-vms --vm giurisprudenzawin7 --guest
+Icon=/usr/share/icons/vm.png
+Type=Application
