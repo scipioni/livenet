@@ -23,3 +23,8 @@ wget
 curl
 tmux
 bsdutils
+ratpoison
+qemu-kvm 
+libvirt-daemon-system 
+libvirt-clients 
+bridge-utils

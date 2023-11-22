@@ -1,0 +1,5 @@
+#!/bin/sh
+ 
+/etc/auto.magic $1 "homes:/home/accounts/esterni"
+exit 0
+
