@@ -1,4 +1,4 @@
 #!/bin/sh
  
-/etc/auto.magic $1 "homes:/home/accounts/studenti"
+/etc/auto.magic $1 "scibiohome-nfs-srv.di.univr.it:/home/accounts/studenti"
 exit 0

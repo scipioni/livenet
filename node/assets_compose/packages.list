@@ -1,4 +1,5 @@
 ubuntu-desktop
+xloadimage
 language-selector-common
 language-pack-it
 language-pack-en
@@ -25,6 +26,10 @@ tmux
 bsdutils
 ratpoison
 qemu-kvm 
+qemu-system-gui
+qemu-utils
+spice-client-gtk
 libvirt-daemon-system 
 libvirt-clients 
 bridge-utils
+samba

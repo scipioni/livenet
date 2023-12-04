@@ -11,80 +11,86 @@ tasks:
     silent: true
 
   build:
-    desc: build li
+    desc: build livenet container
     cmds:
       - |
+        RELEASE=$(date +%Y%m%d).00
+        echo ${RELEASE} > overlay/etc/livenet/release  
+        sed -i "s/RELEASE=.*/RELEASE=${RELEASE}/" .env
         BUILDKIT_PROGRESS=plain ${_compose} build 
       - sudo rm -f releases/*
+      
       #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
 
   start:
+    desc: start livenet container
     cmds:
       - mkdir -p runtime releases
       - touch runtime/bash_history
       - ${_compose} up -d --remove-orphans
 
-  logs:
-    cmds:
-      - sudo journalctl -f
-
   cli:
+    desc: login into container
     cmds:
       - ${_compose} exec lnode bash        
 
-  ssh:
-    desc: "connect to client node"
-    cmds:
-      - ssh root@192.168.124.18
-
   diff:
+    desc: show changes in server with respect docker image
     cmds:
       - ${_docker} diff ${NODE}
 
   commit:
-    desc: task commit -- 20230808.00
+    desc: task commit 
     cmds:
       - |
         ID=$(${_docker} container ls --all --quiet --no-trunc --filter "name=${NODE}")
-        RELEASE={{.RELEASE}}
-        [ -n "$RELEASE" ] || RELEASE={{.CLI_ARGS}}
-        ${_docker} diff ${NODE} | ${_compose} exec -T lnode ln-mng --commit $RELEASE
-        ${_docker} commit ${ID} livenet/node:${RELEASE}
-        ${_compose} down 
+        NEW_RELEASE=$(scripts/release.sh)
         
-        sed -i "s/VERSION=.*/VERSION=${RELEASE}/" .env
+        ${_docker} diff ${NODE} | ${_compose} exec -T lnode ln-mng --commit $NEW_RELEASE
+        ${_docker} commit ${ID} livenet/node:${NEW_RELEASE}
+        sed -i "s/RELEASE=.*/RELEASE=${NEW_RELEASE}/" .env
+        echo ${RELEASE} > overlay/etc/livenet/release
+        ${_compose} down      
+        while [ "$( docker container inspect -f '{{.State.Status}}' ${NODE} )" = "running" ]; do
+            sleep 5
+        done
+
         ${_compose} up -d
   
   release:
+    desc: create a major release.
     cmds:
       - |
-        RELEASE={{.RELEASE}}
-        [ -n "$RELEASE" ] || RELEASE={{.CLI_ARGS}}
+        RELEASE={{.CLI_ARGS}}
+        [ -n "$RELEASE" ] || RELEASE=$(date +%Y%m%d).00
+        [[ $RELEASE -lt $(cat overlay/etc/livenet/release) ]] && exit 1
+        echo ${RELEASE} > overlay/etc/livenet/release
         ${_docker} export ${NODE} --output="releases/${RELEASE}-full.tar"
         pigz releases/${RELEASE}-full.tar
 
   destroy:
+    desc: destroy livenet  and clean the environment
     cmds:
       - sudo rm -f releases/*
-      - sed -i "s/VERSION=.*/VERSION=latest/" .env
+      - sed -i "s/RELEASE=.*/RELEASE=latest/" .env
       - ${_compose} down -t 60 || true
+      - echo "docker images --filter "dangling=true" -q --no-trunc"
       - ${_docker} images | grep livenet/node | awk '{print $3}' | xargs ${_docker} rmi || true
       - rm -f runtime/vm.qcow2
 
   reset:
+    desc: reset the system for a clean start
     cmds:
       - task: destroy
       - task: build
       - task: start
       - sleep 5
-      - task: commit
-        vars:
-          RELEASE: 20230801.00
       - task: release
         vars:
           RELEASE: 20230801.00
 
   mount:
+    desc: show the exported nfs root filesystem
     cmds:
       - mkdir -p /tmp/test
       - sudo mount -t nfs -o vers=4,loud,retry=0,timeo=5 192.168.124.1:/ /tmp/test
@@ -100,7 +106,18 @@ tasks:
         sudo virsh net-start livenet
         ${_compose} down
 
+  logs:
+    desc: show logs
+    cmds:
+      - tail -f -n 100 /tmp/log/syslog
+
+  rsyslog:
+    desc: "launch a rsyslog server"
+    cmds: 
+      - bash ./scripts/rsyslog.sh
+
   vm:disk:
+    desc: create a raw disk for the test VM client
     cmds:
       - |
         [ -f ${DISK} ] || qemu-img create -f qcow2 -o preallocation=metadata ${DISK} 60G
@@ -167,7 +184,8 @@ tasks:
           -drive id=vda,file=${DISK} \
           -boot d
 
-  rsyslog:
-    desc: "launch a rsyslog server"
-    cmds: 
-      - bash ./scripts/rsyslog.sh
+  vm:ssh:
+    desc: "connect to client node (vm test only)"
+    cmds:
+      - ssh root@192.168.124.18
+

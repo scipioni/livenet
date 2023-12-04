@@ -59,7 +59,7 @@ do_make_home() {
 }
 
 
-ping -c1 homes
+ping -c1 scibiohome-nfs-srv.di.univr.it
 
 stat ${HOME}
 #sleep 3

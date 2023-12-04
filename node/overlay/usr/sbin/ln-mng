@@ -328,8 +328,8 @@ do_commit() {
         fi
     done < /dev/stdin
 
-    echo "VERSION=${RELEASE}" > ${FLAG_VERSION}
-    echo ${FLAG_VERSION} >> ${COMMIT}
+    echo "RELEASE=${RELEASE}" > ${FLAG_RELEASE}
+    echo ${FLAG_RELEASE} >> ${COMMIT}
 
     #tar -c --exclude=/run --exclude=/proc --exclude=/sys --exclude=/var/tmp --exclude=/tmp -T ${COMMIT}  | pigz > /mnt/releases/${RELEASE}-diff.tar.gz
     tar -c --exclude-from=/etc/livenet/exclude -T ${COMMIT}  | pigz > /mnt/releases/${RELEASE}-diff.tar.gz

@@ -1,5 +1,5 @@
-#[LightDM]
-#sessions-directory=/etc/livenet/sessions
+[LightDM]
+sessions-directory=/etc/livenet/sessions
 
 [Seat:*]
 greeter-session=web-greeter

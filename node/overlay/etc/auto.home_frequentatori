@@ -1,0 +1,4 @@
+#!/bin/sh
+ 
+/etc/auto.magic $1 "scibiohome-nfs-srv.di.univr.it:/home/accounts/frequentatori"
+exit 0

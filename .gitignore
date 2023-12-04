@@ -1,3 +1,10 @@
-livenet-server.git/
-livenet-client.git
-node/appunti/
+*.tar
+.docker*
+/node/runtime
+/node/releases
+/node/appunti
+.env
+/node/overlay/boot/
+/node/overlay/etc/livenet/release
+/from_old_livenet
+/server

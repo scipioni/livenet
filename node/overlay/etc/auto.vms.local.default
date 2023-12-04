@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/etc/auto.magic $1 "vms:/livenet/vms-old"
+exit 0
+
