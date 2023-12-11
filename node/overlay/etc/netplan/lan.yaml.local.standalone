@@ -1,0 +1,11 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eno1:
+      dhcp4: true
+      nameservers:
+        addresses: [157.27.0.1,157.27.0.10]
+    enp1s0:
+      dhcp4: false
+

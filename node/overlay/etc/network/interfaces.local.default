@@ -1,0 +1,21 @@
+auto lo
+iface lo inet loopback
+
+allow-hotplug eth0
+iface eth0 inet dhcp
+
+allow-hotplug eth1
+iface eth0 inet manual
+
+allow-hotplug wlan0
+iface wlan0 inet manual
+
+#auto br-vm
+#iface br-vm inet static
+#    address 192.168.100.1
+#    netmask 255.255.255.0
+#    bridge_stp off
+#    bridge_fd 0
+#    pre-up brctl addbr br-vm
+#    post-down brctl delbr br-vm
+

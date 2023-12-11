@@ -1,0 +1,6 @@
+/home/accounts/esterni program:/etc/auto.home_esterni --timeout=5 
+/home/accounts/personale program:/etc/auto.home_personale --timeout=5
+/home/accounts/studenti program:/etc/auto.home_studenti --timeout=5
+/home/accounts/frequentatori program:/etc/auto.home_frequentatori --timeout=5
+/mnt /etc/auto.vms --timeout=5 --ghost
+

@@ -158,6 +158,8 @@ sources=[('xkb', 'it'), ('xkb', 'us+symbolic')]
 EOF
    chroot ${roottmppath} /bin/sh -c "dconf update"
 
+   chroot ${roottmppath} /bin/sh -c "chmod 765 /etc/livenet/kiosk" 
+
     for i in proc dev sys; do
         umount ${roottmppath}/$i
     done

@@ -1,0 +1,7 @@
+#/home/accounts/esterni /etc/auto.test --ghost
+/home/accounts/esterni program:/etc/auto.home_esterni
+/home/accounts/personale program:/etc/auto.home_personale 
+/home/accounts/studenti program:/etc/auto.home_studenti  
+#/home/accounts/frequentatori program:/etc/auto.home_frequentatori --timeout=10 --ghost
+/mnt /etc/auto.vms --timeout=5 --ghost
+
