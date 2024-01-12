@@ -92,7 +92,7 @@ do_install() {
         sleep 2
     fi
     echo "Formatting root partition by-partlabel ${ROOT_LABEL} ..."
-    mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-partlabel/${ROOT_LABEL}
+    mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-label/${ROOT_LABEL}
 
     start_time=$(date +%s)
 
@@ -146,7 +146,7 @@ do_install() {
     # FIX: /tmp/.LROOT//etc/livenet/release_  senza release
     # Ho camiato tutto il ristema di RELEASE. 
     # Prende dal server in esecuzione la release e la scrive nel disco fisso della macchina
-    ${LIVENET_RELEASES_MNT}/*-full.tar.* | tail -n1 | cut -d'-' -f1 > ${roottmppath}/etc/livenet/release
+    echo "RELEASE=$(echo $(basename ${archive}) | cut -d'-' -f1)" > ${roottmppath}/etc/livenet/release
     touch ${roottmppath}/${FLAG_RELEASE}
     echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
     echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
