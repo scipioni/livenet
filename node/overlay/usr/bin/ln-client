@@ -27,30 +27,64 @@ EOF
 }
 
 SHORTOPTS="hv"
-LONGOPTS="help,version,install,install-with-gui,grub-update,boot:,force,standalone,sync-state,reset-lightdm,session-wait,user:,scan:,shutdown,kiosk,kiosk-loop,monitors-clone,vboxsetup"
+LONGOPTS="help,version,test-install,install,install-with-gui,grub-update,boot:,force,standalone,sync-state,reset-lightdm,session-wait,user:,scan:,shutdown,kiosk,kiosk-loop,monitors-clone,vboxsetup"
 
 ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@")
 eval set -- "$ARGS"
 
+do_test_install() {
+    # Test per la formattazione dei dischi in dual boot 
+    # prendendo al tabella da file (stile OPENHPC)
+    echo "test"
+    eval $(lsblk -bnPdo size,name,tran,type,subsystems,serial | grep -v loop | sort -n | tail -1)
+    DISK=/dev/$NAME
+    echo "disk: $DISK"
+    wipefs -f $DISK
+    file="/ro/mnt/releases/sda_partition"
+    while IFS= read -r line; do
+        parted --script ${DISK} $line
+        # display $line or do somthing with $line
+        printf '%s\n' "$line"
+    done <"$file"
+}
+
 do_install() {
+    # lsblk -ndo name,tran | grep -v loop | sort
+
+    #parted ${DISK} --script -- mkpart primary 0% 100%
+    #parted --script ${DISK}  mklabel gpt mkpart primary 1MiB 100MiB mkpart primary 100MiB 200MiB
+    # Seleziona il device più grosso (nuova euristica)
+    eval $(lsblk -bnPdo size,name,tran,type,subsystems,serial | grep -v loop | sort -n | tail -1)
+
     #DEVICE=eth0
     if [ ! -f /${STATETMP}/net-*.conf ]; then
         echo "Works only in nfs mode"
         exit 1
     fi
 
+    # Dobbiamo gestire i tre casi previsti da Rambaldelli
+    # ALLLLT FERMATO TUTTO forse ECDL viene messa su VM
+    # if [ "${LIVENET_ACTION}" = "install_dual" ]; then
+    #     echo "Dual installation "
+    # elif [ "${LIVENET_ACTION}" = "install_dual_ssd" ]; then
+    #     echo "Dual ssd installation "
+    # else
+    #     echo "default"
+    # fi
     if [ ! -e /dev/disk/by-label/${ROOT_LABEL} ]; then
-    #if [ "${LIVENET_FORMAT}" = "yes" ]; then
+        #if [ "${LIVENET_FORMAT}" = "yes" ]; then
         echo "No ${ROOT_LABEL} present, formatting disk required..."
-        DISK=/dev/sda # TODO, selezionarlo tra sda,vda,nvme
+        # Nuova euristica
+        DISK=/dev/$NAME
+        # DISK=/dev/sda # TODO, selezionarlo tra sda,vda,nvme
         wipefs -af $DISK
 
         # legacy (BIOS) booting:
-        sgdisk -a1 -n1:34:2047 -t1:EF02 $DISK
+        sgdisk -a1 -n1:40:2047 -t1:EF02 $DISK
 
         # UEFI booting
         sgdisk -n2:1M:+512M -t2:EF00 $DISK
-        #parted $DISK set 2 bios_grub on # needed for embedding grub in this partition 
+        #parted $DISK set 2 bios_grub on # needed for embedding grub in this partition
         mkfs.fat -F32 ${DISK}2
         parted $DISK set 2 esp on
 
@@ -86,6 +120,7 @@ do_install() {
     fi
 
     # find latest tarball available
+    # Prendo quindi l'ultima FULL e la userò in releases
     archive=$(ls ${LIVENET_RELEASES_MNT}/*-full.tar.* | tail -n1)
     if [ -z "${archive}" ]; then
         echo "No image tarball found. Create it with task commit"
@@ -109,13 +144,16 @@ do_install() {
     # ln -sf /${ALLUPDATES}/${update} ${roottmppath}${UPDATE_FLAG}
 
     # FIX: /tmp/.LROOT//etc/livenet/release_  senza release
+    # Ho camiato tutto il ristema di RELEASE. 
+    # Prende dal server in esecuzione la release e la scrive nel disco fisso della macchina
+    ${LIVENET_RELEASES_MNT}/*-full.tar.* | tail -n1 | cut -d'-' -f1 > ${roottmppath}/etc/livenet/release
     touch ${roottmppath}/${FLAG_RELEASE}
     echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
     echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
     # . /etc/livenet/boot/00-update.local ${roottmppath}
 
-# Tastiera
-    cat > ${roottmppath}/etc/X11/xorg.conf.d/00-keyboard.conf << EOF
+    # Tastiera
+    cat >${roottmppath}/etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
 Section "InputClass"
         Identifier "system-keyboard"
         MatchIsKeyboard "on"
@@ -128,7 +166,7 @@ EOF
 
     echo "Installing grub ..."
     # check /sys/firmware/efi
-    if [ -d "/sys/firmware/efi" ] ; then
+    if [ -d "/sys/firmware/efi" ]; then
         mkdir -p ${roottmppath}/boot/efi
         mount ${DISK}2 ${roottmppath}/boot/efi
         grub-install --efi-directory=${roottmppath}/boot/efi --boot-directory=${roottmppath}/boot
@@ -144,21 +182,21 @@ EOF
     chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
     chroot ${roottmppath} /bin/sh -c "ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
 
-   chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/dconf/profile"
-   chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/dconf/db/local.d"
-   cat > ${roottmppath}/etc/dconf/profile/user << EOF
+    chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/dconf/profile"
+    chroot ${roottmppath} /bin/sh -c "mkdir -p /etc/dconf/db/local.d"
+    cat >${roottmppath}/etc/dconf/profile/user <<EOF
 user-db:user
 system-db:local
 EOF
 
-   cat > ${roottmppath}/etc/dconf/db/local.d/01-keyboard << EOF
+    cat >${roottmppath}/etc/dconf/db/local.d/01-keyboard <<EOF
 [org/gnome/desktop/input-sources]
 per-window=false
 sources=[('xkb', 'it'), ('xkb', 'us+symbolic')]
 EOF
-   chroot ${roottmppath} /bin/sh -c "dconf update"
+    chroot ${roottmppath} /bin/sh -c "dconf update"
 
-   chroot ${roottmppath} /bin/sh -c "chmod 765 /etc/livenet/kiosk" 
+    chroot ${roottmppath} /bin/sh -c "chmod 765 /etc/livenet/kiosk"
 
     for i in proc dev sys; do
         umount ${roottmppath}/$i
@@ -172,7 +210,7 @@ EOF
 
 do_boot() {
     ROOTMOUNTED=$1
-    echo $ROOTMOUNTED > /etc/esecuzione
+    echo $ROOTMOUNTED >/etc/esecuzione
     for module in $(ls /etc/livenet/boot/*.default /etc/livenet/boot/*.${ROOTMOUNTED} | sort); do
         mm=$(basename ${module})
         if [ -x ${module} ]; then
@@ -405,6 +443,10 @@ while true; do
         ;;
     -v | --version)
         echo "$PROGVERSION"
+        ;;
+    --test-install)
+        check_jail
+        do_test_install
         ;;
     --install)
         check_jail

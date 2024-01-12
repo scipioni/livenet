@@ -9,13 +9,16 @@ tasks:
     cmds:
       - go-task -l
     silent: true
-
+    
+  root:
+    cmds:
+      - echo "{{.TASKFILE_DIR}}"
   build:
     desc: build livenet container
     cmds:
       - |
         RELEASE=$(date +%Y%m%d).00
-        echo ${RELEASE} > overlay/etc/livenet/release  
+        echo "RELEASE=${RELEASE}" > overlay/etc/livenet/release  
         sed -i "s/RELEASE=.*/RELEASE=${RELEASE}/" .env
         BUILDKIT_PROGRESS=plain ${_compose} build 
       - sudo rm -f releases/*
@@ -45,17 +48,17 @@ tasks:
       - |
         ID=$(${_docker} container ls --all --quiet --no-trunc --filter "name=${NODE}")
         NEW_RELEASE=$(scripts/release.sh)
-        
+        echo "NEW RELEASE: ${NEW_RELEASE}"
         ${_docker} diff ${NODE} | ${_compose} exec -T lnode ln-mng --commit $NEW_RELEASE
         ${_docker} commit ${ID} livenet/node:${NEW_RELEASE}
+        #echo "RELEASE=${NEW_RELEASE}" > overlay/etc/livenet/release
         sed -i "s/RELEASE=.*/RELEASE=${NEW_RELEASE}/" .env
-        echo ${RELEASE} > overlay/etc/livenet/release
         ${_compose} down      
-        while [ "$( docker container inspect -f '{{.State.Status}}' ${NODE} )" = "running" ]; do
-            sleep 5
-        done
+        # while [ "$( docker container inspect -f '{{.State.Status}}' ${NODE} )" = "running" ]; do
+        #     sleep 5
+        # done
 
-        ${_compose} up -d
+        # ${_compose} up -d
   
   release:
     desc: create a major release.

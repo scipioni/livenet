@@ -300,6 +300,9 @@ do_clean() {
 }
 
 do_commit() {
+    # A	A file or directory was added
+    # D	A file or directory was deleted
+    # C A file or directory was changed
     . /etc/livenet/livenet.conf
     RELEASE=$1
     COMMIT=/tmp/commit.txt
@@ -313,7 +316,7 @@ do_commit() {
         operation=${tmp[0]}
         entity=${tmp[1]}
         if [ $operation = "C" ] || [ $operation = "A" ]; then
-            #echo "operation:${operation} entity:${entity}"
+            logger -n 192.168.124.1 -P 5140 -t "do_commit"  "operation:${operation} entity:${entity}"
             if [ -f "${entity}" ]; then
                 echo "${entity}" >> ${COMMIT}
             else

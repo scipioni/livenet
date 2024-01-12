@@ -1,3 +1,10 @@
+#FIX
+#cp: impossibile creare il file regolare '/etc/security/access.conf': Permesso negato
+if [ $(id -u) -ne 0 ]; then
+  logger -t "pam" "killtty eseguito non root"
+  exit 0
+fi
+
 pgrep kvm
 if [ $? -eq 0 ]; then
    for i in `seq 1 6`;
