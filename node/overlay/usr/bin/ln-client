@@ -92,15 +92,15 @@ do_install() {
         sleep 2
     fi
     echo "Formatting root partition by-partlabel ${ROOT_LABEL} ..."
-    mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-label/${ROOT_LABEL}
+    mkfs.ext4 -q -F -L ${ROOT_LABEL} /dev/disk/by-partlabel/${ROOT_LABEL}
 
     start_time=$(date +%s)
 
-    (sleep 2 && tune2fs -i0 -c0 /dev/disk/by-label/${ROOT_LABEL} >/dev/null 2>&1) &
+    (sleep 2 && tune2fs -i0 -c0 /dev/disk/by-partlabel/${ROOT_LABEL} >/dev/null 2>&1) &
 
-    if [ -e /dev/disk/by-label/${SWAP_LABEL} ]; then
+    if [ -e /dev/disk/by-partlabel/${SWAP_LABEL} ]; then
         echo -n "Formatting swap ${SWAP_LABEL} ..."
-        mkswap -L ${SWAP_LABEL} /dev/disk/by-label/${SWAP_LABEL} >/dev/null 2>&1
+        mkswap -L ${SWAP_LABEL} /dev/disk/by-partlabel/${SWAP_LABEL} >/dev/null 2>&1
         [ $? = 0 ] && echo "OK"
     else
         echo "Continue without partition labelled LSWAP"

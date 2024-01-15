@@ -37,7 +37,8 @@ fi
 eval $(fstype < ${ROOT}) # Get the root filesystem type
 modprobe ${FSTYPE}
 
-seconds=10 # wait 10 seconds to have disk module (important for scsi driver)
+# FIX: Non c'e' il disco scsi. Provo ad abbassarlo da 10 a 2
+seconds=2 # wait 10 seconds to have disk module (important for scsi driver)
 while [ 1 ]; do
     if [ -e "${ROOT}" ]; then
         break

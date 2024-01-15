@@ -33,7 +33,7 @@ systemctl is-active --quiet autofs && echo "Autofs is ok"
 log_lightdm "Caricamento HOME utente..."
 
 HOME=$(getent passwd ${PAM_USER} | awk -F':' '{print $6}')
-logger -t "01_nac" "Caricament home (${HOME}) per l'utente ${PAM_USER}"
+logger -t "05_home" "Caricament home (${HOME}) per l'utente ${PAM_USER}"
 localgroups=$( groups ${PAM_USER} )
 
 for SKEL in /etc/skel-${PAM_USER} /etc/skel; do

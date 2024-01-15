@@ -33,7 +33,7 @@ LANG=en
 #modprobe nfsv3 >/dev/null &
 modprobe nfsv4 >/dev/null &
 
-go_log "Environment "
+do_log "Environment "
 do_log "    root ----> ${ROOT}"
 do_log "    rootmnt ----> ${rootmnt}"
 do_log "    nfsro ----> ${NFSRO}}"
@@ -55,7 +55,6 @@ touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 
 # Aspetta che il modulo nfsv4 sia installato
 wait # nfs module go in background 
-
 
 #nfsv4
 mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
