@@ -23,6 +23,11 @@ apt-get update && \
   # wget curl \
   # && apt-get clean
 
+
+apt-add-repository -y ppa:mozillateam/ppa
+apt-update && apt-get install --q -y firefox
+
+
 echo /usr/sbin/lightdm > /etc/X11/default-display-manager 
 dpkg-reconfigure -fnoninteractive lightdm
 
