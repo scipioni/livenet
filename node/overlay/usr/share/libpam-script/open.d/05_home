@@ -19,6 +19,8 @@ logger -t "05_home" "Esecuzione..."
 [ $(id -u ${PAM_USER}) -lt 500 ] && exit 0
 
 . /etc/livenet/livenet.conf
+# Elimina tutte le cartelle temporanee dehli utenti senza home
+rm -rf /home/tmp/*
 
 set +e
 #set -x
