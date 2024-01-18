@@ -153,6 +153,8 @@ RUN ./packages.sh
 ########################################################
 ####### overlay and initramfs ##########################
 ########################################################
+
+
 FROM packages
 
 # Copia tuttle le personalizzazioni perché vengano inserite nell'immagine
@@ -160,5 +162,8 @@ COPY ./overlay/ /
 RUN mkdir -p /var/cache/livenet
 RUN RESUME=auto update-initramfs -c -k all
 RUN ln-mng --profiles
+# Script per eventuali operazioni prima della chiusura dell'immagine
+COPY ./assets_compose/custom.sh /tmp
 
+RUN /tmp/custom.sh
 CMD ["/usr/local/bin/entrypoint.sh"]
