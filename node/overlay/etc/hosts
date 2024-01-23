@@ -1,1 +1,8 @@
-127.0.0.1 localhost.localdomain localhost
+127.0.0.1   localhost livenet-client
+157.27.6.90 livenet-host vms
+157.27.31.109 homes
+2.112.192.9  rdgmom.industrysoftware.automation.siemens.com
+::1     localhost ip6-localhost ip6-loopback
+ff02::1     ip6-allnodes
+ff02::2     ip6-allrouters
+157.27.6.83 syslog

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 docker rm --force rsyslog
-sudo rm -r /tmp/{conf,log}
+sudo rm -fr /tmp/{conf,log}
 mkdir -p /tmp/{conf,log}
 touch /tmp/log/syslog
 
