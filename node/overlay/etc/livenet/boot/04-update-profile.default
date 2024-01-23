@@ -1,6 +1,0 @@
-. /scripts/functions-livenet
-
-do_log "Saving profile ${PROFILE}"
-
-update-alternatives --set livenet.conf /etc/livenet/local/livenet.conf.nfs.${PROFILE}
-

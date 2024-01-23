@@ -1,6 +1,12 @@
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "30-install" "Inizio esecuzione"
 if [ "${LIVENET_ACTION}" = "install" ] || [ "${LIVENET_ACTION}" = "install_force" ]; then
     service_switch ln-install on
-    update-alternatives --set lightdm.conf /livenet/etc/lightdm/lightdm.conf.local.special
+    # FIX PATH errato
+    #update-alternatives --set lightdm.conf /livenet/etc/lightdm/lightdm.conf.local.special
+    update-alternatives --set lightdm.conf /etc/lightdm/lightdm.conf.nfs.special
+     
 else
     service_switch ln-install off
 fi
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "30-install" "Esecuzione terminata"
+

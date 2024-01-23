@@ -13,7 +13,7 @@
 
 
 ###[ "${PAM_SERVICE}" = "systemd-user" ] || exit 0
-logger -t "05_home" "Esecuzione..."
+TIME_NOW=$(date +%s)
 
 [ "${PAM_SERVICE}" = "lightdm" ] || [ "${PAM_SERVICE}" = "login" ] || exit 0
 [ $(id -u ${PAM_USER}) -lt 500 ] && exit 0
@@ -33,6 +33,7 @@ systemctl is-active --quiet autofs && echo "Autofs is ok"
 log_lightdm "Caricamento HOME utente..."
 
 HOME=$(getent passwd ${PAM_USER} | awk -F':' '{print $6}')
+
 logger -t "05_home" "Caricament home (${HOME}) per l'utente ${PAM_USER}"
 localgroups=$( groups ${PAM_USER} )
 
@@ -106,6 +107,6 @@ fi
 #		do_make_home
 #    fi
 #fi
-
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "05_home" "Execution time: $(( $(date +%s) - $TIME_NOW )) seconds"
 exit 0
 

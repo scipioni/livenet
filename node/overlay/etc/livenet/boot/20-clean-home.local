@@ -1,12 +1,18 @@
+#!/bin/bash
+
 # cancelliamo le homes temporanee /home/* eccetto /home/ssm
-# se si utilizza zfs, esegue il rollback
-#find /home/ -maxdepth 1 -type d -a ! -name "home" ! -name "ssm" -exec rm -fR {} \;
-LASTSNAP=$(zfs list -t snapshot -o name | grep accounts | tail -1)
+for f in `ls /home/tmp/*/.temporary 2>/dev/null`; do
+   if [ -f $f ]; then
+      chattr -i $f
+   fi
+done
 
-zfs roolback -r $LASTSNAP
+find /home/tmp/ -maxdepth 1 -type d -a ! -name "tmp" ! -name "livenet" ! -name "ssm" -exec rm -fR {} \;
 
+#find /home/tmp/ -maxdepth 1 -type d -a -exec rm -fR {} \;
+
+#zfs roolback -r rpool/home/accounts@snap0
 # cancelliamo tutte le homes temporanee /home/*
-#find /home/ -maxdepth 1 -type d -a ! -name "home" ! -name "ssm" -exec rm -fR {} \;
 
 # prepariamo il mount point di autofs
 #mkdir -p /home/accounts

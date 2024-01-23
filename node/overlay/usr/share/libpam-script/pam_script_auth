@@ -23,6 +23,6 @@ if [ "${PAM_SERVICE}" = "login" ] || [ "${PAM_SERVICE}" = "gdm-password" ] || [ 
         chown ${PAM_USER} ${WPACONF}
     fi
 fi
-
+logger -t "PAM SCRIPT AUTH"  "Script terminato"
 # to allow deny of login (with exit 0 user can enter with wrong password!!!)
 exit 1

@@ -6,6 +6,14 @@ FLAGLONGOP=/tmp/.vms_sync
 
 . /etc/livenet/livenet.conf
 
+# Esempio file di configurazione
+#[biblio]
+#name=biblio
+#description=Una descrizione
+#master=/mnt/vms/${name}
+#local=/vms/${name}
+#update=true
+
 for CONFIG_FILE in vms.conf /etc/livenet/vms.conf; do
     [ -f ${CONFIG_FILE} ] && break
 done
@@ -22,7 +30,6 @@ EOF
 }
 
 function do_parse() {
-    
     SECTION=$1
     unset name description master update local 
     eval $( sed -e 's/[[:space:]]*\=[[:space:]]*/=/g' \
@@ -37,6 +44,8 @@ function do_parse() {
 }
 
 function do_sync() {
+    # FIXME Questo IP è il vecchio livenet server. parametrizzarlo
+    # Check rete
     ping -c2 157.27.6.90
     systemctl stop autofs
     systemctl start autofs
@@ -44,14 +53,22 @@ function do_sync() {
 	echo "no network"
 	exit 1
     fi
-#    mount -t nfs 157.27.6.90:/livenet/vms /mnt/vms
+
+    # FIXME l'autofs funzia?
+    #mkdir -p /mnt/vms
+    #mount -t nfs 157.27.6.90:/livenet/vms /mnt/vms
+
     ls /mnt/vms
+    # Crea la lista delle sezioni prelevando tutti i contenuti tra []
     SECTIONS=$( sed -n -e "s/^\[\(\w\+\)\].*/\1/p" < ${CONFIG_FILE} )
     for SECTION in ${SECTIONS}; do
         do_parse ${SECTION}
         [ "${update}" = "true" ] || continue
         [ -n "${local}" ] || continue
-
+        # Condizioni: 
+        # update=true
+        # local valorizzato
+        # deve esistere la directory master
         if [ -n "${master}" ] && [ -d ${master} ]; then
             mkdir -p ${local}
             cd ${local}

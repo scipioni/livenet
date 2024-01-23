@@ -1,2 +1,0 @@
-mkdir -p /var/log/clamav
-#chown clamav:clamav /var/log/clamav 2>&1 >/dev/null

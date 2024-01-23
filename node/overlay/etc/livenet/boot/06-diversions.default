@@ -1,0 +1,6 @@
+TIME_NOW=$(date +%s)
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Esecuzione aggiornamento alternative"
+for i in $(cat ${DIVERSIONS}); do
+     do_update_alternatives $i
+done
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Execution time: $(( $(date +%s) - $TIME_NOW )) seconds"

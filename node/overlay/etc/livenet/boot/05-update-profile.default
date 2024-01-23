@@ -1,0 +1,10 @@
+TIME_NOW=$(date +%s)
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Esecuzione aggiornamento profilo (${PROFILE})"
+#. /scripts/functions-livenet
+
+#do_log "Saving profile ${PROFILE}"
+
+update-alternatives --set livenet.conf /etc/livenet/local/livenet.conf.nfs.${PROFILE}
+
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Execution time: $(( $(date +%s) - $TIME_NOW )) seconds"
+

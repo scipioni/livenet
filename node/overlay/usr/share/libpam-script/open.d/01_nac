@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+TIME_NOW=$(date +%s)
 TIMEOUT_NAC=15
 
 #exec > /tmp/start 2>&1
@@ -56,7 +56,7 @@ if [ "${PAM_SERVICE}" = "login" ] || [ "${PAM_SERVICE}" = "gdm-password" ] || [ 
                 ip addr flush dev  ${DEVICE}
                 dhclient ${DEVICE}
                 log_lightdm "AUTENTICAZIONE DI RETE FALLITA"
-                logger -t "01_nac" "Autenticazione utente ${PAM_USER} fallita."
+                logger -t "01_nac" "Autenticazione utente ${PAM_USER} fallita dopo $$(( $(date +%s) - $TIME_NOW )) seconds"
                 # pam exit at login (see pam.d/common-session)
                 exit 100
             fi
@@ -73,5 +73,5 @@ if [ "${PAM_SERVICE}" = "login" ] || [ "${PAM_SERVICE}" = "gdm-password" ] || [ 
 #	sleep 5
     fi
 fi
-
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "01_nac" "Execution time: $(( $(date +%s) - $TIME_NOW )) seconds"
 exit 0

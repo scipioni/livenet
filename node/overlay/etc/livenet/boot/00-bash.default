@@ -4,4 +4,4 @@
 do_log "Attivazione shell di debug durante boot"
 /sbin/getty -l sh -n 38400 tty0
 /sbin/getty -l sh -n 38400 tty0
-#/bin/bash
+/bin/bash

@@ -1,5 +1,7 @@
 echo "upgrade"
 
+TIME_NOW=$(date +%s)
+
 
 source /etc/livenet/livenet.conf
 
@@ -21,24 +23,24 @@ _upgrade_to() {
 rsync -a --chown=0:0 ${LIVENET_ROOT_IP}::version/release /tmp/server_release
 remote_version=$(cat /tmp/server_release | cut -d'=' -f2)
 
-logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "02-upgrade" "Running server version: ${remote_version} ..."
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Running server version: ${remote_version} ..."
 
 for filename in ${LIVENET_RELEASES_MNT}/*-diff.tar.gz; do
     local_version=$(cat /etc/livenet/release | cut -d'=' -f2)
-    logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "02-upgrade" "Actual client version: ${local_version} ..."
+    logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Actual client version: ${local_version} ..."
     
-    [ -f $filename ] || exit 0
+    [ -f $filename ] || continue
     #remote_version=$(basename $filename | sed "s/-.*//")
     
     if [ ${remote_version/./} -gt ${local_version/./} ]; then
-        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "02-upgrade" "Upgrading to ${filename/-*/} ..."
+        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Upgrading to ${filename/-*/} ..."
         _upgrade_to ${filename/-*/}
     else
-        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "02-upgrade" "Client and server version match"
+        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Client and server version match"
     fi
 done
-
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Unmount  ${LIVENET_RELEASES_MNT}"
 umount ${LIVENET_RELEASES_MNT}
 
-
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Execution time: $(( $(date +%s) - $TIME_NOW )) seconds"
 

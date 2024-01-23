@@ -1,5 +1,0 @@
-. /conf/functions-livenet
-
-do_log "Starting clamav"
-
-service_switch clamav-freshclam on

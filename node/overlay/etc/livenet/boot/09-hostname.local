@@ -1,0 +1,8 @@
+devname=$(ip address | grep 'state UP' | awk '{print $2}' | sed s/://g)
+
+newhostname=$(ip address show dev $devname | grep ether | awk '{print $2}' | sed s/://g)
+
+echo "livenet-client-$newhostname" > /etc/hostname
+
+grep -q "${newhostname}" /etc/hosts || (echo "127.0.1.1 livenet-client-$newhostname" >> /etc/hosts)
+

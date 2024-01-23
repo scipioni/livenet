@@ -15,6 +15,7 @@ usage() {
     --standalone: revert image to standalone mode
     --reset-lightdm: clean lightdm between sessions
     --session-wait: exec ratpoison session with message
+    --session-start: start of a session
     --user <user> --scan <path>: execute clamav and remount share in rw for user
     --shutdown: called from acpid. Used to shutdown only in lightdm login screen.
     --kiosk: kiosk session
@@ -27,7 +28,7 @@ EOF
 }
 
 SHORTOPTS="hv"
-LONGOPTS="help,version,test-install,install,install-with-gui,grub-update,boot:,force,standalone,sync-state,reset-lightdm,session-wait,user:,scan:,shutdown,kiosk,kiosk-loop,monitors-clone,vboxsetup"
+LONGOPTS="help,version,test-install,install,install-with-gui,grub-update,boot:,force,standalone,sync-state,reset-lightdm,session-start,session-wait,user:,scan:,shutdown,kiosk,kiosk-loop,monitors-clone,vboxsetup"
 
 ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@")
 eval set -- "$ARGS"
@@ -147,10 +148,11 @@ do_install() {
     # Ho camiato tutto il ristema di RELEASE. 
     # Prende dal server in esecuzione la release e la scrive nel disco fisso della macchina
     echo "RELEASE=$(echo $(basename ${archive}) | cut -d'-' -f1)" > ${roottmppath}/etc/livenet/release
-    touch ${roottmppath}/${FLAG_RELEASE}
-    echo "LIVENET_ROOT=${LIVENET_ROOT}" >>${roottmppath}/etc/livenet/local/host.conf
+    # FIX A che serve?
+    echo "LIVENET_ROOT=${LIVENET_ROOT}" >> ${roottmppath}/etc/livenet/local/host.conf
+    
     echo -n " LIVENET_ROOT=${LIVENET_ROOT} " >>${roottmppath}/etc/default/grub.options
-    # . /etc/livenet/boot/00-update.local ${roottmppath}
+    
 
     # Tastiera
     cat >${roottmppath}/etc/X11/xorg.conf.d/00-keyboard.conf <<EOF
@@ -177,6 +179,12 @@ EOF
     for i in proc dev sys; do
         mount -o bind /$i ${roottmppath}/$i
     done
+
+    # TODO & FIX sed $PROFILE in ${roottmppath}/etc/grub.cfg
+    # nel client trovo ancora a default il profilo
+    # e l'alternatives a default
+    sed -i "s/default/${PROFILE}/g" ${roottmppath}/etc/default/grub
+    cp ${roottmppath}/etc/default/grub ${roottmppath}/grub_cancellami
     chroot ${roottmppath} update-grub
     echo "Saving profile ${PROFILE}"
     chroot ${roottmppath} /bin/sh -c ". /etc/livenet/livenet.conf; do_update_alternatives /etc/livenet/local/livenet.conf"
@@ -209,6 +217,7 @@ EOF
 }
 
 do_boot() {
+    logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "do_boot" "Start with ROOTMOUNTED=$1"
     ROOTMOUNTED=$1
     echo $ROOTMOUNTED >/etc/esecuzione
     for module in $(ls /etc/livenet/boot/*.default /etc/livenet/boot/*.${ROOTMOUNTED} | sort); do
@@ -220,6 +229,7 @@ do_boot() {
             do_log "Skip ${mm}"
         fi
     done
+    logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "do_boot" "Exiting"
 }
 
 do_standalone() {
@@ -435,6 +445,27 @@ check_jail() {
     fi
 }
 
+do_ramflush() {
+    sudo sync
+    sudo /sbin/sysctl vm.drop_caches=3
+
+}
+do_killtty() {
+if [[ ${USER} =~ (moodle|moodleext) ]] ; then
+                for i in `seq 1 6`;
+                do
+                        outid=`pgrep -t tty"$i" bash`
+                        if [ $? = 0 ]; then
+                                kill -9 $outid
+                        fi
+                done
+                cp /etc/security/access.conf.${USER} /etc/security/access.conf
+
+        else
+                cp /etc/security/access.conf.default /etc/security/access.conf
+        fi
+}
+
 while true; do
     case $1 in
     -h | --help)
@@ -449,8 +480,10 @@ while true; do
         do_test_install
         ;;
     --install)
+        TIME_NOW=$(date +%s)
         check_jail
         do_install
+        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "install" "Execution time: $(( $(date +%s) - $TIME_NOW )) seconds"
         if [ "${LIVENET_ACTION_END}" = "halt" ]; then
             halt -p
         fi
@@ -464,13 +497,15 @@ while true; do
             echo "no livenet_action=install in cmdline"
             exit 0
         fi
+        TIME_NOW=$(date +%s)
         check_jail
         update-alternatives --set lightdm.conf /etc/lightdm/lightdm.conf.nfs.special
-        systemctl restart lightdm
+        systemctl restart display-manager
         do_install
         sleep 5
         update-alternatives /etc/lightdm/lightdm.conf
-        systemctl restart lightdm
+        systemctl restart display-manager
+        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "install-with-gui" "Execution time: $(( $(date +%s) - $TIME_NOW )) seconds"
         if [ "${LIVENET_ACTION_END}" = "halt" ]; then
             halt -p
         fi
@@ -506,6 +541,10 @@ while true; do
         do_session_wait
         break
         ;;
+    --session-start)
+        do_killtty
+        break
+        ;;    
     --user)
         shift
         USER=$1

@@ -316,7 +316,7 @@ do_commit() {
         operation=${tmp[0]}
         entity=${tmp[1]}
         if [ $operation = "C" ] || [ $operation = "A" ]; then
-            logger -n 192.168.124.1 -P 5140 -t "do_commit"  "operation:${operation} entity:${entity}"
+            logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT}  -t "do_commit"  "operation:${operation} entity:${entity}"
             if [ -f "${entity}" ]; then
                 echo "${entity}" >> ${COMMIT}
             else
