@@ -11,4 +11,5 @@ EOF
 chmod +x ${roottmppath}/etc/X11/xorg.conf.d/00-keyboard.conf
 sed -i 's/^XKBLA.*/XKBLAYOUT="it"/' ${roottmppath}/etc/default/keyboard
 
-useradd -u 499 -d /var/tmp install
+useradd -u 499 -g users -s /bin/false -d /var/tmp -c "system account" install
+

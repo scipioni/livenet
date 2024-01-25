@@ -28,7 +28,7 @@ export class Authenticate {
             
             console.log(this._username + "   " + this._password);
             // This should prompt for the user
-            window.lightdm?.authenticate(null);
+	    window.lightdm?.authenticate(null);
             //this._respond();
         });
     }
@@ -79,8 +79,8 @@ export class Authenticate {
         if (body)
             body.style.opacity = "0";
         await window.wait(1000);
-        console.log("Session started with", defSession);
-        window.lightdm?.start_session(defSession?.key ?? window.lightdm.default_session);
+        console.log("Session started with", defSession.key);
+	window.lightdm?.start_session(defSession?.key ?? window.lightdm.default_session);
     }
     async _authenticationFailed() {
         console.log("Autenticazione - _authenticationFailed");
@@ -116,6 +116,7 @@ export class Authenticate {
     }
     setAuthenticationDone() {
         console.log("Autenticazione - setAuthenticationDone");
+	
         window.lightdm?.authentication_complete.connect(() => {
             if (window.lightdm?.is_authenticated) {
                 this._authenticationDone();

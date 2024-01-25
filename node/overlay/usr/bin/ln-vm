@@ -30,6 +30,9 @@ SPICE_PORT=5900
 SEAMLESSMODE=false
 
 # qemu
+# Uso di pulse audio.
+# IMPORTANTE!!!!!! Se lanci questo script come utente root, la vm non partirà
+# Il tuo utente deve avere accessi totali alla
 export QEMU_AUDIO_DRV=pa
 #export QEMU_AUDIO_TIMER_PERIOD=0
 KVM_SOUND="-soundhw hda"
@@ -136,29 +139,29 @@ function gui_stop() {
 }
 
 function update_vm_date() {
-    set -x
     [ -f ${VM_IMG} ] || return
     TSTAMP=$(stat -c "%Y" ${VM_IMG})
     TSTAMP=$(( $TSTAMP + 2 )) # soglia necessaria
     VM_DATE=$( date +"%Y%m%d%H%M.%S" --date='@'${TSTAMP} )
     umask 0002
+    echo touch ${FLAG_DATE} -t ${VM_DATE}
     touch ${FLAG_DATE} -t ${VM_DATE}
 }
 
 function set_params_kvm() {
-    echo "running kvm"
+    echo "setting kvm"
     VM_IMG=${CURRENT}/vm.img
     SESSION_IMG=${CURRENT}/.session.img
     VM_OPTIONS=""
     VM_OPTIONS_VBOX=""
-    echo $VM_IMG
+    echo VM is: $VM_IMG end session is : $SESSION_IMG
     update_vm_date
 }
 
 
 function set_params() {
     [ -n "${CURRENT}" ] || CURRENT=$(pwd)
-    echo $CURRENT
+    echo "Current directory: $CURRENT"
     VM_TYPE=kvm
     if [ -f ${CURRENT}/.setup ]; then
         . ${CURRENT}/.setup
@@ -430,7 +433,8 @@ function do_check() {
 # Assing permission to directory
 ##
 function do_permissions() {
-    chown -R livenet:kvm ${CURRENT} 2>/dev/null
+    echo "Assign permission to $CURRENT directory and relative contents"
+    chown -R root:kvm ${CURRENT} 2>/dev/null
     chmod -R g-w+r ${CURRENT} 2>/dev/null
     chmod g+w+x+r ${CURRENT} 2>/dev/null
 }

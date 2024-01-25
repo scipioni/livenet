@@ -72,6 +72,7 @@ function do_sync() {
         if [ -n "${master}" ] && [ -d ${master} ]; then
             mkdir -p ${local}
             cd ${local}
+            # alziamo a 10 (default) per impattare meno il sistema
             nice ln-vm --sync ${master}
         fi
     done

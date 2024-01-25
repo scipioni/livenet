@@ -8,23 +8,23 @@ $(document).ready(function() {
 	log("hostname: " + lightdm.hostname);
 
 	//create a list of session options
-	var sessions = [];
+	// var sessions = [];
 
-	for ( i in lightdm.sessions ) {
-		var session = lightdm.sessions[i];
-		log("session: " + session.name);
-		if (session.name=='kiosk') continue;
-		if (session.name=='ssm') continue;
-		html_session = "<div class=\"radio\"><label>"+
-				"<input type=\"radio\" name=\"session\" value=\""+i+"\" ";
-		if (session.key==lightdm.default_session)
-			html_session += " checked ";
-		html_session += ">"+session.name+"</label></div>";
-		sessions.push(html_session);
+	// for ( i in lightdm.sessions ) {
+	// 	var session = lightdm.sessions[i];
+	// 	log("session: " + session.name);
+	// 	if (session.name=='kiosk') continue;
+	// 	if (session.name=='ssm') continue;
+	// 	html_session = "<div class=\"radio\"><label>"+
+	// 			"<input type=\"radio\" name=\"session\" value=\""+i+"\" ";
+	// 	if (session.key==lightdm.default_session)
+	// 		html_session += " checked ";
+	// 	html_session += ">"+session.name+"</label></div>";
+	// 	sessions.push(html_session);
 
-	}
+	// }
 
-	$("#session").append(sessions);
+	// $("#session").append(sessions);
 
 	$("#test").click( function() {
 		log("test...");

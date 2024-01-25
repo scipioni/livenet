@@ -1,0 +1,5 @@
+[biblio]
+name=biblio
+master=/mnt/vms/${name}
+local=/vms/${name}
+update=true
