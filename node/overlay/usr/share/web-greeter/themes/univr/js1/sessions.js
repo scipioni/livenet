@@ -1,8 +1,25 @@
+/*
+Oggetto sessioni: window.lightdm.sessions
+
+[
+{
+    comment: "kkk",
+    key: "ubuntu",  <-- il nome del file senza estensione .desktop
+    name: "Ubuntu", <-- il contenuto del campo name 
+    type: "x"       <-- Non lne ho idea
+}
+]
+
+la chiave della sessione di default: window.lightdm?.default_session
+
+*/
+
 export class Sessions {
     constructor() {
         this._sessionsButton = document.querySelector("#sessions-button");
         this._sessionsDropdown = document.querySelector("#sessions-dropdown");
         this._sessionLabel = document.querySelector("#sessions-button > .text");
+        // 
         this._selectedSession = null;
         this._sessionsObject = [];
 
@@ -20,12 +37,14 @@ export class Sessions {
         if (!this._sessionsObject)
             return;
 
-        let sessionKey = window.accounts.getDefaultAccount()?.session;
-        console.log(`sessionKey: ${sessionKey}`);
-	if (!sessionKey && this._sessionsObject.length > 0)
+        //let sessionKey = window.accounts.getDefaultAccount()?.session;
+        
+	// if (!sessionKey && this._sessionsObject.length > 0)
+    //         sessionKey = this._sessionsObject[0].key;
+        let sessionKey = window.lightdm?.default_session;
+	    if (!sessionKey && this._sessionsObject.length > 0)
             sessionKey = this._sessionsObject[0].key;
-        if (!sessionKey)
-            sessionKey = window.lightdm?.default_session;
+        console.log(`Startup sessionKey: ${sessionKey}`);    
         this._selectedSession =
             this._sessionsObject.find((el) => el.key == sessionKey) ?? null;
         this.updateSessionLabel();

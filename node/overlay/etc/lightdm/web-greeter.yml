@@ -24,7 +24,7 @@ branding:
 # NOTE: See IANA subtags registry for time_language options: https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
 #
 greeter:
-    debug_mode: True
+    debug_mode: False
     detect_theme_errors: True
     screensaver_timeout: 300
     secure_mode: True

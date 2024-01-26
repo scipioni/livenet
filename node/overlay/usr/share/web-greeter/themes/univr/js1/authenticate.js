@@ -80,7 +80,9 @@ export class Authenticate {
             body.style.opacity = "0";
         await window.wait(1000);
         console.log("Session started with", defSession.key);
-	window.lightdm?.start_session(defSession?.key ?? window.lightdm.default_session);
+        // se commento questo la sessione non parte: ottimo in fase di debug perché
+        // è proprio lo step finale prima di lasciare lightdm
+	    window.lightdm?.start_session(defSession?.key ?? window.lightdm.default_session);
     }
     async _authenticationFailed() {
         console.log("Autenticazione - _authenticationFailed");
