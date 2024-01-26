@@ -63,6 +63,10 @@ do_install() {
         exit 1
     fi
 
+    DISK=/dev/$NAME
+    wipefs -af $DISK
+
+
     # Dobbiamo gestire i tre casi previsti da Rambaldelli
     # ALLLLT FERMATO TUTTO forse ECDL viene messa su VM
     # if [ "${LIVENET_ACTION}" = "install_dual" ]; then
