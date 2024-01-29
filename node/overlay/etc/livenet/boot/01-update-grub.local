@@ -1,3 +1,18 @@
+#!/bin/bash
+
+CURRENT=$(uname -r)
+LATEST=$(apt list --installed | grep 'linux-image-[0-9]' | cut -d'/' -f1 | tail -n1 | cut -d '-' -f3,4,5)
+
+if [[ "$CURRENT" < "$LATEST" ]]; then 
+
+source /etc/livenet/livenet.conf
+logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Updating grub after a new kernel release ($LATEST)"
+update-grub |& tee /var/log/ln.update.log
+fi
+
+
+
+
 ###########################################################
 ## update local boot partition after system kernel upgrade
 ###########################################################

@@ -136,7 +136,7 @@ do_install() {
     echo "Uncompressing ${archive}"
     cd ${roottmppath}
     nice tar -xpP --use-compress-program=pigz --numeric-owner --same-owner -f ${archive}
-    sync_overlay
+    #sync_overlay
     cd / # release mount point!
 
     umount ${LIVENET_RELEASES_MNT}

@@ -32,5 +32,5 @@ cd /boot
 #ln -f vmlinuz-${KERNEL} kernel
 
 # to read from tftp
-chmod +r kernel
+#chmod +r kernel
 

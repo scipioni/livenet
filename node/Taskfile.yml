@@ -41,7 +41,7 @@ tasks:
     desc: show changes in server with respect docker image
     cmds:
       - ${_docker} diff ${NODE}
-
+# FIXME Task commit deve controllare se c'è la full e uscire in caso contrario 
   commit:
     desc: task commit 
     cmds:
