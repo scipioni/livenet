@@ -314,7 +314,7 @@ do_commit() {
     do
         tmp=(${entry// / })
         operation=${tmp[0]}
-        entity=${tmp[1]}
+        entity=${tmp[@]:1}
         if [ $operation = "C" ] || [ $operation = "A" ]; then
             logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT}  -t "do_commit"  "operation:${operation} entity:${entity}"
             if [ -f "${entity}" ]; then
