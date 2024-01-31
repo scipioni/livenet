@@ -107,6 +107,7 @@ user_pref("fission.experiment.max-origins.last-qualified", 1643365580);
 user_pref("fission.experiment.max-origins.qualified", true);
 user_pref("gecko.handlerService.defaultHandlersVersion", 1);
 user_pref("idle.lastDailyNotification", 1643811996);
+user_pref("layout.spellcheckDefault, 0";)
 user_pref("lightweightThemes.usedThemes", "[]");
 user_pref("media.gmp-manager.buildID", "20220106144528");
 user_pref("media.gmp-manager.lastCheck", 1643811856);
