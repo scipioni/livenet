@@ -76,6 +76,7 @@ user_pref("extensions.webcompat.perform_injections", true);
 user_pref("extensions.webcompat.perform_ua_overrides", true);
 user_pref("extensions.webextensions.ExtensionStorageIDB.migrated.doh-rollout@mozilla.org", true);
 user_pref("extensions.webextensions.uuids", "{\"formautofill@mozilla.org\":\"97d90306-c8f7-4501-a090-b27063bd90b8\",\"screenshots@mozilla.org\":\"60a5b3d2-e8c9-4e7a-ba9b-c6773c5ffa4d\",\"webcompat-reporter@mozilla.org\":\"06031973-88b3-43c2-8059-d0bd0afa46a3\",\"webcompat@mozilla.org\":\"dc82c77f-ecad-4e03-a2f9-75bd7774643f\",\"doh-rollout@mozilla.org\":\"7c2e18aa-9c03-4866-874d-f31d4c750d76\",\"default-theme@mozilla.org\":\"f0a6fe11-cd7c-43b9-8bbb-37cdfda8b54b\",\"google@search.mozilla.org\":\"b9db6963-9ae9-4888-bcc8-5d9fbbbef35f\",\"bing@search.mozilla.org\":\"7e2af21e-326c-4cc8-a585-9c9fa64372f6\",\"amazon@search.mozilla.org\":\"f5cf75b9-df04-4d96-99df-b644a61fde48\",\"ddg@search.mozilla.org\":\"7d6d34d9-e45c-403e-8c94-a7b9a2a61573\",\"ebay@search.mozilla.org\":\"ca56aedf-e414-4856-8fae-58e1fcaade83\",\"wikipedia@search.mozilla.org\":\"86193420-6c69-4029-9a21-550f0044e2fc\"}");
+user_pref("layout.spellcheckDefault, 0";)
 user_pref("lightweightThemes.usedThemes", "[]");
 user_pref("media.gmp-manager.buildID", "20181207224003");
 user_pref("media.gmp-manager.lastCheck", 1548406836);
