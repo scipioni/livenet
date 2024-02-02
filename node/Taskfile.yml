@@ -89,7 +89,7 @@ tasks:
         ${_docker} commit ${ID} livenet/node:${NEW_COMMIT}
         sed -i "s/RELEASE=.*/RELEASE=${NEW_COMMIT}/" .env
         ${_compose} down -t 60
-        ${_compose} up -d --remove-orphans
+        RELEASE=${NEW_COMMIT} ${_compose} up -d --remove-orphans
 
   release_old:
     desc: create a major release.
@@ -110,7 +110,7 @@ tasks:
       - |
         RELEASE=$(scripts/release.sh release)
         echo NEW RELEASE: $RELEASE
-        echo ${RELEASE} > overlay/etc/livenet/release
+        #echo ${RELEASE} > overlay/etc/livenet/release
         sed -i "s/RELEASE=.*/RELEASE=${RELEASE}/" .env
         ${_docker} export ${NODE} --output="releases/${RELEASE}-full.tar"
         pigz releases/${RELEASE}-full.tar

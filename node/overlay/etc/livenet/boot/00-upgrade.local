@@ -10,6 +10,7 @@ sync_overlay
 mount_livenet_releases
 
 _upgrade_to() {
+    touch /root/${remote_version}.livenet
     filename=$1
     echo "Upgrade to $filename"
 
@@ -18,30 +19,35 @@ _upgrade_to() {
 
     source ${filename}-script.sh
     source /etc/livenet/livenet.conf
+    #rm -f /run/${remote_version}.livenet
 }
 # Runnin server release
-rsync -a --chown=0:0 ${LIVENET_ROOT_IP}::version/release /tmp/server_release
-remote_version=$(cat /tmp/server_release | cut -d'=' -f2)
+#rsync -a --chown=0:0 ${LIVENET_ROOT_IP}::version/release /tmp/server_release
+#remote_version=$(cat /tmp/server_release | cut -d'=' -f2)
 
 logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Running server version: ${remote_version} ..."
 
+
 for filename in ${LIVENET_RELEASES_MNT}/*-diff.tar.gz; do
     local_version=$(cat /etc/livenet/release | cut -d'=' -f2)
+
     logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Actual client version: ${local_version} ..."
-    
+
     [ -f $filename ] || continue
-    #remote_version=$(basename $filename | sed "s/-.*//")
-    
+
+    remote_version=$(basename $filename | sed "s/-.*//")
+    [[ -f /root/${remote_version}.livenet ]] &&  logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "UPGRADE FAILED!!!!!!!"
     #if [ ${remote_version/./} -gt ${local_version/./} ]; then
+    # if [[ "${remote_version}" > "${local_version}" ]]; then
     if [[ "${remote_version}" > "${local_version}" ]]; then
-        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Upgrading to ${filename/-*/} ..."
-        touch /run/${remote_version}.livenet
+        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Upgrading from ${local_version} to ${remote_version} (${filename/-*/}) ..."
+        
         _upgrade_to ${filename/-*/} 
-        rm -f /run/${remote_version}.livenet 
-    else
-        logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Client and server version match"
+         
     fi
 done
+
+
 
 logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Unmount  ${LIVENET_RELEASES_MNT}"
 umount ${LIVENET_RELEASES_MNT}

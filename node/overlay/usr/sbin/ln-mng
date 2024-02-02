@@ -320,9 +320,9 @@ do_commit() {
             if [ -f "${entity}" ]; then
                 echo "${entity}" >> ${COMMIT}
             else
-                [ $entity = "/var" ] && continue
+                [ "$entity" = "/var" ] && continue
                 # echo "check folder ${entity} if empty"
-                find ${entity} -type d -empty -exec echo "mkdir -p " {} >> /mnt/releases/${RELEASE}-script.sh \;
+                find "${entity}" -type d -empty -exec echo "mkdir -p " {} >> /mnt/releases/${RELEASE}-script.sh \;
             fi
         elif [ $operation = "D" ]; then
             echo "rm -f '${entity}'" >> ${SCRIPT}
