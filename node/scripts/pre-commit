@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+echo -n "Backing-up file permissions... "
+cd "$(git rev-parse --show-toplevel)"
+find . -type d ! -empty -printf 'X="%p"; chmod %m "$X"; chown %U:%G "$X"\n' > .permissions
+find . -type f -printf 'X="%p"; chmod %m "$X"; chown %U:%G "$X"\n' >> .permissions
+find . -type l -printf 'chown -h %U:%G "%p"\n' >> .permissions
+git add .permissions
+echo done.
+
+

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+echo -n "Restoring file permissions... "
+cd "$(git rev-parse --show-toplevel)"
+git diff -U0 .permissions | grep '^\+' | grep -Ev '^\+\+\+' | cut -c 2- | /usr/bin/bash
+echo "done."
+
