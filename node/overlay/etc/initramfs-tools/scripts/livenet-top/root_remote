@@ -57,7 +57,11 @@ touch ${rootmnt}/fastboot # checkroot skip fsck on root partition
 wait # nfs module go in background 
 
 #nfsv4
+[[ ! $LIVENET_PORT ]] || NFSOPTSV4=$NFSOPTSV4,port=${LIVENET_PORT}
+
+#do_debug_shell
 mount.nfs -n -r ${LIVENET_ROOT} ${NFSRO} -o ${NFSOPTSV4}
+
 if [ ! $? = 0 ]; then
     do_log "Cannot mount nfs root, reboot"
 

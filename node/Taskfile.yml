@@ -9,27 +9,47 @@ tasks:
     cmds:
       - go-task -l
     silent: true
-    
+  
+  init:
+    vars:
+      MY_VAR: pre-commit post-merge
+    cmds:
+      - for: { var: MY_VAR, as: FILE }
+        cmd:  cp -af ./scripts/{{ .FILE }} $(git rev-parse --show-toplevel)/.git/hooks/
+
   root:
     cmds:
       - echo "{{.TASKFILE_DIR}}"
+
   build:
     desc: build livenet container
     cmds:
       - |
-        RELEASE=$(date +%Y%m%d).00
-        echo "RELEASE=${RELEASE}" > overlay/etc/livenet/release  
-        sed -i "s/RELEASE=.*/RELEASE=${RELEASE}/" .env
-        BUILDKIT_PROGRESS=plain ${_compose} build 
-      - sudo rm -f releases/*
-      
-      #- docker export $(docker create ${IMAGE}) --output="livenet.tar"
+        sed -i "s/RELEASE=.*/RELEASE={{.RELEASE}}/" .env
+        echo "RELEASE={{.RELEASE}}" > overlay/etc/livenet/release  
+        RELEASE={{.RELEASE}} BUILDKIT_PROGRESS=plain ${_compose}  build 
+        sudo rm -f releases/$(date +%Y%m%d).*
+        mkdir -p runtime releases
+        touch runtime/bash_history
+        RELEASE={{.RELEASE}} ${_compose} up -d --remove-orphans
+        sleep 5
+        ${_docker} export ${NODE} --output="releases/{{.RELEASE}}-full.tar"
+        pigz releases/{{.RELEASE}}-full.tar       
+    vars:
+      GIT_PATH: 
+        sh: echo $(git rev-parse --show-toplevel)
+      RELEASE: 
+        sh: date +%Y%m%d.00.00
+    preconditions:
+      - sh: test -f  "$(git rev-parse --show-toplevel)/.git/hooks/pre-commit"
+        msg: "{{.GIT_PATH}}/.git/hooks/pre-commit not found.\n**** Please, launch task init ****"
+      - sh: test -f  "$(git rev-parse --show-toplevel)/.git/hooks/post-merge"
+        msg: "{{.GIT_PATH}}/.git/hooks/post-merge not found.\n**** Please, launch task init ****"
+
 
   start:
     desc: start livenet container
     cmds:
-      - mkdir -p runtime releases
-      - touch runtime/bash_history
       - ${_compose} up -d --remove-orphans
 
   cli:
@@ -42,7 +62,7 @@ tasks:
     cmds:
       - ${_docker} diff ${NODE}
 # FIXME Task commit deve controllare se c'è la full e uscire in caso contrario 
-  commit:
+  commit_old:
     desc: task commit 
     cmds:
       - |
@@ -54,31 +74,57 @@ tasks:
         #echo "RELEASE=${NEW_RELEASE}" > overlay/etc/livenet/release
         sed -i "s/RELEASE=.*/RELEASE=${NEW_RELEASE}/" .env
         ${_compose} down      
-        # while [ "$( docker container inspect -f '{{.State.Status}}' ${NODE} )" = "running" ]; do
-        #     sleep 5
-        # done
 
-        # ${_compose} up -d
-  
-  release:
+  commit:
+    desc: task commit 
+    cmds:
+      - |
+        NEW_COMMIT=$(scripts/release.sh commit)
+        
+        echo "NEW RELEASE: ${NEW_COMMIT}"
+
+        ID=$(${_docker} container ls --all --quiet --no-trunc --filter "name=${NODE}")
+        
+        ${_docker} diff ${NODE} | ${_compose} exec -T ${NODE} ln-mng --commit $NEW_COMMIT
+        ${_docker} commit ${ID} livenet/node:${NEW_COMMIT}
+        sed -i "s/RELEASE=.*/RELEASE=${NEW_COMMIT}/" .env
+        ${_compose} down -t 60
+        ${_compose} up -d --remove-orphans
+
+  release_old:
     desc: create a major release.
     cmds:
       - |
-        RELEASE={{.CLI_ARGS}}
-        [ -n "$RELEASE" ] || RELEASE=$(date +%Y%m%d).00
-        [[ $RELEASE -lt $(cat overlay/etc/livenet/release) ]] && exit 1
+        RELEASE=$(scripts/release.sh release)
+
+        #echo NEW RELEASE: $RELEASE
+        #[[ $RELEASE -lt $(cat overlay/etc/livenet/release) ]] && exit 1
+        #echo ${RELEASE} > overlay/etc/livenet/release
+        #sed -i "s/RELEASE=.*/RELEASE=${RELEASE}/" .env
+        #${_docker} export ${NODE} --output="releases/${RELEASE}-full.tar"
+        #pigz releases/${RELEASE}-full.tar
+  release:
+    desc: create a major release.
+    cmds:
+      - task: commit
+      - |
+        RELEASE=$(scripts/release.sh release)
+        echo NEW RELEASE: $RELEASE
         echo ${RELEASE} > overlay/etc/livenet/release
+        sed -i "s/RELEASE=.*/RELEASE=${RELEASE}/" .env
         ${_docker} export ${NODE} --output="releases/${RELEASE}-full.tar"
         pigz releases/${RELEASE}-full.tar
+        ${_compose} down -t 60
+        ${_compose} up -d --remove-orphans        
 
   destroy:
     desc: destroy livenet  and clean the environment
     cmds:
       - sudo rm -f releases/*
-      - sed -i "s/RELEASE=.*/RELEASE=latest/" .env
+      - sed -i "s/RELEASE=.*/RELEASE=/" .env
       - ${_compose} down -t 60 || true
       - echo "docker images --filter "dangling=true" -q --no-trunc"
-      - ${_docker} images | grep livenet/node | awk '{print $3}' | xargs ${_docker} rmi || true
+      - ${_docker} images | grep livenet/node | awk '{print $3}' | xargs ${_docker} rmi --force || true
       - rm -f runtime/vm.qcow2
 
   reset:
@@ -186,7 +232,18 @@ tasks:
           -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS.fd \
           -drive id=vda,file=${DISK} \
           -boot d
-
+  vm:efi1:
+    desc: "boot vm in uefi: see 4.3 on https://wiki.archlinux.org/title/QEMU"
+    cmds:
+      - |
+        [ -f ./runtime/vm1.qcow2 ] || qemu-img create -f qcow2 -o preallocation=metadata ./runtime/vm1.qcow2 30G
+        cp /usr/share/edk2-ovmf/x64/OVMF_VARS.fd /tmp/OVMF_VARS1.fd
+        cp /usr/share/edk2-ovmf/x64/OVMF_CODE.fd /tmp/OVMF_CODE1.fd
+        qemu-system-x86_64 -smp 2 -m 2048 -enable-kvm -net nic,netdev=net0 -netdev bridge,br=livenet,id=net0 \
+          -drive if=pflash,format=raw,unit=0,readonly=on,file=/tmp/OVMF_CODE1.fd \
+          -drive if=pflash,format=raw,unit=1,file=/tmp/OVMF_VARS1.fd \
+          -drive id=vda,file=./runtime/vm1.qcow2 \
+          -boot d
   vm:ssh:
     desc: "connect to client node (vm test only)"
     cmds:

@@ -32,13 +32,17 @@ for filename in ${LIVENET_RELEASES_MNT}/*-diff.tar.gz; do
     [ -f $filename ] || continue
     #remote_version=$(basename $filename | sed "s/-.*//")
     
-    if [ ${remote_version/./} -gt ${local_version/./} ]; then
+    #if [ ${remote_version/./} -gt ${local_version/./} ]; then
+    if [[ "${remote_version}" > "${local_version}" ]]; then
         logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Upgrading to ${filename/-*/} ..."
-        _upgrade_to ${filename/-*/}
+        touch /run/${remote_version}.livenet
+        _upgrade_to ${filename/-*/} 
+        rm -f /run/${remote_version}.livenet 
     else
         logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Client and server version match"
     fi
 done
+
 logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Unmount  ${LIVENET_RELEASES_MNT}"
 umount ${LIVENET_RELEASES_MNT}
 
