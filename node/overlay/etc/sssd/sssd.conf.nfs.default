@@ -16,6 +16,7 @@ ldap_access_order = filter
 ldap_access_filter = (&(inetUserStatus=active)(!(univrRapporti=FAC-NUL SID-UTE-STU-LMB)))
 case_sensitive = false
 
+
 [sssd]
 services = nss, pam, autofs
 domains = default
