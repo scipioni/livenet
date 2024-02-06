@@ -37,7 +37,7 @@ EOF
 }
 
 SHORTOPTS="hvte:"
-LONGOPTS="help,version,test,example:,bootstrap,profiles,packages-base,kernel,italian,packages,kernel-remove-old,force,clean,set-grub-password,profiles-list,list,profile-delete:,commit:"
+LONGOPTS="help,version,test,example:,bootstrap,profiles,packages-base,kernel,italian,packages,kernel-remove-old,force,clean,diversion-delete:,set-grub-password,profiles-list,list,profile-delete:,commit:"
 
 ARGS=$(getopt -s bash --options $SHORTOPTS --longoptions $LONGOPTS --name $PROGNAME -- "$@")
 eval set -- "$ARGS"
@@ -381,6 +381,29 @@ while true; do
         do_profiles --force
         break
         ;;
+    ## Cancello una diversion
+    ## faccio la lista delle componenti
+    ## preservo la .local.default o se non c'e la nfs.default
+    ## elimino le alternative e i files associati
+    ## ripristino la configurazione originaria
+    --diversion-delete)
+        shift
+        diversion=$1
+        filelist=$(mktemp)
+        update-alternatives --list ${diversion} > ${filelist}
+        base=$(grep local.default ${filelist})
+        [ -f base ] || base=$(grep nfs.default ${filelist})
+        echo base: $base
+        cp -a ${base} ${base}.origin
+        update-alternatives --remove-all ${diversion}
+        for _file in $(cat ${filelist}); do
+          rm ${_file}
+        done
+        mv ${base}.origin $(dirname $base)/${diversion}
+        #/${base%.local.default}
+        do_profiles --force
+        break
+        ;;      
     --commit)
         shift
         do_commit $1

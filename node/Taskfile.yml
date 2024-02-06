@@ -26,7 +26,7 @@ tasks:
     cmds:
       - |
         sed -i "s/RELEASE=.*/RELEASE={{.RELEASE}}/" .env
-        echo "RELEASE={{.RELEASE}}" > overlay/etc/livenet/release  
+        #echo "RELEASE={{.RELEASE}}" > overlay/etc/livenet/release  
         RELEASE={{.RELEASE}} BUILDKIT_PROGRESS=plain ${_compose}  build 
         sudo rm -f releases/$(date +%Y%m%d).*
         mkdir -p runtime releases

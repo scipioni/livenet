@@ -3,9 +3,6 @@ echo "upgrade"
 TIME_NOW=$(date +%s)
 
 
-source /etc/livenet/livenet.conf
-
-sync_overlay
 
 mount_livenet_releases
 
@@ -19,7 +16,7 @@ _upgrade_to() {
 
     source ${filename}-script.sh
     source /etc/livenet/livenet.conf
-    #rm -f /run/${remote_version}.livenet
+    rm -f /root/${remote_version}.livenet
 }
 # Runnin server release
 #rsync -a --chown=0:0 ${LIVENET_ROOT_IP}::version/release /tmp/server_release
@@ -36,9 +33,15 @@ for filename in ${LIVENET_RELEASES_MNT}/*-diff.tar.gz; do
     [ -f $filename ] || continue
 
     remote_version=$(basename $filename | sed "s/-.*//")
-    [[ -f /root/${remote_version}.livenet ]] &&  logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "UPGRADE FAILED!!!!!!!"
-    #if [ ${remote_version/./} -gt ${local_version/./} ]; then
-    # if [[ "${remote_version}" > "${local_version}" ]]; then
+    
+    if [[ -f /root/${remote_version}.livenet ]]; then
+       logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Recovering previous failed upgrade (${remote_version})"
+       _upgrade_to ${filename/-*/}
+       continue
+    fi   
+    
+
+
     if [[ "${remote_version}" > "${local_version}" ]]; then
         logger -n ${SYSLOG_IP} -P ${SYSLOG_PORT} -t "$(basename $0)" "Upgrading from ${local_version} to ${remote_version} (${filename/-*/}) ..."
         
